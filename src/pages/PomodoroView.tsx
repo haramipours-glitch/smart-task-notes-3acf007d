@@ -16,29 +16,30 @@ export default function PomodoroView() {
 
   useEffect(() => {
     if (!running) return;
-    ref.current = window.setInterval(() => {
-      setSeconds((s) => {
-        if (s > 0) return s - 1;
-        setMinutes((m) => {
-          if (m > 0) return m - 1;
-          // done
-          setRunning(false);
-          if (mode === "work") {
-            toast.success("جلسه کاری تمام شد! استراحت ۵ دقیقه‌ای.");
-            if (user) supabase.from("pomodoro_sessions").insert({
-              user_id: user.id, duration_minutes: 25, completed: true, ended_at: new Date().toISOString(),
-            });
-            setMode("break"); setMinutes(5); setSeconds(0);
-          } else {
-            toast.success("استراحت تمام شد!"); setMode("work"); setMinutes(25); setSeconds(0);
-          }
-          return 0;
-        });
-        return 59;
-      });
+    const id = window.setInterval(() => {
+      if (seconds > 0) {
+        setSeconds(seconds - 1);
+      } else if (minutes > 0) {
+        setMinutes(minutes - 1);
+        setSeconds(59);
+      } else {
+        // session finished
+        setRunning(false);
+        if (mode === "work") {
+          toast.success("جلسه کاری تمام شد! استراحت ۵ دقیقه‌ای.");
+          if (user) supabase.from("pomodoro_sessions").insert({
+            user_id: user.id, duration_minutes: 25, completed: true, ended_at: new Date().toISOString(),
+          });
+          setMode("break"); setMinutes(5); setSeconds(0);
+        } else {
+          toast.success("استراحت تمام شد!");
+          setMode("work"); setMinutes(25); setSeconds(0);
+        }
+      }
     }, 1000);
-    return () => { if (ref.current) clearInterval(ref.current); };
-  }, [running, mode, user]);
+    ref.current = id;
+    return () => clearInterval(id);
+  }, [running, mode, user, minutes, seconds]);
 
   const reset = () => { setRunning(false); setMinutes(mode === "work" ? 25 : 5); setSeconds(0); };
 

@@ -13,6 +13,7 @@ import NotesView from "./pages/NotesView";
 import HabitsView from "./pages/HabitsView";
 import PomodoroView from "./pages/PomodoroView";
 import CalendarView from "./pages/CalendarView";
+import SettingsView from "./pages/SettingsView";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="habits" element={<HabitsView />} />
               <Route path="pomodoro" element={<PomodoroView />} />
               <Route path="calendar" element={<CalendarView />} />
+              <Route path="settings" element={<SettingsView />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
   Inbox, Calendar as CalIcon, CalendarDays, Filter, FolderTree, Tag, FileText,
-  Target, Timer, Calendar, Plus, ChevronRight, ChevronDown, LogOut, Sparkles,
+  Target, Timer, Calendar, Plus, ChevronRight, ChevronDown, LogOut, Sparkles, Settings,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -31,6 +31,7 @@ const EXTRA_ITEMS = [
   { url: "/app/notes", icon: FileText, label: "نوت‌ها" },
   { url: "/app/habits", icon: Target, label: "عادت‌ها" },
   { url: "/app/pomodoro", icon: Timer, label: "Pomodoro" },
+  { url: "/app/settings", icon: Settings, label: "تنظیمات" },
 ];
 
 export function AppSidebar() {
