@@ -188,6 +188,29 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
       </div>
 
       {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} />}
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف تسک؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              آیا مطمئنی می‌خوای «{confirmDelete?.title}» را حذف کنی؟ این عمل قابل بازگشت نیست.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>انصراف</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (confirmDelete) await delTask(confirmDelete.id);
+                setConfirmDelete(null);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
