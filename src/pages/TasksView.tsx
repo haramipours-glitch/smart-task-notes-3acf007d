@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { callAI } from "@/lib/ai";
@@ -37,6 +38,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [selected, setSelected] = useState<Task | null>(null);
   const [folderName, setFolderName] = useState("");
   const [tagName, setTagName] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<Task | null>(null);
 
   const title = {
     inbox: "Inbox", today: "امروز", next7: "۷ روز آینده",
@@ -164,7 +166,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                     )}
                   </div>
                 </div>
-                <Button size="icon" variant="ghost" onClick={() => delTask(t.id)}>
+                <Button size="icon" variant="ghost" onClick={() => setConfirmDelete(t)}>
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
@@ -186,6 +188,29 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
       </div>
 
       {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} />}
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف تسک؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              آیا مطمئنی می‌خوای «{confirmDelete?.title}» را حذف کنی؟ این عمل قابل بازگشت نیست.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>انصراف</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (confirmDelete) await delTask(confirmDelete.id);
+                setConfirmDelete(null);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
