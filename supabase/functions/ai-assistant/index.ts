@@ -77,9 +77,11 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, input, context } = await req.json();
+    const { mode, input, context, settings } = await req.json();
+
+    const useCustom = settings && settings.provider && settings.provider !== "lovable" && settings.apiKey;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    if (!useCustom && !LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.chat;
     const today = new Date().toISOString();
@@ -98,20 +100,37 @@ serve(async (req) => {
       messages.push({ role: "user", content: typeof input === "string" ? input : JSON.stringify(input) });
     }
 
-    const body: any = {
-      model: "google/gemini-2.5-flash",
-      messages,
-    };
+    // Resolve endpoint, key and model
+    let endpoint = "https://ai.gateway.lovable.dev/v1/chat/completions";
+    let apiKey = LOVABLE_API_KEY!;
+    let model = "google/gemini-2.5-flash";
+
+    if (useCustom) {
+      apiKey = settings.apiKey;
+      model = settings.model || model;
+      const baseUrls: Record<string, string> = {
+        openai: "https://api.openai.com/v1",
+        openrouter: "https://openrouter.ai/api/v1",
+        anthropic: "https://api.anthropic.com/v1",
+        gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
+        custom: settings.baseUrl || "",
+      };
+      const base = baseUrls[settings.provider] || settings.baseUrl;
+      if (!base) throw new Error("Base URL تعریف نشده");
+      endpoint = `${base.replace(/\/+$/, "")}/chat/completions`;
+    }
+
+    const body: any = { model, messages };
 
     if (TOOLS[mode]) {
       body.tools = [TOOLS[mode]];
       body.tool_choice = { type: "function", function: { name: TOOLS[mode].function.name } };
     }
 
-    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const resp = await fetch(endpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
