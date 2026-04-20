@@ -38,6 +38,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [selected, setSelected] = useState<Task | null>(null);
   const [folderName, setFolderName] = useState("");
   const [tagName, setTagName] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<Task | null>(null);
 
   const title = {
     inbox: "Inbox", today: "امروز", next7: "۷ روز آینده",
