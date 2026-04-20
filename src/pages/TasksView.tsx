@@ -166,7 +166,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                     )}
                   </div>
                 </div>
-                <Button size="icon" variant="ghost" onClick={() => delTask(t.id)}>
+                <Button size="icon" variant="ghost" onClick={() => setConfirmDelete(t)}>
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
