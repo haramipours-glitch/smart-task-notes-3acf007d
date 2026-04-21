@@ -82,6 +82,24 @@ export default function SettingsView() {
 
       <Card className="p-5 space-y-4">
         <div className="flex items-center gap-2">
+          <Languages className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">زبان پاسخ‌های هوش مصنوعی</h2>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          زبان پیش‌فرض همه پاسخ‌های AI (تولید نوت، subtask، چت، بهبود متن و...). در هر پنل AI می‌توانی موقت override کنی.
+        </p>
+        <Select value={lang} onValueChange={(v) => onLangChange(v as AILanguage)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="fa">🇮🇷 فارسی</SelectItem>
+            <SelectItem value="en">🇬🇧 English</SelectItem>
+            <SelectItem value="auto">🌐 خودکار (تشخیص از ورودی)</SelectItem>
+          </SelectContent>
+        </Select>
+      </Card>
+
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
           <Key className="w-4 h-4 text-primary" />
           <h2 className="font-semibold">ارائه‌دهنده AI</h2>
         </div>
