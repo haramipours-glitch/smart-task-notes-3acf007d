@@ -75,7 +75,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     }
 
     const { data } = await q;
-    const list = (data || []) as Task[];
+    const list = ((data || []) as unknown) as Task[];
     // Sort by priority then due date
     list.sort((a, b) => {
       const pa = PRIORITY_META[a.priority]?.rank ?? 3;
