@@ -80,7 +80,7 @@ export function TaskAIPanel({
       const promptInput = extra
         ? `Task: "${task.title}"\nClarifications:\n${extra}`
         : `Task: "${task.title}"`;
-      const r = await callAI("task_subtasks", promptInput, ctx);
+      const r = await callAI("task_subtasks", promptInput, ctx, undefined, aiLang);
       const d = r.data;
       if (d?.mode === "questions" && d.questions?.length) {
         setQuestions(d.questions);
@@ -122,7 +122,7 @@ export function TaskAIPanel({
     try {
       const ctx = await buildContext();
       const r = await callAI("task_metadata_suggest",
-        `Title: ${task.title}\nDescription: ${task.description || ""}`, ctx);
+        `Title: ${task.title}\nDescription: ${task.description || ""}`, ctx, undefined, aiLang);
       setMeta(r.data || null);
     } catch (e: any) { toast.error(e.message); }
     finally { setLoading(false); }
@@ -145,7 +145,7 @@ export function TaskAIPanel({
     setLoading(true);
     try {
       const ctx = await buildContext();
-      const r = await callAI("generate_note", task.title, ctx);
+      const r = await callAI("generate_note", task.title, ctx, undefined, aiLang);
       const { error } = await supabase.from("notes").insert({
         user_id: user.id, task_id: task.id, title: task.title, content: r.text,
       });
@@ -164,7 +164,7 @@ export function TaskAIPanel({
     setLoading(true);
     try {
       const ctx = await buildContext();
-      const r = await callAI("task_chat", [...chat, newMsg], ctx);
+      const r = await callAI("task_chat", [...chat, newMsg], ctx, undefined, aiLang);
       setChat((c) => [...c, { role: "assistant", content: r.text }]);
     } catch (e: any) { toast.error(e.message); }
     finally { setLoading(false); }
@@ -179,11 +179,17 @@ export function TaskAIPanel({
           </SheetTitle>
         </SheetHeader>
 
-        <div className="mt-3 flex items-center justify-between p-2 rounded-lg border bg-accent/20">
-          <Label htmlFor="global-ctx" className="text-sm cursor-pointer flex-1">
-            🌐 دسترسی به همه تسک‌ها و نوت‌های من
-          </Label>
-          <Switch id="global-ctx" checked={globalCtx} onCheckedChange={setGlobalCtx} />
+        <div className="mt-3 space-y-2">
+          <div className="flex items-center justify-between p-2 rounded-lg border bg-accent/20">
+            <Label htmlFor="global-ctx" className="text-sm cursor-pointer flex-1">
+              🌐 دسترسی به همه تسک‌ها و نوت‌های من
+            </Label>
+            <Switch id="global-ctx" checked={globalCtx} onCheckedChange={setGlobalCtx} />
+          </div>
+          <div className="flex items-center justify-between p-2 rounded-lg border bg-accent/20">
+            <span className="text-sm">زبان پاسخ AI</span>
+            <AILangToggle value={aiLang} onChange={setAiLang} />
+          </div>
         </div>
 
         <Tabs value={tab} onValueChange={setTab} className="mt-3">
