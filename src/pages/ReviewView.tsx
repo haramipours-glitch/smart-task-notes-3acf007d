@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { sm2Next, QUALITY_MAP } from "@/lib/sm2";
-import { mdToHtml } from "@/lib/markdown";
+import { markdownToHtml } from "@/lib/markdown";
 import { Brain, Sparkles, ArrowRight } from "lucide-react";
 import { toPersianDigits, formatDate } from "@/lib/jalali";
 
@@ -127,7 +127,7 @@ export default function ReviewView() {
         ) : (
           <div
             className="prose prose-sm dark:prose-invert max-w-none flex-1"
-            dangerouslySetInnerHTML={{ __html: mdToHtml(current.content) }}
+            dangerouslySetInnerHTML={{ __html: markdownToHtml(current.content) }}
           />
         )}
         {current.sr_due_date && (
