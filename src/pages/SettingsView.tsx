@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { getAILanguage, setAILanguage, type AILanguage } from "@/lib/ai";
 import {
   loadAISettings, saveAISettings, defaultConfig,
-  PROVIDER_INFO, OPERATIONS,
+  PROVIDER_INFO, OPERATIONS, MODEL_DESCRIPTIONS,
   type Provider, type ProviderConfig, type AIPerOpSettings,
 } from "@/lib/aiSettings";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,7 +43,16 @@ function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: 
           <Select value={value.model} onValueChange={(v) => onChange({ ...value, model: v })}>
             <SelectTrigger><SelectValue placeholder={info.defaultModel} /></SelectTrigger>
             <SelectContent>
-              {info.models.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+              {info.models.map((m) => (
+                <SelectItem key={m} value={m}>
+                  <div className="flex flex-col items-start">
+                    <span className="font-mono text-xs">{m}</span>
+                    {MODEL_DESCRIPTIONS[m] && (
+                      <span className="text-[10px] text-muted-foreground">{MODEL_DESCRIPTIONS[m]}</span>
+                    )}
+                  </div>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         ) : (
