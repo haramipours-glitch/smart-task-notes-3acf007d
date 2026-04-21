@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
-import { Sparkles, Key, Save, Trash2, Info, Languages } from "lucide-react";
+import { Sparkles, Key, Save, Trash2, Info, Languages, Download, ShieldOff } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { getAILanguage, setAILanguage, type AILanguage } from "@/lib/ai";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 type Provider = "lovable" | "openai" | "anthropic" | "gemini" | "openrouter" | "custom";
 
@@ -31,8 +34,67 @@ const PROVIDER_INFO: Record<Provider, { label: string; defaultModel: string; bas
 };
 
 export default function SettingsView() {
+  const { user } = useAuth();
   const [s, setS] = useState<AISettings>(DEFAULTS);
   const [lang, setLang] = useState<AILanguage>("fa");
+  const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function exportAll() {
+    if (!user) return;
+    setExporting(true);
+    try {
+      const tables = [
+        "profiles", "tasks", "subtasks", "folders", "tags", "task_tags", "notes", "note_tags",
+        "habits", "habit_logs", "goals", "pomodoro_sessions", "folder_columns",
+        "daily_checkins", "thought_records", "abc_records", "predictions",
+        "user_values", "chronotype", "safe_contacts", "crisis_events",
+        "assessment_responses", "assessment_results", "mh_profile",
+      ];
+      const out: Record<string, any> = { exported_at: new Date().toISOString(), user_id: user.id };
+      for (const t of tables) {
+        const { data } = await supabase.from(t as any).select("*");
+        out[t] = data || [];
+      }
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `taskflow-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("صادرات کامل شد");
+    } catch (e: any) {
+      toast.error(e.message || "خطا در صادرات");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function deleteAll() {
+    if (!user) return;
+    setDeleting(true);
+    try {
+      const tables = [
+        "task_tags", "note_tags", "subtasks", "habit_logs", "folder_columns",
+        "tasks", "notes", "habits", "goals", "folders", "tags", "pomodoro_sessions",
+        "daily_checkins", "thought_records", "abc_records", "predictions",
+        "user_values", "chronotype", "safe_contacts", "crisis_events",
+        "assessment_responses", "assessment_results", "mh_profile",
+      ];
+      for (const t of tables) {
+        await supabase.from(t as any).delete().eq("user_id", user.id);
+      }
+      await supabase.auth.signOut();
+      localStorage.clear();
+      toast.success("همه داده‌ها حذف شد");
+      window.location.href = "/auth";
+    } catch (e: any) {
+      toast.error(e.message || "خطا در حذف");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   useEffect(() => {
     try {
@@ -166,6 +228,42 @@ export default function SettingsView() {
           <Button variant="outline" onClick={clear} className="gap-2">
             <Trash2 className="w-4 h-4" /> بازنشانی
           </Button>
+        </div>
+      </Card>
+
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Download className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">داده‌های تو (Right to Export & Delete)</h2>
+        </div>
+        <p className="text-xs text-muted-foreground leading-6">
+          همه داده‌هایت — تسک‌ها، یادداشت‌ها، چک‌این‌ها، Thought Records، تست‌ها، پیش‌بینی‌ها و... — متعلق به توست. می‌توانی هر زمان آن‌ها را به فایل JSON صادر کنی یا کامل حذف کنی.
+        </p>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={exportAll} disabled={exporting} variant="outline" className="gap-2">
+            <Download className="w-4 h-4" /> {exporting ? "در حال صادرات..." : "صادرات کامل (JSON)"}
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="gap-2">
+                <ShieldOff className="w-4 h-4" /> حذف کامل حساب
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>حذف کامل و بازگشت‌ناپذیر</AlertDialogTitle>
+                <AlertDialogDescription>
+                  همه داده‌هایت برای همیشه پاک می‌شود و از حساب خارج می‌شوی. این عمل قابل بازگشت نیست. پیشنهاد می‌شود ابتدا یک خروجی JSON بگیری.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>انصراف</AlertDialogCancel>
+                <AlertDialogAction onClick={deleteAll} disabled={deleting} className="bg-destructive hover:bg-destructive/90">
+                  {deleting ? "در حال حذف..." : "بله، همه را حذف کن"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </Card>
 

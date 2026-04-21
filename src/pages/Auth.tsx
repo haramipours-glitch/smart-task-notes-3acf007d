@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckSquare } from "lucide-react";
+import { CheckSquare, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+
+const DISCLAIMER_KEY = "clinical_disclaimer_accepted_v1";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -17,13 +21,20 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [accepted, setAccepted] = useState(() => localStorage.getItem(DISCLAIMER_KEY) === "1");
 
   useEffect(() => {
     if (!authLoading && user) navigate("/app", { replace: true });
   }, [user, authLoading, navigate]);
 
+  const requireDisclaimer = () => {
+    if (!accepted) { toast.error("لطفاً ابتدا مسئولیت‌نامه بالینی را تأیید کن"); return false; }
+    return true;
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!requireDisclaimer()) return;
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
@@ -33,6 +44,7 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!requireDisclaimer()) return;
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
@@ -48,6 +60,7 @@ export default function Auth() {
   };
 
   const handleGoogle = async () => {
+    if (!requireDisclaimer()) return;
     const { lovable } = await import("@/integrations/lovable");
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: `${window.location.origin}/app`,
@@ -70,6 +83,21 @@ export default function Auth() {
           </div>
           <h1 className="text-2xl font-bold">TaskFlow</h1>
         </div>
+
+        <Alert className="mb-4 border-amber-500/40 bg-amber-500/5">
+          <ShieldAlert className="w-4 h-4 text-amber-600" />
+          <AlertDescription className="text-xs leading-6">
+            این اپ ابزار <strong>خودمدیریتی مبتنی بر شواهد</strong> است و جایگزین روان‌درمانی، تشخیص بالینی یا دارودرمانی نیست. در صورت علائم شدید یا پایدار، حتماً به متخصص مراجعه کن.
+            <label className="flex items-center gap-2 mt-2 cursor-pointer">
+              <Checkbox checked={accepted} onCheckedChange={(v) => {
+                const ok = v === true;
+                setAccepted(ok);
+                if (ok) localStorage.setItem(DISCLAIMER_KEY, "1"); else localStorage.removeItem(DISCLAIMER_KEY);
+              }} />
+              <span className="text-xs">مسئولیت‌نامه را خواندم و می‌پذیرم.</span>
+            </label>
+          </AlertDescription>
+        </Alert>
 
         <Tabs defaultValue="signin">
           <TabsList className="grid grid-cols-2 w-full mb-6">
