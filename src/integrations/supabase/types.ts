@@ -88,6 +88,45 @@ export type Database = {
           },
         ]
       }
+      goals: {
+        Row: {
+          color: string | null
+          created_at: string
+          deadline: string | null
+          description: string | null
+          id: string
+          progress: number
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          progress?: number
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          progress?: number
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       habit_logs: {
         Row: {
           habit_id: string
@@ -141,6 +180,36 @@ export type Database = {
           id?: string
           name?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      holidays: {
+        Row: {
+          country_code: string
+          created_at: string
+          date: string
+          id: string
+          local_name: string | null
+          name: string
+          type: string | null
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          date: string
+          id?: string
+          local_name?: string | null
+          name: string
+          type?: string | null
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          date?: string
+          id?: string
+          local_name?: string | null
+          name?: string
+          type?: string | null
         }
         Relationships: []
       }
@@ -396,11 +465,14 @@ export type Database = {
           description: string | null
           due_date: string | null
           folder_id: string | null
+          goal_id: string | null
+          goal_level: string | null
           id: string
           kanban_column_id: string | null
           parent_id: string | null
           position: number
           priority: Database["public"]["Enums"]["task_priority"]
+          quadrant: number | null
           recurrence: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule: Json | null
           reminder_at: string | null
@@ -416,11 +488,14 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           folder_id?: string | null
+          goal_id?: string | null
+          goal_level?: string | null
           id?: string
           kanban_column_id?: string | null
           parent_id?: string | null
           position?: number
           priority?: Database["public"]["Enums"]["task_priority"]
+          quadrant?: number | null
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule?: Json | null
           reminder_at?: string | null
@@ -436,11 +511,14 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           folder_id?: string | null
+          goal_id?: string | null
+          goal_level?: string | null
           id?: string
           kanban_column_id?: string | null
           parent_id?: string | null
           position?: number
           priority?: Database["public"]["Enums"]["task_priority"]
+          quadrant?: number | null
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule?: Json | null
           reminder_at?: string | null

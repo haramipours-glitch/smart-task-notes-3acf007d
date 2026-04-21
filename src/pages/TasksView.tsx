@@ -19,6 +19,7 @@ import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
 import { RichEditor } from "@/components/RichEditor";
 import { FolderKanban } from "@/components/FolderKanban";
+import { EisenhowerMatrix } from "@/components/EisenhowerMatrix";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { describeRule, nextOccurrence, type RecurrenceRule } from "@/lib/recurrence";
 import {
@@ -399,13 +400,28 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           <TabsList>
             <TabsTrigger value="list">📋 لیست</TabsTrigger>
             <TabsTrigger value="kanban">🗂 Kanban</TabsTrigger>
+            <TabsTrigger value="matrix">🎯 ماتریس</TabsTrigger>
           </TabsList>
           <TabsContent value="list" className="mt-4">{listView}</TabsContent>
           <TabsContent value="kanban" className="mt-4">
             <FolderKanban folderId={params.id!} />
           </TabsContent>
+          <TabsContent value="matrix" className="mt-4">
+            <EisenhowerMatrix scope={scope} />
+          </TabsContent>
         </Tabs>
-      ) : listView}
+      ) : (
+        <Tabs defaultValue="list">
+          <TabsList>
+            <TabsTrigger value="list">📋 لیست</TabsTrigger>
+            <TabsTrigger value="matrix">🎯 ماتریس</TabsTrigger>
+          </TabsList>
+          <TabsContent value="list" className="mt-4">{listView}</TabsContent>
+          <TabsContent value="matrix" className="mt-4">
+            <EisenhowerMatrix scope={scope} />
+          </TabsContent>
+        </Tabs>
+      )}
 
       {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} onChanged={load} setConfirm={setConfirm} />}
 

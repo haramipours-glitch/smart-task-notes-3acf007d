@@ -26,6 +26,7 @@ const NAV_ITEMS = [
   { url: "/app/smart", icon: Filter, label: "Smart Lists" },
   { url: "/app/calendar", icon: Calendar, label: "تقویم" },
   { url: "/app/kanban", icon: LayoutGrid, label: "Kanban" },
+  { url: "/app/goals", icon: Target, label: "اهداف" },
 ];
 
 const EXTRA_ITEMS = [
