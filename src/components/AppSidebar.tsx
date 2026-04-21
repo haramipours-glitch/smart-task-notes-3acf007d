@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import FolderAIChat from "@/components/FolderAIChat";
 
 type Folder = { id: string; name: string; parent_id: string | null; color: string };
 type Tag = { id: string; name: string; color: string };
@@ -60,6 +61,7 @@ export function AppSidebar() {
   const [newTag, setNewTag] = useState("");
   const [openFolderDlg, setOpenFolderDlg] = useState(false);
   const [openTagDlg, setOpenTagDlg] = useState(false);
+  const [aiFolder, setAiFolder] = useState<Folder | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -104,7 +106,7 @@ export function AppSidebar() {
         <div key={f.id}>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <div className="flex items-center w-full" style={{ paddingInlineStart: depth * 12 }}>
+              <div className="flex items-center w-full gap-1" style={{ paddingInlineStart: depth * 12 }}>
                 {has ? (
                   <button onClick={(e) => { e.preventDefault(); setExpanded((s) => ({ ...s, [f.id]: !open })); }}
                     className="p-0.5 hover:bg-muted rounded">
@@ -116,6 +118,15 @@ export function AppSidebar() {
                   <FolderTree className="w-4 h-4" style={{ color: f.color }} />
                   {!collapsed && <span className="truncate">{f.name}</span>}
                 </NavLink>
+                {!collapsed && (
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAiFolder(f); }}
+                    className="p-1 hover:bg-muted rounded opacity-60 hover:opacity-100 transition"
+                    title="چت AI روی این فولدر"
+                  >
+                    <Sparkles className="w-3 h-3 text-primary" />
+                  </button>
+                )}
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -232,6 +243,14 @@ export function AppSidebar() {
           {!collapsed && <span className="ml-2">خروج</span>}
         </Button>
       </SidebarFooter>
+      {aiFolder && (
+        <FolderAIChat
+          open={!!aiFolder}
+          onOpenChange={(v) => !v && setAiFolder(null)}
+          folderId={aiFolder.id}
+          folderName={aiFolder.name}
+        />
+      )}
     </Sidebar>
   );
 }

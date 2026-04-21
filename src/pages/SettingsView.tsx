@@ -1,44 +1,107 @@
-import { useEffect, useState } from "react";
-import { Sparkles, Key, Save, Trash2, Info, Languages, Download, ShieldOff } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { getAILanguage, setAILanguage, type AILanguage } from "@/lib/ai";
+import {
+  loadAISettings, saveAISettings, defaultConfig,
+  PROVIDER_INFO, OPERATIONS,
+  type Provider, type ProviderConfig, type AIPerOpSettings,
+} from "@/lib/aiSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-type Provider = "lovable" | "openai" | "anthropic" | "gemini" | "openrouter" | "custom";
-
-type AISettings = {
-  provider: Provider;
-  apiKey: string;
-  model: string;
-  baseUrl: string;
-};
-
-const STORAGE_KEY = "ai_settings_v1";
-const DEFAULTS: AISettings = { provider: "lovable", apiKey: "", model: "", baseUrl: "" };
-
-const PROVIDER_INFO: Record<Provider, { label: string; defaultModel: string; baseUrl: string; help: string }> = {
-  lovable:    { label: "Lovable AI (پیش‌فرض)", defaultModel: "google/gemini-2.5-flash", baseUrl: "", help: "بدون نیاز به کلید — همین الان کار می‌کند." },
-  openai:     { label: "OpenAI",                defaultModel: "gpt-4o-mini",            baseUrl: "https://api.openai.com/v1", help: "از platform.openai.com کلید بگیرید." },
-  anthropic:  { label: "Anthropic Claude",      defaultModel: "claude-3-5-sonnet-latest", baseUrl: "https://api.anthropic.com/v1", help: "از console.anthropic.com کلید بگیرید." },
-  gemini:     { label: "Google Gemini",         defaultModel: "gemini-1.5-flash",       baseUrl: "https://generativelanguage.googleapis.com/v1beta", help: "از aistudio.google.com کلید بگیرید." },
-  openrouter: { label: "OpenRouter",            defaultModel: "openai/gpt-4o-mini",     baseUrl: "https://openrouter.ai/api/v1", help: "از openrouter.ai کلید بگیرید." },
-  custom:     { label: "OpenAI-compatible سفارشی", defaultModel: "",                    baseUrl: "", help: "هر سرویس سازگار با OpenAI API." },
-};
+function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: (c: ProviderConfig) => void }) {
+  const info = PROVIDER_INFO[value.provider];
+  const onProvider = (p: Provider) => {
+    const i = PROVIDER_INFO[p];
+    onChange({ provider: p, apiKey: value.apiKey, model: i.defaultModel, baseUrl: i.baseUrl });
+  };
+  return (
+    <div className="space-y-3">
+      <div className="space-y-1.5">
+        <Label className="text-xs">سرویس</Label>
+        <Select value={value.provider} onValueChange={(v) => onProvider(v as Provider)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {(Object.keys(PROVIDER_INFO) as Provider[]).map((p) => (
+              <SelectItem key={p} value={p}>{PROVIDER_INFO[p].label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">مدل</Label>
+        {info.models.length > 0 ? (
+          <Select value={value.model} onValueChange={(v) => onChange({ ...value, model: v })}>
+            <SelectTrigger><SelectValue placeholder={info.defaultModel} /></SelectTrigger>
+            <SelectContent>
+              {info.models.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        ) : (
+          <Input value={value.model} onChange={(e) => onChange({ ...value, model: e.target.value })} placeholder="نام مدل" />
+        )}
+      </div>
+      {value.provider !== "lovable" && (
+        <div className="space-y-1.5">
+          <Label className="text-xs">API Key</Label>
+          <Input type="password" value={value.apiKey} placeholder="sk-..." onChange={(e) => onChange({ ...value, apiKey: e.target.value })} autoComplete="off" />
+        </div>
+      )}
+      {value.provider === "custom" && (
+        <div className="space-y-1.5">
+          <Label className="text-xs">Base URL</Label>
+          <Input value={value.baseUrl || ""} placeholder="https://your-endpoint/v1" onChange={(e) => onChange({ ...value, baseUrl: e.target.value })} />
+        </div>
+      )}
+      <p className="text-[10px] text-muted-foreground">{info.help}</p>
+    </div>
+  );
+}
 
 export default function SettingsView() {
   const { user } = useAuth();
-  const [s, setS] = useState<AISettings>(DEFAULTS);
+  const [settings, setSettings] = useState<AIPerOpSettings>({ default: defaultConfig(), perOp: {} });
   const [lang, setLang] = useState<AILanguage>("fa");
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    setSettings(loadAISettings());
+    setLang(getAILanguage());
+  }, []);
+
+  const grouped = useMemo(() => {
+    const m: Record<string, typeof OPERATIONS> = {};
+    for (const op of OPERATIONS) (m[op.group] ||= []).push(op);
+    return m;
+  }, []);
+
+  const onLangChange = (v: AILanguage) => {
+    setLang(v);
+    setAILanguage(v);
+    toast.success("زبان AI ذخیره شد");
+  };
+
+  const save = () => {
+    saveAISettings(settings);
+    toast.success("تنظیمات ذخیره شد");
+  };
+
+  const reset = () => {
+    const fresh = { default: defaultConfig(), perOp: {} };
+    setSettings(fresh);
+    saveAISettings(fresh);
+    toast.success("بازنشانی شد");
+  };
 
   async function exportAll() {
     if (!user) return;
@@ -96,138 +159,86 @@ export default function SettingsView() {
     }
   }
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setS({ ...DEFAULTS, ...JSON.parse(raw) });
-    } catch {}
-    setLang(getAILanguage());
-  }, []);
-
-  const onLangChange = (v: AILanguage) => {
-    setLang(v);
-    setAILanguage(v);
-    toast.success("زبان AI ذخیره شد");
-  };
-
-  const onProvider = (p: Provider) => {
-    const info = PROVIDER_INFO[p];
-    setS((prev) => ({
-      ...prev,
-      provider: p,
-      model: info.defaultModel,
-      baseUrl: info.baseUrl,
-    }));
-  };
-
-  const save = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-    toast.success("تنظیمات ذخیره شد");
-  };
-
-  const clear = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setS(DEFAULTS);
-    toast.success("تنظیمات پاک شد — Lovable AI پیش‌فرض فعال است");
-  };
-
-  const info = PROVIDER_INFO[s.provider];
-
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-primary" /> تنظیمات
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">پیکربندی ارائه‌دهنده هوش مصنوعی</p>
+        <p className="text-sm text-muted-foreground mt-1">پیکربندی هوش مصنوعی برای هر عملیات به‌صورت جداگانه</p>
       </div>
 
       <Card className="p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Languages className="w-4 h-4 text-primary" />
-          <h2 className="font-semibold">زبان پاسخ‌های هوش مصنوعی</h2>
+          <h2 className="font-semibold">زبان پاسخ‌های AI</h2>
         </div>
-        <p className="text-xs text-muted-foreground">
-          زبان پیش‌فرض همه پاسخ‌های AI (تولید نوت، subtask، چت، بهبود متن و...). در هر پنل AI می‌توانی موقت override کنی.
-        </p>
         <Select value={lang} onValueChange={(v) => onLangChange(v as AILanguage)}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="fa">🇮🇷 فارسی</SelectItem>
             <SelectItem value="en">🇬🇧 English</SelectItem>
-            <SelectItem value="auto">🌐 خودکار (تشخیص از ورودی)</SelectItem>
+            <SelectItem value="auto">🌐 خودکار</SelectItem>
           </SelectContent>
         </Select>
       </Card>
 
       <Card className="p-5 space-y-4">
         <div className="flex items-center gap-2">
-          <Key className="w-4 h-4 text-primary" />
-          <h2 className="font-semibold">ارائه‌دهنده AI</h2>
+          <Sparkles className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">پیش‌فرض سراسری AI</h2>
         </div>
+        <p className="text-xs text-muted-foreground">این provider/model برای هر عملیاتی که override جداگانه نداشته باشد استفاده می‌شود.</p>
+        <ProviderEditor value={settings.default} onChange={(c) => setSettings({ ...settings, default: c })} />
+      </Card>
 
-        <div className="space-y-2">
-          <Label>سرویس</Label>
-          <Select value={s.provider} onValueChange={(v) => onProvider(v as Provider)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {(Object.keys(PROVIDER_INFO) as Provider[]).map((p) => (
-                <SelectItem key={p} value={p}>{PROVIDER_INFO[p].label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Settings2 className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">Override برای هر عملیات</h2>
         </div>
-
-        <Alert>
-          <Info className="w-4 h-4" />
-          <AlertDescription className="text-xs">{info.help}</AlertDescription>
-        </Alert>
-
-        {s.provider !== "lovable" && (
-          <>
-            <div className="space-y-2">
-              <Label>API Key</Label>
-              <Input
-                type="password"
-                placeholder="sk-..."
-                value={s.apiKey}
-                onChange={(e) => setS({ ...s, apiKey: e.target.value })}
-                autoComplete="off"
-              />
-              <p className="text-xs text-muted-foreground">
-                کلید فقط روی همین مرورگر ذخیره می‌شود (localStorage). برای استفاده عمومی توصیه می‌شود از Lovable AI استفاده کنید.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>مدل</Label>
-              <Input
-                placeholder={info.defaultModel}
-                value={s.model}
-                onChange={(e) => setS({ ...s, model: e.target.value })}
-              />
-            </div>
-
-            {s.provider === "custom" && (
-              <div className="space-y-2">
-                <Label>Base URL</Label>
-                <Input
-                  placeholder="https://your-endpoint/v1"
-                  value={s.baseUrl}
-                  onChange={(e) => setS({ ...s, baseUrl: e.target.value })}
-                />
-              </div>
-            )}
-          </>
-        )}
-
+        <p className="text-xs text-muted-foreground">برای هر یک از ۱۴ عملیات AI می‌توانی provider+model مستقل تعیین کنی. اگر سوییچ خاموش باشد، پیش‌فرض سراسری استفاده می‌شود.</p>
+        <Accordion type="multiple" className="w-full">
+          {Object.entries(grouped).map(([group, ops]) => (
+            <AccordionItem key={group} value={group}>
+              <AccordionTrigger className="text-sm">{group} ({ops.length})</AccordionTrigger>
+              <AccordionContent className="space-y-4">
+                {ops.map((op) => {
+                  const enabled = !!settings.perOp[op.key];
+                  const cfg = settings.perOp[op.key] || settings.default;
+                  return (
+                    <div key={op.key} className="border rounded-lg p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium">{op.label}</div>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-[10px] text-muted-foreground">override</Label>
+                          <Switch
+                            checked={enabled}
+                            onCheckedChange={(on) => {
+                              const next = { ...settings, perOp: { ...settings.perOp } };
+                              if (on) next.perOp[op.key] = { ...settings.default };
+                              else delete next.perOp[op.key];
+                              setSettings(next);
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {enabled && (
+                        <ProviderEditor
+                          value={cfg}
+                          onChange={(c) => setSettings({ ...settings, perOp: { ...settings.perOp, [op.key]: c } })}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
         <div className="flex gap-2 pt-2">
-          <Button onClick={save} className="gap-2">
-            <Save className="w-4 h-4" /> ذخیره
-          </Button>
-          <Button variant="outline" onClick={clear} className="gap-2">
-            <Trash2 className="w-4 h-4" /> بازنشانی
-          </Button>
+          <Button onClick={save} className="gap-2"><Save className="w-4 h-4" /> ذخیره همه</Button>
+          <Button variant="outline" onClick={reset} className="gap-2"><Trash2 className="w-4 h-4" /> بازنشانی</Button>
         </div>
       </Card>
 

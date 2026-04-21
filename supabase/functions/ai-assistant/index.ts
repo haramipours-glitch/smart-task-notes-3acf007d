@@ -17,6 +17,12 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   task_subtasks: `You generate concrete subtasks for a given task. If the task is ambiguous, instead return clarifying questions with multiple-choice options. Match the language of the input.`,
   task_metadata_suggest: `You analyze a task and suggest the best priority (none/low/medium/high), an ISO 8601 due_date if appropriate, and a recurrence rule if it seems repetitive. Provide a short reason. Match the language of the input.`,
   task_chat: `You are an assistant helping the user with a specific task. The task and optionally all their other tasks/notes are provided as context. Be concise and actionable. Match the user's language.`,
+  folder_chat: `You help the user plan a project (folder). Two modes:
+- "interview": ask 3-5 targeted questions ONE AT A TIME to understand goal, deadline, resources, blockers. After enough info, propose tasks.
+- "free": chat freely. When user clicks "build tasks", propose tasks from the conversation.
+When proposing tasks, ALWAYS call the "propose_tasks" tool. Each task: title (required), priority, due_date (ISO or empty), and optional kanban_column ("todo"|"doing"|"done"). Match the user's language.`,
+  socratic: `You are a Socratic guide. NEVER give direct answers or advice. ONLY ask open-ended questions that help the user discover their own insights. Match the user's language.`,
+  distortion_detect: `You detect cognitive distortions in the user's automatic thought. Output a brief CBT-style feedback identifying any of the 10 common distortions present, then gently propose a more balanced alternative. Match the user's language.`,
 };
 
 const TOOLS: Record<string, any> = {
@@ -126,6 +132,36 @@ const TOOLS: Record<string, any> = {
       },
     },
   },
+  folder_chat: {
+    type: "function",
+    function: {
+      name: "propose_tasks",
+      description: "Propose tasks extracted from the project conversation",
+      parameters: {
+        type: "object",
+        properties: {
+          tasks: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                priority: { type: "string", enum: ["none", "low", "medium", "high"] },
+                due_date: { type: "string", description: "ISO 8601 or empty" },
+                kanban_column: { type: "string", enum: ["todo", "doing", "done"] },
+                description: { type: "string" },
+              },
+              required: ["title"],
+              additionalProperties: false,
+            },
+          },
+          summary: { type: "string", description: "Short rationale" },
+        },
+        required: ["tasks"],
+        additionalProperties: false,
+      },
+    },
+  },
 };
 
 const TONE_DIRECTIVES: Record<string, string> = {
@@ -139,7 +175,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, input, context, settings, action, language, mhProfile } = await req.json();
+    const { mode, input, context, settings, action, language, mhProfile, webSearch } = await req.json();
 
     const useCustom = settings && settings.provider && settings.provider !== "lovable" && settings.apiKey;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -176,7 +212,7 @@ serve(async (req) => {
 
     if (context) messages.push({ role: "system", content: `Context:\n${context}` });
 
-    if ((mode === "chat" || mode === "task_chat") && Array.isArray(input)) {
+    if ((mode === "chat" || mode === "task_chat" || mode === "folder_chat" || mode === "socratic") && Array.isArray(input)) {
       messages.push(...input);
     } else {
       messages.push({ role: "user", content: typeof input === "string" ? input : JSON.stringify(input) });
@@ -206,6 +242,22 @@ serve(async (req) => {
     if (TOOLS[mode]) {
       body.tools = [TOOLS[mode]];
       body.tool_choice = { type: "function", function: { name: TOOLS[mode].function.name } };
+    }
+
+    // Web search via Gemini google_search grounding (Lovable AI gateway only).
+    // Note: tool calling and grounding cannot be combined, so skip when a structured tool is in use.
+    if (webSearch && !useCustom && !TOOLS[mode] && model.startsWith("google/")) {
+      body.tools = [{ google_search: {} }];
+      systemPrompt += `\n\nThe user has enabled web search. Use up-to-date information from the web. Cite sources at the end as a "منابع" / "Sources" list.`;
+      // rewrite system message
+      messages[0] = { role: "system", content: `${systemPrompt}\n\nToday's date: ${today}` };
+    } else if (webSearch && !useCustom && !TOOLS[mode]) {
+      // Force gemini for grounded search
+      model = "google/gemini-2.5-flash";
+      body.model = model;
+      body.tools = [{ google_search: {} }];
+      systemPrompt += `\n\nThe user has enabled web search. Use up-to-date information and cite sources.`;
+      messages[0] = { role: "system", content: `${systemPrompt}\n\nToday's date: ${today}` };
     }
 
     const resp = await fetch(endpoint, {

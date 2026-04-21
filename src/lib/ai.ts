@@ -1,20 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getOpConfig, type AIOperation } from "@/lib/aiSettings";
 
-export type AIMode = "parse_task" | "breakdown" | "generate_note" | "summarize_note" | "improve_note" | "suggest" | "chat" | "inline_edit" | "task_subtasks" | "task_metadata_suggest" | "task_chat";
+export type AIMode = AIOperation;
 
-const STORAGE_KEY = "ai_settings_v1";
-
-function getAISettings() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const s = JSON.parse(raw);
-    if (!s.provider || s.provider === "lovable") return null;
-    if (!s.apiKey) return null;
-    return s;
-  } catch {
-    return null;
-  }
+function getAISettings(mode: AIMode) {
+  const cfg = getOpConfig(mode);
+  if (!cfg.provider || cfg.provider === "lovable") return null;
+  if (!cfg.apiKey) return null;
+  return cfg;
 }
 
 export type AILanguage = "fa" | "en" | "auto";
@@ -37,8 +30,9 @@ export async function callAI(
   context?: string,
   action?: string,
   langOverride?: AILanguage,
+  opts?: { webSearch?: boolean },
 ) {
-  const settings = getAISettings();
+  const settings = getAISettings(mode);
   const lang = langOverride ?? getAILanguage();
   const language = lang === "auto" ? undefined : lang;
 
@@ -53,7 +47,7 @@ export async function callAI(
   } catch { /* ignore */ }
 
   const { data, error } = await supabase.functions.invoke("ai-assistant", {
-    body: { mode, input, context, settings, action, language, mhProfile },
+    body: { mode, input, context, settings, action, language, mhProfile, webSearch: opts?.webSearch === true },
   });
   if (error) throw error;
   if (data?.error) throw new Error(data.error);
