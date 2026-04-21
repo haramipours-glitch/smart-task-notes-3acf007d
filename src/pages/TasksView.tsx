@@ -620,6 +620,33 @@ function ChildDropZone({ parentId }: { parentId: string }) {
   );
 }
 
+function SortableTaskRow({ id, children }: { id: string; children: (dragHandle: any) => React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      {children({ ...listeners })}
+    </div>
+  );
+}
+
+function ChildDropZone({ parentId }: { parentId: string }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `child:${parentId}` });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`w-6 h-6 rounded-md border border-dashed flex items-center justify-center transition ${isOver ? "border-primary bg-primary/20 text-primary" : "border-muted-foreground/30 text-muted-foreground/50"}`}
+      title="رها کن تا زیرتسک شود"
+    >
+      <CornerDownRight className="w-3 h-3" />
+    </div>
+  );
+}
+
 function RootDropZone() {
   const { setNodeRef, isOver } = useDroppable({ id: "root" });
   return (
