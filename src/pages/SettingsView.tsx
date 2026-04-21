@@ -69,10 +69,39 @@ function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: 
 
 export default function SettingsView() {
   const { user } = useAuth();
-  const [s, setS] = useState<AISettings>(DEFAULTS);
+  const [settings, setSettings] = useState<AIPerOpSettings>({ default: defaultConfig(), perOp: {} });
   const [lang, setLang] = useState<AILanguage>("fa");
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    setSettings(loadAISettings());
+    setLang(getAILanguage());
+  }, []);
+
+  const grouped = useMemo(() => {
+    const m: Record<string, typeof OPERATIONS> = {};
+    for (const op of OPERATIONS) (m[op.group] ||= []).push(op);
+    return m;
+  }, []);
+
+  const onLangChange = (v: AILanguage) => {
+    setLang(v);
+    setAILanguage(v);
+    toast.success("زبان AI ذخیره شد");
+  };
+
+  const save = () => {
+    saveAISettings(settings);
+    toast.success("تنظیمات ذخیره شد");
+  };
+
+  const reset = () => {
+    const fresh = { default: defaultConfig(), perOp: {} };
+    setSettings(fresh);
+    saveAISettings(fresh);
+    toast.success("بازنشانی شد");
+  };
 
   async function exportAll() {
     if (!user) return;
@@ -130,138 +159,86 @@ export default function SettingsView() {
     }
   }
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setS({ ...DEFAULTS, ...JSON.parse(raw) });
-    } catch {}
-    setLang(getAILanguage());
-  }, []);
-
-  const onLangChange = (v: AILanguage) => {
-    setLang(v);
-    setAILanguage(v);
-    toast.success("زبان AI ذخیره شد");
-  };
-
-  const onProvider = (p: Provider) => {
-    const info = PROVIDER_INFO[p];
-    setS((prev) => ({
-      ...prev,
-      provider: p,
-      model: info.defaultModel,
-      baseUrl: info.baseUrl,
-    }));
-  };
-
-  const save = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-    toast.success("تنظیمات ذخیره شد");
-  };
-
-  const clear = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setS(DEFAULTS);
-    toast.success("تنظیمات پاک شد — Lovable AI پیش‌فرض فعال است");
-  };
-
-  const info = PROVIDER_INFO[s.provider];
-
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-primary" /> تنظیمات
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">پیکربندی ارائه‌دهنده هوش مصنوعی</p>
+        <p className="text-sm text-muted-foreground mt-1">پیکربندی هوش مصنوعی برای هر عملیات به‌صورت جداگانه</p>
       </div>
 
       <Card className="p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Languages className="w-4 h-4 text-primary" />
-          <h2 className="font-semibold">زبان پاسخ‌های هوش مصنوعی</h2>
+          <h2 className="font-semibold">زبان پاسخ‌های AI</h2>
         </div>
-        <p className="text-xs text-muted-foreground">
-          زبان پیش‌فرض همه پاسخ‌های AI (تولید نوت، subtask، چت، بهبود متن و...). در هر پنل AI می‌توانی موقت override کنی.
-        </p>
         <Select value={lang} onValueChange={(v) => onLangChange(v as AILanguage)}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="fa">🇮🇷 فارسی</SelectItem>
             <SelectItem value="en">🇬🇧 English</SelectItem>
-            <SelectItem value="auto">🌐 خودکار (تشخیص از ورودی)</SelectItem>
+            <SelectItem value="auto">🌐 خودکار</SelectItem>
           </SelectContent>
         </Select>
       </Card>
 
       <Card className="p-5 space-y-4">
         <div className="flex items-center gap-2">
-          <Key className="w-4 h-4 text-primary" />
-          <h2 className="font-semibold">ارائه‌دهنده AI</h2>
+          <Sparkles className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">پیش‌فرض سراسری AI</h2>
         </div>
+        <p className="text-xs text-muted-foreground">این provider/model برای هر عملیاتی که override جداگانه نداشته باشد استفاده می‌شود.</p>
+        <ProviderEditor value={settings.default} onChange={(c) => setSettings({ ...settings, default: c })} />
+      </Card>
 
-        <div className="space-y-2">
-          <Label>سرویس</Label>
-          <Select value={s.provider} onValueChange={(v) => onProvider(v as Provider)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {(Object.keys(PROVIDER_INFO) as Provider[]).map((p) => (
-                <SelectItem key={p} value={p}>{PROVIDER_INFO[p].label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Settings2 className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">Override برای هر عملیات</h2>
         </div>
-
-        <Alert>
-          <Info className="w-4 h-4" />
-          <AlertDescription className="text-xs">{info.help}</AlertDescription>
-        </Alert>
-
-        {s.provider !== "lovable" && (
-          <>
-            <div className="space-y-2">
-              <Label>API Key</Label>
-              <Input
-                type="password"
-                placeholder="sk-..."
-                value={s.apiKey}
-                onChange={(e) => setS({ ...s, apiKey: e.target.value })}
-                autoComplete="off"
-              />
-              <p className="text-xs text-muted-foreground">
-                کلید فقط روی همین مرورگر ذخیره می‌شود (localStorage). برای استفاده عمومی توصیه می‌شود از Lovable AI استفاده کنید.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>مدل</Label>
-              <Input
-                placeholder={info.defaultModel}
-                value={s.model}
-                onChange={(e) => setS({ ...s, model: e.target.value })}
-              />
-            </div>
-
-            {s.provider === "custom" && (
-              <div className="space-y-2">
-                <Label>Base URL</Label>
-                <Input
-                  placeholder="https://your-endpoint/v1"
-                  value={s.baseUrl}
-                  onChange={(e) => setS({ ...s, baseUrl: e.target.value })}
-                />
-              </div>
-            )}
-          </>
-        )}
-
+        <p className="text-xs text-muted-foreground">برای هر یک از ۱۴ عملیات AI می‌توانی provider+model مستقل تعیین کنی. اگر سوییچ خاموش باشد، پیش‌فرض سراسری استفاده می‌شود.</p>
+        <Accordion type="multiple" className="w-full">
+          {Object.entries(grouped).map(([group, ops]) => (
+            <AccordionItem key={group} value={group}>
+              <AccordionTrigger className="text-sm">{group} ({ops.length})</AccordionTrigger>
+              <AccordionContent className="space-y-4">
+                {ops.map((op) => {
+                  const enabled = !!settings.perOp[op.key];
+                  const cfg = settings.perOp[op.key] || settings.default;
+                  return (
+                    <div key={op.key} className="border rounded-lg p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium">{op.label}</div>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-[10px] text-muted-foreground">override</Label>
+                          <Switch
+                            checked={enabled}
+                            onCheckedChange={(on) => {
+                              const next = { ...settings, perOp: { ...settings.perOp } };
+                              if (on) next.perOp[op.key] = { ...settings.default };
+                              else delete next.perOp[op.key];
+                              setSettings(next);
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {enabled && (
+                        <ProviderEditor
+                          value={cfg}
+                          onChange={(c) => setSettings({ ...settings, perOp: { ...settings.perOp, [op.key]: c } })}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
         <div className="flex gap-2 pt-2">
-          <Button onClick={save} className="gap-2">
-            <Save className="w-4 h-4" /> ذخیره
-          </Button>
-          <Button variant="outline" onClick={clear} className="gap-2">
-            <Trash2 className="w-4 h-4" /> بازنشانی
-          </Button>
+          <Button onClick={save} className="gap-2"><Save className="w-4 h-4" /> ذخیره همه</Button>
+          <Button variant="outline" onClick={reset} className="gap-2"><Trash2 className="w-4 h-4" /> بازنشانی</Button>
         </div>
       </Card>
 
