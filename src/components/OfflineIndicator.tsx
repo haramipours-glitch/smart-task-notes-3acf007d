@@ -36,7 +36,7 @@ export default function OfflineIndicator() {
         </>
       ) : (
         <>
-          <CloudOff className="h-3.5 w-3.5 text-amber-500" />
+          <CloudOff className="h-3.5 w-3.5 text-primary" />
           <span>{pending} تغییر در صف</span>
           <Button
             size="sm"
