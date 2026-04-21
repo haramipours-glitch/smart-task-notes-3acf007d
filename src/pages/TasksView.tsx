@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
-import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag } from "lucide-react";
+import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -14,19 +14,21 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { callAI } from "@/lib/ai";
+import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
+import { RecurrenceEditor } from "@/components/RecurrenceEditor";
+import { TaskAIPanel } from "@/components/TaskAIPanel";
+import { RichEditor } from "@/components/RichEditor";
+import { markdownToHtml } from "@/lib/markdown";
+import { describeRule, nextOccurrence, type RecurrenceRule } from "@/lib/recurrence";
 
 type Task = {
-  id: string; title: string; description: string | null; priority: "none" | "low" | "medium" | "high";
+  id: string; title: string; description: string | null; priority: Priority;
   due_date: string | null; completed: boolean; folder_id: string | null; reminder_at: string | null;
   recurrence: "none" | "daily" | "weekly" | "monthly";
+  recurrence_rule: RecurrenceRule | null;
 };
 type Subtask = { id: string; title: string; completed: boolean; task_id: string };
-
-const PRIORITY_COLORS = {
-  high: "text-priority-high", medium: "text-priority-medium",
-  low: "text-priority-low", none: "text-priority-none",
-};
+type TaskNote = { id: string; title: string; content: string };
 
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
@@ -73,7 +75,15 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     }
 
     const { data } = await q;
-    setTasks((data || []) as any);
+    const list = ((data || []) as unknown) as Task[];
+    // Sort by priority then due date
+    list.sort((a, b) => {
+      const pa = PRIORITY_META[a.priority]?.rank ?? 3;
+      const pb = PRIORITY_META[b.priority]?.rank ?? 3;
+      if (pa !== pb) return pa - pb;
+      return 0;
+    });
+    setTasks(list);
 
     if (data && data.length) {
       const { data: subs } = await supabase.from("subtasks").select("*").in("task_id", data.map((t: any) => t.id));
@@ -111,9 +121,28 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   };
 
   const toggleTask = async (t: Task) => {
+    const newCompleted = !t.completed;
     await supabase.from("tasks").update({
-      completed: !t.completed, completed_at: !t.completed ? new Date().toISOString() : null,
+      completed: newCompleted, completed_at: newCompleted ? new Date().toISOString() : null,
     }).eq("id", t.id);
+
+    // If recurring and just completed, create the next occurrence
+    if (newCompleted && t.recurrence_rule && user) {
+      const base = t.due_date ? new Date(t.due_date) : new Date();
+      const next = nextOccurrence(t.recurrence_rule, base);
+      if (next) {
+        await supabase.from("tasks").insert({
+          user_id: user.id,
+          title: t.title,
+          description: t.description,
+          priority: t.priority,
+          folder_id: t.folder_id,
+          due_date: next.toISOString(),
+          recurrence_rule: t.recurrence_rule as any,
+        });
+        toast.success(`نمونه بعدی برای ${format(next, "yyyy-MM-dd HH:mm")} ساخته شد ✨`);
+      }
+    }
   };
 
   const delTask = async (id: string) => {
@@ -138,8 +167,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
         {tasks.map((t) => {
           const subs = subtasks[t.id] || [];
           const open = expanded[t.id];
+          const pm = PRIORITY_META[t.priority] || PRIORITY_META.none;
           return (
-            <Card key={t.id} className="p-3 hover:shadow-soft transition-shadow animate-fade-in">
+            <Card key={t.id} className={`p-3 hover:shadow-soft transition-shadow animate-fade-in border-l-4 ${pm.borderClass}`}>
               <div className="flex items-start gap-3">
                 {subs.length > 0 ? (
                   <button onClick={() => setExpanded((s) => ({ ...s, [t.id]: !open }))} className="mt-1">
@@ -151,13 +181,18 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                   <p className={`font-medium ${t.completed ? "line-through text-muted-foreground" : ""}`}>{t.title}</p>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     {t.priority !== "none" && (
-                      <Flag className={`w-3 h-3 ${PRIORITY_COLORS[t.priority]}`} />
+                      <Badge variant="outline" className={`text-xs gap-1 ${pm.bgClass} ${pm.textClass}`}>
+                        <Flag className="w-3 h-3" /> {pm.label}
+                      </Badge>
                     )}
                     {t.due_date && (
                       <Badge variant="secondary" className="text-xs gap-1">
                         <Calendar className="w-3 h-3" />
                         {format(new Date(t.due_date), "MMM d, HH:mm")}
                       </Badge>
+                    )}
+                    {t.recurrence_rule && (
+                      <Badge variant="outline" className="text-xs">🔁 {describeRule(t.recurrence_rule)}</Badge>
                     )}
                     {subs.length > 0 && (
                       <span className="text-xs text-muted-foreground">
@@ -187,7 +222,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
         })}
       </div>
 
-      {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} />}
+      {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} onChanged={load} />}
 
       <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
         <AlertDialogContent>
@@ -215,22 +250,33 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   );
 }
 
-function TaskDetail({ task, onClose }: { task: Task; onClose: () => void }) {
+function TaskDetail({ task, onClose, onChanged }: { task: Task; onClose: () => void; onChanged: () => void }) {
   const { user } = useAuth();
   const [t, setT] = useState(task);
   const [subs, setSubs] = useState<Subtask[]>([]);
+  const [taskNotes, setTaskNotes] = useState<TaskNote[]>([]);
+  const [activeNote, setActiveNote] = useState<TaskNote | null>(null);
   const [newSub, setNewSub] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   useEffect(() => {
     supabase.from("subtasks").select("*").eq("task_id", task.id).order("position").then(({ data }) => {
       setSubs((data || []) as any);
     });
+    supabase.from("notes").select("id,title,content").eq("task_id", task.id).order("updated_at", { ascending: false }).then(({ data }) => {
+      setTaskNotes((data || []) as any);
+    });
   }, [task.id]);
+
+  const refreshTask = async () => {
+    const { data } = await supabase.from("tasks").select("*").eq("id", task.id).single();
+    if (data) setT(data as any);
+    onChanged();
+  };
 
   const save = async (patch: Partial<Task>) => {
     setT({ ...t, ...patch });
-    await supabase.from("tasks").update(patch).eq("id", t.id);
+    await supabase.from("tasks").update(patch as any).eq("id", t.id);
   };
 
   const addSub = async () => {
@@ -242,102 +288,166 @@ function TaskDetail({ task, onClose }: { task: Task; onClose: () => void }) {
     setNewSub("");
   };
 
-  const aiBreakdown = async () => {
+  const addNote = async () => {
     if (!user) return;
-    setAiLoading(true);
-    try {
-      const r = await callAI("breakdown", t.title);
-      const items: string[] = r.data?.subtasks || [];
-      if (!items.length) throw new Error("نتیجه خالی");
-      const rows = items.map((title) => ({ task_id: t.id, user_id: user.id, title }));
-      const { data, error } = await supabase.from("subtasks").insert(rows).select();
-      if (error) throw error;
-      setSubs([...subs, ...((data || []) as any)]);
-      toast.success("Subtasks ساخته شد ✨");
-    } catch (e: any) { toast.error(e.message); }
-    finally { setAiLoading(false); }
+    const { data, error } = await supabase.from("notes").insert({
+      user_id: user.id, task_id: t.id, title: "نوت جدید", content: "",
+    }).select().single();
+    if (error) return toast.error(error.message);
+    if (data) {
+      setTaskNotes([data as any, ...taskNotes]);
+      setActiveNote(data as any);
+    }
+  };
+
+  const saveNote = async (id: string, patch: Partial<TaskNote>) => {
+    setTaskNotes(taskNotes.map(n => n.id === id ? { ...n, ...patch } : n));
+    if (activeNote?.id === id) setActiveNote({ ...activeNote, ...patch });
+    await supabase.from("notes").update(patch).eq("id", id);
+  };
+
+  const delNote = async (id: string) => {
+    await supabase.from("notes").delete().eq("id", id);
+    setTaskNotes(taskNotes.filter(n => n.id !== id));
+    if (activeNote?.id === id) setActiveNote(null);
   };
 
   return (
-    <Sheet open={true} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-        <SheetHeader><SheetTitle>جزئیات تسک</SheetTitle></SheetHeader>
-        <div className="space-y-4 mt-4">
-          <Input value={t.title} onChange={(e) => setT({ ...t, title: e.target.value })}
-            onBlur={() => save({ title: t.title })} className="text-lg font-semibold" />
-          <Textarea placeholder="توضیحات..." value={t.description || ""}
-            onChange={(e) => setT({ ...t, description: e.target.value })}
-            onBlur={() => save({ description: t.description })} rows={3} />
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-muted-foreground">اولویت</label>
-              <Select value={t.priority} onValueChange={(v: any) => save({ priority: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">هیچ</SelectItem>
-                  <SelectItem value="low">پایین</SelectItem>
-                  <SelectItem value="medium">متوسط</SelectItem>
-                  <SelectItem value="high">بالا</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">تکرار</label>
-              <Select value={t.recurrence} onValueChange={(v: any) => save({ recurrence: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">بدون</SelectItem>
-                  <SelectItem value="daily">روزانه</SelectItem>
-                  <SelectItem value="weekly">هفتگی</SelectItem>
-                  <SelectItem value="monthly">ماهانه</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs text-muted-foreground">سررسید</label>
-            <Input type="datetime-local" value={t.due_date ? t.due_date.slice(0, 16) : ""}
-              onChange={(e) => save({ due_date: e.target.value ? new Date(e.target.value).toISOString() : null })} />
-          </div>
-
-          <div>
-            <label className="text-xs text-muted-foreground">یادآور</label>
-            <Input type="datetime-local" value={t.reminder_at ? t.reminder_at.slice(0, 16) : ""}
-              onChange={(e) => save({ reminder_at: e.target.value ? new Date(e.target.value).toISOString() : null })} />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium">Subtasks</label>
-              <Button size="sm" variant="outline" onClick={aiBreakdown} disabled={aiLoading} className="gap-1">
-                <Sparkles className="w-3 h-3" /> AI Breakdown
+    <>
+      <Sheet open={true} onOpenChange={(v) => !v && onClose()}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center justify-between">
+              <span>جزئیات تسک</span>
+              <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">
+                <Sparkles className="w-4 h-4" /> AI
               </Button>
+            </SheetTitle>
+          </SheetHeader>
+          <div className="space-y-4 mt-4">
+            <Input value={t.title} onChange={(e) => setT({ ...t, title: e.target.value })}
+              onBlur={() => save({ title: t.title })} className="text-lg font-semibold" />
+            <Textarea placeholder="توضیحات..." value={t.description || ""}
+              onChange={(e) => setT({ ...t, description: e.target.value })}
+              onBlur={() => save({ description: t.description })} rows={3} />
+
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">اولویت</label>
+              <div className="flex gap-1.5 flex-wrap">
+                {PRIORITY_ORDER.map((p) => {
+                  const m = PRIORITY_META[p];
+                  const active = t.priority === p;
+                  return (
+                    <button key={p} onClick={() => save({ priority: p })}
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1.5 ${active ? `${m.bgClass} ${m.textClass} ring-2 ring-current` : "hover:bg-accent border-border"}`}>
+                      <span>{m.emoji}</span> {m.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="space-y-1">
-              {subs.map((s) => (
-                <div key={s.id} className="flex items-center gap-2">
-                  <Checkbox checked={s.completed} onCheckedChange={async () => {
-                    await supabase.from("subtasks").update({ completed: !s.completed }).eq("id", s.id);
-                    setSubs(subs.map(x => x.id === s.id ? { ...x, completed: !x.completed } : x));
-                  }} />
-                  <span className={`text-sm flex-1 ${s.completed ? "line-through text-muted-foreground" : ""}`}>{s.title}</span>
-                  <Button size="icon" variant="ghost" onClick={async () => {
-                    await supabase.from("subtasks").delete().eq("id", s.id);
-                    setSubs(subs.filter(x => x.id !== s.id));
-                  }}><Trash2 className="w-3 h-3" /></Button>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground">سررسید</label>
+                <Input type="datetime-local" value={t.due_date ? t.due_date.slice(0, 16) : ""}
+                  onChange={(e) => save({ due_date: e.target.value ? new Date(e.target.value).toISOString() : null })} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">یادآور</label>
+                <Input type="datetime-local" value={t.reminder_at ? t.reminder_at.slice(0, 16) : ""}
+                  onChange={(e) => save({ reminder_at: e.target.value ? new Date(e.target.value).toISOString() : null })} />
+              </div>
+            </div>
+
+            <RecurrenceEditor
+              value={t.recurrence_rule}
+              onChange={(rule) => save({ recurrence_rule: rule } as any)}
+            />
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">Subtasks ({subs.filter(s => s.completed).length}/{subs.length})</label>
+                <Button size="sm" variant="outline" onClick={() => setAiOpen(true)} className="gap-1">
+                  <Sparkles className="w-3 h-3" /> AI Subtasks
+                </Button>
+              </div>
+              <div className="space-y-1">
+                {subs.map((s) => (
+                  <div key={s.id} className="flex items-center gap-2">
+                    <Checkbox checked={s.completed} onCheckedChange={async () => {
+                      await supabase.from("subtasks").update({ completed: !s.completed }).eq("id", s.id);
+                      setSubs(subs.map(x => x.id === s.id ? { ...x, completed: !x.completed } : x));
+                    }} />
+                    <span className={`text-sm flex-1 ${s.completed ? "line-through text-muted-foreground" : ""}`}>{s.title}</span>
+                    <Button size="icon" variant="ghost" onClick={async () => {
+                      await supabase.from("subtasks").delete().eq("id", s.id);
+                      setSubs(subs.filter(x => x.id !== s.id));
+                    }}><Trash2 className="w-3 h-3" /></Button>
+                  </div>
+                ))}
+                <div className="flex gap-2 mt-2">
+                  <Input placeholder="+ subtask" value={newSub} onChange={(e) => setNewSub(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addSub()} />
+                  <Button size="sm" onClick={addSub}><Plus className="w-3 h-3" /></Button>
                 </div>
-              ))}
-              <div className="flex gap-2 mt-2">
-                <Input placeholder="+ subtask" value={newSub} onChange={(e) => setNewSub(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && addSub()} />
-                <Button size="sm" onClick={addSub}><Plus className="w-3 h-3" /></Button>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium flex items-center gap-1">
+                  <FileText className="w-4 h-4" /> نوت‌های این تسک ({taskNotes.length})
+                </label>
+                <Button size="sm" variant="outline" onClick={addNote} className="gap-1">
+                  <Plus className="w-3 h-3" /> نوت جدید
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {taskNotes.map((n) => (
+                  <Card key={n.id} className="p-2 flex items-center gap-2">
+                    <button className="flex-1 text-right text-sm truncate" onClick={() => setActiveNote(n)}>
+                      {n.title}
+                    </button>
+                    <Button size="icon" variant="ghost" onClick={() => delNote(n.id)}>
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </Card>
+                ))}
+                {taskNotes.length === 0 && <p className="text-xs text-muted-foreground text-center py-2">نوتی نیست</p>}
               </div>
             </div>
           </div>
-        </div>
-      </SheetContent>
-    </Sheet>
+        </SheetContent>
+      </Sheet>
+
+      {/* Note editor sheet */}
+      {activeNote && (
+        <Sheet open={true} onOpenChange={(v) => !v && setActiveNote(null)}>
+          <SheetContent side="left" className="w-full sm:max-w-2xl overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>
+                <Input value={activeNote.title} onChange={(e) => saveNote(activeNote.id, { title: e.target.value })}
+                  className="border-none focus-visible:ring-0 px-0 text-lg font-semibold" />
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-4">
+              <RichEditor
+                key={activeNote.id}
+                initialMarkdown={activeNote.content || ""}
+                onChange={(_html, md) => saveNote(activeNote.id, { content: md })}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      <TaskAIPanel
+        task={t as any}
+        open={aiOpen}
+        onOpenChange={setAiOpen}
+        onMetaApplied={refreshTask}
+      />
+    </>
   );
 }

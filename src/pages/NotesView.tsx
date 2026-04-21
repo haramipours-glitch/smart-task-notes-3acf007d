@@ -1,29 +1,28 @@
 import { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { Plus, Pin, Trash2, Sparkles, Search, Loader2 } from "lucide-react";
+import { Plus, Pin, Trash2, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { callAI } from "@/lib/ai";
+import { RichEditor } from "@/components/RichEditor";
+import { htmlToMarkdown, markdownToHtml } from "@/lib/markdown";
 
-type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string };
+type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null };
 
 export default function NotesView() {
   const { user } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [selected, setSelected] = useState<Note | null>(null);
   const [search, setSearch] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
+  const [draft, setDraft] = useState<{ html: string; md: string } | null>(null);
 
   const load = async () => {
     if (!user) return;
     const { data } = await supabase.from("notes").select("*")
+      .is("task_id", null)
       .order("pinned", { ascending: false }).order("updated_at", { ascending: false });
     setNotes((data || []) as any);
   };
@@ -38,10 +37,10 @@ export default function NotesView() {
   const create = async () => {
     if (!user) return;
     const { data, error } = await supabase.from("notes").insert({
-      user_id: user.id, title: "نوت جدید", content: "# عنوان\n\nمتن نوت اینجا...",
+      user_id: user.id, title: "نوت جدید", content: "",
     }).select().single();
     if (error) toast.error(error.message);
-    else if (data) setSelected(data as any);
+    else if (data) { setSelected(data as any); setDraft({ html: "", md: "" }); }
   };
 
   const save = async (patch: Partial<Note>) => {
@@ -51,21 +50,21 @@ export default function NotesView() {
     await supabase.from("notes").update(patch).eq("id", selected.id);
   };
 
+  // Debounced save of editor content
+  useEffect(() => {
+    if (!draft || !selected) return;
+    const t = setTimeout(() => {
+      // store as markdown for portability
+      save({ content: draft.md });
+    }, 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line
+  }, [draft?.md]);
+
   const del = async (id: string) => {
     await supabase.from("notes").delete().eq("id", id);
-    if (selected?.id === id) setSelected(null);
+    if (selected?.id === id) { setSelected(null); setDraft(null); }
     toast.success("حذف شد");
-  };
-
-  const aiAction = async (mode: "summarize_note" | "improve_note") => {
-    if (!selected) return;
-    setAiLoading(true);
-    try {
-      const r = await callAI(mode, selected.content);
-      await save({ content: r.text });
-      toast.success("انجام شد ✨");
-    } catch (e: any) { toast.error(e.message); }
-    finally { setAiLoading(false); }
   };
 
   const filtered = notes.filter((n) =>
@@ -88,22 +87,22 @@ export default function NotesView() {
         </div>
         <div className="flex-1 overflow-y-auto">
           {filtered.map((n) => (
-            <button key={n.id} onClick={() => setSelected(n)}
+            <button key={n.id} onClick={() => { setSelected(n); setDraft({ html: markdownToHtml(n.content || ""), md: n.content || "" }); }}
               className={`w-full text-right p-3 border-b hover:bg-accent/40 transition ${selected?.id === n.id ? "bg-accent/60" : ""}`}>
               <div className="flex items-center gap-1">
                 {n.pinned && <Pin className="w-3 h-3 text-primary" />}
                 <span className="font-medium text-sm truncate flex-1">{n.title}</span>
               </div>
-              <p className="text-xs text-muted-foreground truncate mt-1">{n.content.slice(0, 80)}</p>
+              <p className="text-xs text-muted-foreground truncate mt-1">{(n.content || "").replace(/[#*`>_\-!\[\]()]/g, "").slice(0, 80)}</p>
             </button>
           ))}
           {filtered.length === 0 && <p className="text-center text-muted-foreground p-6 text-sm">نوتی نیست</p>}
         </div>
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 overflow-y-auto">
         {selected ? (
-          <div className="p-4 max-w-3xl mx-auto">
+          <div className="p-4 max-w-4xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
               <Input value={selected.title} onChange={(e) => save({ title: e.target.value })}
                 className="text-xl font-bold border-none focus-visible:ring-0 px-0" />
@@ -115,28 +114,25 @@ export default function NotesView() {
               </Button>
             </div>
 
-            <div className="flex gap-2 mb-3 flex-wrap">
-              <Button size="sm" variant="outline" onClick={() => aiAction("summarize_note")} disabled={aiLoading} className="gap-1">
-                {aiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />} خلاصه
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => aiAction("improve_note")} disabled={aiLoading} className="gap-1">
-                <Sparkles className="w-3 h-3" /> بهبود
-              </Button>
-            </div>
-
-            <Tabs defaultValue="edit">
+            <Tabs defaultValue="visual">
               <TabsList>
-                <TabsTrigger value="edit">ویرایش</TabsTrigger>
-                <TabsTrigger value="preview">پیش‌نمایش</TabsTrigger>
+                <TabsTrigger value="visual">بصری</TabsTrigger>
+                <TabsTrigger value="markdown">Markdown</TabsTrigger>
               </TabsList>
-              <TabsContent value="edit">
-                <Textarea value={selected.content} onChange={(e) => save({ content: e.target.value })}
-                  className="min-h-[60vh] font-mono text-sm" />
+              <TabsContent value="visual" className="mt-3">
+                <RichEditor
+                  key={selected.id}
+                  initialMarkdown={selected.content}
+                  onChange={(html, md) => setDraft({ html, md })}
+                />
               </TabsContent>
-              <TabsContent value="preview">
-                <Card className="p-4 prose-note min-h-[60vh]">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{selected.content}</ReactMarkdown>
-                </Card>
+              <TabsContent value="markdown" className="mt-3">
+                <Textarea
+                  value={draft?.md ?? selected.content}
+                  onChange={(e) => setDraft({ md: e.target.value, html: markdownToHtml(e.target.value) })}
+                  className="min-h-[60vh] font-mono text-sm"
+                  dir="ltr"
+                />
               </TabsContent>
             </Tabs>
           </div>

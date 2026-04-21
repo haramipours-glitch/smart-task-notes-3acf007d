@@ -151,6 +151,7 @@ export type Database = {
           folder_id: string | null
           id: string
           pinned: boolean
+          task_id: string | null
           title: string
           updated_at: string
           user_id: string
@@ -161,6 +162,7 @@ export type Database = {
           folder_id?: string | null
           id?: string
           pinned?: boolean
+          task_id?: string | null
           title?: string
           updated_at?: string
           user_id: string
@@ -171,6 +173,7 @@ export type Database = {
           folder_id?: string | null
           id?: string
           pinned?: boolean
+          task_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -181,6 +184,13 @@ export type Database = {
             columns: ["folder_id"]
             isOneToOne: false
             referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notes_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -354,6 +364,7 @@ export type Database = {
           position: number
           priority: Database["public"]["Enums"]["task_priority"]
           recurrence: Database["public"]["Enums"]["recurrence_type"]
+          recurrence_rule: Json | null
           reminder_at: string | null
           title: string
           updated_at: string
@@ -370,6 +381,7 @@ export type Database = {
           position?: number
           priority?: Database["public"]["Enums"]["task_priority"]
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
+          recurrence_rule?: Json | null
           reminder_at?: string | null
           title: string
           updated_at?: string
@@ -386,6 +398,7 @@ export type Database = {
           position?: number
           priority?: Database["public"]["Enums"]["task_priority"]
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
+          recurrence_rule?: Json | null
           reminder_at?: string | null
           title?: string
           updated_at?: string
