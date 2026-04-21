@@ -101,12 +101,16 @@ export function TaskAIPanel({
     if (!user) return;
     const picked = subSugs.filter((_, i) => subPicked[i]);
     if (!picked.length) return toast.error("چیزی انتخاب نشده");
-    const rows = picked.map((title) => ({ task_id: task.id, user_id: user.id, title }));
-    const { error } = await supabase.from("subtasks").insert(rows);
+    // Create child tasks (each subtask is a real task with parent_id)
+    const rows = picked.map((title) => ({
+      user_id: user.id, title, parent_id: task.id, priority: "none" as Priority,
+    }));
+    const { error } = await supabase.from("tasks").insert(rows);
     if (error) toast.error(error.message);
     else {
-      toast.success(`${picked.length} subtask اضافه شد ✨`);
+      toast.success(`${picked.length} زیرتسک اضافه شد ✨`);
       setSubSugs([]); setSubPicked({});
+      onMetaApplied?.();
     }
   };
 

@@ -361,6 +361,7 @@ export type Database = {
           due_date: string | null
           folder_id: string | null
           id: string
+          parent_id: string | null
           position: number
           priority: Database["public"]["Enums"]["task_priority"]
           recurrence: Database["public"]["Enums"]["recurrence_type"]
@@ -378,6 +379,7 @@ export type Database = {
           due_date?: string | null
           folder_id?: string | null
           id?: string
+          parent_id?: string | null
           position?: number
           priority?: Database["public"]["Enums"]["task_priority"]
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
@@ -395,6 +397,7 @@ export type Database = {
           due_date?: string | null
           folder_id?: string | null
           id?: string
+          parent_id?: string | null
           position?: number
           priority?: Database["public"]["Enums"]["task_priority"]
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
@@ -410,6 +413,13 @@ export type Database = {
             columns: ["folder_id"]
             isOneToOne: false
             referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]
