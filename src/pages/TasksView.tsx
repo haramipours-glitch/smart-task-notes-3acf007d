@@ -20,6 +20,7 @@ import { TaskAIPanel } from "@/components/TaskAIPanel";
 import { RichEditor } from "@/components/RichEditor";
 import { FolderKanban } from "@/components/FolderKanban";
 import { EisenhowerMatrix } from "@/components/EisenhowerMatrix";
+import { Countdown } from "@/components/Countdown";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { describeRule, nextOccurrence, type RecurrenceRule } from "@/lib/recurrence";
 import {
