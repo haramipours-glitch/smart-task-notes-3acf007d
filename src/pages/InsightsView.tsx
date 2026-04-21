@@ -178,6 +178,49 @@ export default function InsightsView() {
         </div>
       </Card>
 
+      {stats.cogLoad && stats.cogStatus && (
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Brain className="w-4 h-4 text-primary" /> بار شناختی امروز (v2)
+            </h3>
+            <Badge variant={stats.cogStatus.tone === "high" ? "destructive" : stats.cogStatus.tone === "warn" ? "secondary" : "outline"}>
+              {stats.cogStatus.label}
+            </Badge>
+          </div>
+          <div className="text-3xl font-bold">{fa(stats.cogLoad.load)}</div>
+          <div className="text-xs text-muted-foreground grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div>پایه: {fa(Math.round(stats.cogLoad.breakdown.base))}</div>
+            <div>سوئیچ: ×{stats.cogLoad.breakdown.switchMult}</div>
+            <div>خواب: ×{stats.cogLoad.breakdown.sleepMult}</div>
+            <div>زمان‌بندی: ×{stats.cogLoad.breakdown.chronoMult}</div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            فرمول: مجموع وزن تسک‌ها × ضریب سوئیچ × ضریب خواب × ضریب همگامی با Chronotype
+          </p>
+        </Card>
+      )}
+
+      {stats.correlations.length > 0 && (
+        <Card className="p-4 space-y-3">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" /> رادار همبستگی (۳۰ روز)
+          </h3>
+          <p className="text-xs text-muted-foreground">همبستگی ≠ علیت. این الگوها فرضیه‌اند، نه قطعیت.</p>
+          <div className="space-y-2">
+            {stats.correlations.sort((a, b) => Math.abs(b.r) - Math.abs(a.r)).map((c, i) => (
+              <div key={i} className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/30">
+                <span>{c.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className={c.r > 0 ? "text-emerald-500" : "text-rose-500"}>r = {c.r.toFixed(2)}</span>
+                  <Badge variant="outline" className="text-xs">n={fa(c.n)} · {c.conf}</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
       <Card className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold flex items-center gap-2"><Sparkles className="w-4 h-4 text-primary" /> تحلیل و پیشنهاد AI</h3>
