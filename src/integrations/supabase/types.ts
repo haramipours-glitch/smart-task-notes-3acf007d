@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      abc_records: {
+        Row: {
+          belief: string
+          consequences: string[] | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          regret_level: number | null
+          trigger: string
+          user_id: string
+        }
+        Insert: {
+          belief: string
+          consequences?: string[] | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          regret_level?: number | null
+          trigger: string
+          user_id: string
+        }
+        Update: {
+          belief?: string
+          consequences?: string[] | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          regret_level?: number | null
+          trigger?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       assessment_responses: {
         Row: {
           assessment_type: string
@@ -70,6 +103,66 @@ export type Database = {
           completed_at?: string
           id?: string
           scores?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chronotype: {
+        Row: {
+          category: string | null
+          meq_score: number | null
+          peak_window_end: number | null
+          peak_window_start: number | null
+          trough_window_end: number | null
+          trough_window_start: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          meq_score?: number | null
+          peak_window_end?: number | null
+          peak_window_start?: number | null
+          trough_window_end?: number | null
+          trough_window_start?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          meq_score?: number | null
+          peak_window_end?: number | null
+          peak_window_start?: number | null
+          trough_window_end?: number | null
+          trough_window_start?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      crisis_events: {
+        Row: {
+          created_at: string
+          id: string
+          outcome: string | null
+          steps_taken: Json | null
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          outcome?: string | null
+          steps_taken?: Json | null
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          outcome?: string | null
+          steps_taken?: Json | null
+          trigger_type?: string
           user_id?: string
         }
         Relationships: []
@@ -491,6 +584,54 @@ export type Database = {
           },
         ]
       }
+      predictions: {
+        Row: {
+          actual_completion_pct: number | null
+          actual_productivity: number | null
+          actual_work_hours: number | null
+          created_at: string
+          evening_reflection: string | null
+          hardest_part: string | null
+          id: string
+          predicted_completion_pct: number | null
+          predicted_productivity: number | null
+          predicted_work_hours: number | null
+          prediction_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_completion_pct?: number | null
+          actual_productivity?: number | null
+          actual_work_hours?: number | null
+          created_at?: string
+          evening_reflection?: string | null
+          hardest_part?: string | null
+          id?: string
+          predicted_completion_pct?: number | null
+          predicted_productivity?: number | null
+          predicted_work_hours?: number | null
+          prediction_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_completion_pct?: number | null
+          actual_productivity?: number | null
+          actual_work_hours?: number | null
+          created_at?: string
+          evening_reflection?: string | null
+          hardest_part?: string | null
+          id?: string
+          predicted_completion_pct?: number | null
+          predicted_productivity?: number | null
+          predicted_work_hours?: number | null
+          prediction_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ai_language: string
@@ -515,6 +656,33 @@ export type Database = {
           display_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      safe_contacts: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string
+          relationship: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          phone: string
+          relationship?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string
+          relationship?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -699,6 +867,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      thought_records: {
+        Row: {
+          ai_feedback: string | null
+          alternative_thought: string | null
+          automatic_thought: string
+          created_at: string
+          distortions: string[] | null
+          emotion_intensity_after: number | null
+          emotion_intensity_before: number
+          emotions: string[] | null
+          evidence_against: string[] | null
+          evidence_for: string[] | null
+          id: string
+          situation: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          alternative_thought?: string | null
+          automatic_thought: string
+          created_at?: string
+          distortions?: string[] | null
+          emotion_intensity_after?: number | null
+          emotion_intensity_before: number
+          emotions?: string[] | null
+          evidence_against?: string[] | null
+          evidence_for?: string[] | null
+          id?: string
+          situation: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          alternative_thought?: string | null
+          automatic_thought?: string
+          created_at?: string
+          distortions?: string[] | null
+          emotion_intensity_after?: number | null
+          emotion_intensity_before?: number
+          emotions?: string[] | null
+          evidence_against?: string[] | null
+          evidence_for?: string[] | null
+          id?: string
+          situation?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_values: {
+        Row: {
+          created_at: string
+          id: string
+          meaning: string | null
+          position: number
+          user_id: string
+          value_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meaning?: string | null
+          position?: number
+          user_id: string
+          value_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meaning?: string | null
+          position?: number
+          user_id?: string
+          value_name?: string
+        }
+        Relationships: []
       }
     }
     Views: {
