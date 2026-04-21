@@ -305,6 +305,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                         {format(new Date(t.due_date), "MMM d, HH:mm")}
                       </Badge>
                     )}
+                    {t.due_date && !t.completed && (
+                      <Countdown target={t.due_date} className="text-xs" />
+                    )}
                     {t.recurrence_rule && (
                       <Badge variant="outline" className="text-xs">🔁 {describeRule(t.recurrence_rule)}</Badge>
                     )}
