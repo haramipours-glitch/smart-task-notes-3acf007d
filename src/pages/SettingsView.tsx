@@ -1,37 +1,71 @@
-import { useEffect, useState } from "react";
-import { Sparkles, Key, Save, Trash2, Info, Languages, Download, ShieldOff } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { getAILanguage, setAILanguage, type AILanguage } from "@/lib/ai";
+import {
+  loadAISettings, saveAISettings, defaultConfig,
+  PROVIDER_INFO, OPERATIONS,
+  type Provider, type ProviderConfig, type AIPerOpSettings,
+} from "@/lib/aiSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-type Provider = "lovable" | "openai" | "anthropic" | "gemini" | "openrouter" | "custom";
-
-type AISettings = {
-  provider: Provider;
-  apiKey: string;
-  model: string;
-  baseUrl: string;
-};
-
-const STORAGE_KEY = "ai_settings_v1";
-const DEFAULTS: AISettings = { provider: "lovable", apiKey: "", model: "", baseUrl: "" };
-
-const PROVIDER_INFO: Record<Provider, { label: string; defaultModel: string; baseUrl: string; help: string }> = {
-  lovable:    { label: "Lovable AI (پیش‌فرض)", defaultModel: "google/gemini-2.5-flash", baseUrl: "", help: "بدون نیاز به کلید — همین الان کار می‌کند." },
-  openai:     { label: "OpenAI",                defaultModel: "gpt-4o-mini",            baseUrl: "https://api.openai.com/v1", help: "از platform.openai.com کلید بگیرید." },
-  anthropic:  { label: "Anthropic Claude",      defaultModel: "claude-3-5-sonnet-latest", baseUrl: "https://api.anthropic.com/v1", help: "از console.anthropic.com کلید بگیرید." },
-  gemini:     { label: "Google Gemini",         defaultModel: "gemini-1.5-flash",       baseUrl: "https://generativelanguage.googleapis.com/v1beta", help: "از aistudio.google.com کلید بگیرید." },
-  openrouter: { label: "OpenRouter",            defaultModel: "openai/gpt-4o-mini",     baseUrl: "https://openrouter.ai/api/v1", help: "از openrouter.ai کلید بگیرید." },
-  custom:     { label: "OpenAI-compatible سفارشی", defaultModel: "",                    baseUrl: "", help: "هر سرویس سازگار با OpenAI API." },
-};
+function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: (c: ProviderConfig) => void }) {
+  const info = PROVIDER_INFO[value.provider];
+  const onProvider = (p: Provider) => {
+    const i = PROVIDER_INFO[p];
+    onChange({ provider: p, apiKey: value.apiKey, model: i.defaultModel, baseUrl: i.baseUrl });
+  };
+  return (
+    <div className="space-y-3">
+      <div className="space-y-1.5">
+        <Label className="text-xs">سرویس</Label>
+        <Select value={value.provider} onValueChange={(v) => onProvider(v as Provider)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {(Object.keys(PROVIDER_INFO) as Provider[]).map((p) => (
+              <SelectItem key={p} value={p}>{PROVIDER_INFO[p].label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">مدل</Label>
+        {info.models.length > 0 ? (
+          <Select value={value.model} onValueChange={(v) => onChange({ ...value, model: v })}>
+            <SelectTrigger><SelectValue placeholder={info.defaultModel} /></SelectTrigger>
+            <SelectContent>
+              {info.models.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        ) : (
+          <Input value={value.model} onChange={(e) => onChange({ ...value, model: e.target.value })} placeholder="نام مدل" />
+        )}
+      </div>
+      {value.provider !== "lovable" && (
+        <div className="space-y-1.5">
+          <Label className="text-xs">API Key</Label>
+          <Input type="password" value={value.apiKey} placeholder="sk-..." onChange={(e) => onChange({ ...value, apiKey: e.target.value })} autoComplete="off" />
+        </div>
+      )}
+      {value.provider === "custom" && (
+        <div className="space-y-1.5">
+          <Label className="text-xs">Base URL</Label>
+          <Input value={value.baseUrl || ""} placeholder="https://your-endpoint/v1" onChange={(e) => onChange({ ...value, baseUrl: e.target.value })} />
+        </div>
+      )}
+      <p className="text-[10px] text-muted-foreground">{info.help}</p>
+    </div>
+  );
+}
 
 export default function SettingsView() {
   const { user } = useAuth();
