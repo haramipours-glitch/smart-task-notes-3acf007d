@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import OfflineIndicator from "@/components/OfflineIndicator";
 import InstallPrompt from "@/components/InstallPrompt";
+import EdgeSwipeHandler from "@/components/EdgeSwipeHandler";
 
 export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
@@ -30,6 +31,7 @@ export default function AppLayout() {
         <AIPanel open={aiOpen} onOpenChange={setAiOpen} />
         <OfflineIndicator />
         <InstallPrompt />
+        <EdgeSwipeHandler />
       </div>
     </SidebarProvider>
   );

@@ -54,11 +54,11 @@ export default function InstallPrompt() {
           <Download className="h-5 w-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">نصب TaskFlow</p>
+          <p className="text-sm font-medium">نصب TaskFlow روی دستگاه</p>
           <p className="mt-1 text-xs text-muted-foreground">
             {iosHint
               ? "روی دکمه Share در سافاری بزنید و «Add to Home Screen» را انتخاب کنید."
-              : "اپ را روی دستگاه نصب کنید تا آفلاین هم کار کند."}
+              : "آفلاین کار می‌کند + با نگه‌داشتن آیکون، میانبر «امروز / Check-in / Pomodoro / SOS» داری."}
           </p>
           {!iosHint && (
             <div className="mt-3 flex gap-2">
