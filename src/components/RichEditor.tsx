@@ -269,7 +269,7 @@ export function RichEditor({
       </div>
 
       {/* Bubble menu for AI */}
-      <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
+      <BubbleMenu editor={editor} updateDelay={100}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm" className="gap-1 shadow-elegant" disabled={aiBusy}>
