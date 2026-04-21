@@ -34,8 +34,67 @@ const PROVIDER_INFO: Record<Provider, { label: string; defaultModel: string; bas
 };
 
 export default function SettingsView() {
+  const { user } = useAuth();
   const [s, setS] = useState<AISettings>(DEFAULTS);
   const [lang, setLang] = useState<AILanguage>("fa");
+  const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function exportAll() {
+    if (!user) return;
+    setExporting(true);
+    try {
+      const tables = [
+        "profiles", "tasks", "subtasks", "folders", "tags", "task_tags", "notes", "note_tags",
+        "habits", "habit_logs", "goals", "pomodoro_sessions", "folder_columns",
+        "daily_checkins", "thought_records", "abc_records", "predictions",
+        "user_values", "chronotype", "safe_contacts", "crisis_events",
+        "assessment_responses", "assessment_results", "mh_profile",
+      ];
+      const out: Record<string, any> = { exported_at: new Date().toISOString(), user_id: user.id };
+      for (const t of tables) {
+        const { data } = await supabase.from(t as any).select("*");
+        out[t] = data || [];
+      }
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `taskflow-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("صادرات کامل شد");
+    } catch (e: any) {
+      toast.error(e.message || "خطا در صادرات");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function deleteAll() {
+    if (!user) return;
+    setDeleting(true);
+    try {
+      const tables = [
+        "task_tags", "note_tags", "subtasks", "habit_logs", "folder_columns",
+        "tasks", "notes", "habits", "goals", "folders", "tags", "pomodoro_sessions",
+        "daily_checkins", "thought_records", "abc_records", "predictions",
+        "user_values", "chronotype", "safe_contacts", "crisis_events",
+        "assessment_responses", "assessment_results", "mh_profile",
+      ];
+      for (const t of tables) {
+        await supabase.from(t as any).delete().eq("user_id", user.id);
+      }
+      await supabase.auth.signOut();
+      localStorage.clear();
+      toast.success("همه داده‌ها حذف شد");
+      window.location.href = "/auth";
+    } catch (e: any) {
+      toast.error(e.message || "خطا در حذف");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   useEffect(() => {
     try {
