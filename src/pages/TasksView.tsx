@@ -48,6 +48,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [folderName, setFolderName] = useState("");
   const [tagName, setTagName] = useState("");
   const [confirm, setConfirm] = useState<ConfirmState>(null);
+  const [quickSub, setQuickSub] = useState<Record<string, string>>({});
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const title = {
     inbox: "Inbox", today: "امروز", next7: "۷ روز آینده",
