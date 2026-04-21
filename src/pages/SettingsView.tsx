@@ -231,6 +231,42 @@ export default function SettingsView() {
         </div>
       </Card>
 
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Download className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">داده‌های تو (Right to Export & Delete)</h2>
+        </div>
+        <p className="text-xs text-muted-foreground leading-6">
+          همه داده‌هایت — تسک‌ها، یادداشت‌ها، چک‌این‌ها، Thought Records، تست‌ها، پیش‌بینی‌ها و... — متعلق به توست. می‌توانی هر زمان آن‌ها را به فایل JSON صادر کنی یا کامل حذف کنی.
+        </p>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={exportAll} disabled={exporting} variant="outline" className="gap-2">
+            <Download className="w-4 h-4" /> {exporting ? "در حال صادرات..." : "صادرات کامل (JSON)"}
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="gap-2">
+                <ShieldOff className="w-4 h-4" /> حذف کامل حساب
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>حذف کامل و بازگشت‌ناپذیر</AlertDialogTitle>
+                <AlertDialogDescription>
+                  همه داده‌هایت برای همیشه پاک می‌شود و از حساب خارج می‌شوی. این عمل قابل بازگشت نیست. پیشنهاد می‌شود ابتدا یک خروجی JSON بگیری.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>انصراف</AlertDialogCancel>
+                <AlertDialogAction onClick={deleteAll} disabled={deleting} className="bg-destructive hover:bg-destructive/90">
+                  {deleting ? "در حال حذف..." : "بله، همه را حذف کن"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </Card>
+
       <Card className="p-5 space-y-2">
         <h2 className="font-semibold">درباره</h2>
         <p className="text-sm text-muted-foreground">
