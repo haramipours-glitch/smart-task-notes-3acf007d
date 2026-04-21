@@ -16,6 +16,9 @@ import CalendarView from "./pages/CalendarView";
 import SettingsView from "./pages/SettingsView";
 import KanbanView from "./pages/KanbanView";
 import GoalsView from "./pages/GoalsView";
+import ZenView from "./pages/ZenView";
+import ReviewView from "./pages/ReviewView";
+import InsightsView from "./pages/InsightsView";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +46,9 @@ const App = () => (
               <Route path="calendar" element={<CalendarView />} />
               <Route path="kanban" element={<KanbanView />} />
               <Route path="goals" element={<GoalsView />} />
+              <Route path="review" element={<ReviewView />} />
+              <Route path="insights" element={<InsightsView />} />
+              <Route path="zen" element={<ZenView />} />
               <Route path="settings" element={<SettingsView />} />
             </Route>
             <Route path="*" element={<NotFound />} />
