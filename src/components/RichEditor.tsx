@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -103,7 +104,7 @@ export function RichEditor({
     const cur = editor.getHTML();
     const next = initialHtml || (initialMarkdown ? markdownToHtml(initialMarkdown) : "");
     if (next && next !== cur && editor.isEmpty) {
-      editor.commands.setContent(next, false);
+      editor.commands.setContent(next, { emitUpdate: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
