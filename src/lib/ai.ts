@@ -17,10 +17,32 @@ function getAISettings() {
   }
 }
 
-export async function callAI(mode: AIMode, input: any, context?: string, action?: string) {
+export type AILanguage = "fa" | "en" | "auto";
+
+const LANG_KEY = "ai_language_v1";
+export function getAILanguage(): AILanguage {
+  try {
+    const v = localStorage.getItem(LANG_KEY);
+    if (v === "fa" || v === "en" || v === "auto") return v;
+  } catch {}
+  return "fa";
+}
+export function setAILanguage(lang: AILanguage) {
+  try { localStorage.setItem(LANG_KEY, lang); } catch {}
+}
+
+export async function callAI(
+  mode: AIMode,
+  input: any,
+  context?: string,
+  action?: string,
+  langOverride?: AILanguage,
+) {
   const settings = getAISettings();
+  const lang = langOverride ?? getAILanguage();
+  const language = lang === "auto" ? undefined : lang;
   const { data, error } = await supabase.functions.invoke("ai-assistant", {
-    body: { mode, input, context, settings, action },
+    body: { mode, input, context, settings, action, language },
   });
   if (error) throw error;
   if (data?.error) throw new Error(data.error);
