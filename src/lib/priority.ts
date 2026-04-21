@@ -1,0 +1,45 @@
+export type Priority = "none" | "low" | "medium" | "high";
+
+export const PRIORITY_META: Record<Priority, {
+  label: string;
+  emoji: string;
+  textClass: string;
+  bgClass: string;
+  borderClass: string;
+  rank: number;
+}> = {
+  high: {
+    label: "فوری",
+    emoji: "🔴",
+    textClass: "text-rose-600 dark:text-rose-400",
+    bgClass: "bg-rose-500/10 border-rose-500/30",
+    borderClass: "border-l-rose-500",
+    rank: 0,
+  },
+  medium: {
+    label: "متوسط",
+    emoji: "🟠",
+    textClass: "text-amber-600 dark:text-amber-400",
+    bgClass: "bg-amber-500/10 border-amber-500/30",
+    borderClass: "border-l-amber-500",
+    rank: 1,
+  },
+  low: {
+    label: "پایین",
+    emoji: "🟢",
+    textClass: "text-emerald-600 dark:text-emerald-400",
+    bgClass: "bg-emerald-500/10 border-emerald-500/30",
+    borderClass: "border-l-emerald-500",
+    rank: 2,
+  },
+  none: {
+    label: "بدون",
+    emoji: "⚪",
+    textClass: "text-muted-foreground",
+    bgClass: "bg-muted/30 border-border",
+    borderClass: "border-l-transparent",
+    rank: 3,
+  },
+};
+
+export const PRIORITY_ORDER: Priority[] = ["high", "medium", "low", "none"];
