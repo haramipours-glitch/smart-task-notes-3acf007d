@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
-import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText } from "lucide-react";
+import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText, GripVertical, CornerDownRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,14 @@ import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
 import { RichEditor } from "@/components/RichEditor";
 import { describeRule, nextOccurrence, type RecurrenceRule } from "@/lib/recurrence";
+import {
+  DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor,
+  closestCenter, useSensor, useSensors, useDroppable,
+} from "@dnd-kit/core";
+import {
+  SortableContext, verticalListSortingStrategy, useSortable, arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Task = {
   id: string; title: string; description: string | null; priority: Priority;
@@ -39,6 +48,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [folderName, setFolderName] = useState("");
   const [tagName, setTagName] = useState("");
   const [confirm, setConfirm] = useState<ConfirmState>(null);
+  const [quickSub, setQuickSub] = useState<Record<string, string>>({});
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const title = {
     inbox: "Inbox", today: "امروز", next7: "۷ روز آینده",
@@ -158,53 +170,179 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     (window as any).__lastChildCount = childCount;
   };
 
+  // Compute progress including nested descendants
+  const getProgress = (id: string): { done: number; total: number } => {
+    const subs = childrenMap[id] || [];
+    if (!subs.length) return { done: 0, total: 0 };
+    let done = 0, total = 0;
+    for (const s of subs) {
+      total += 1;
+      if (s.completed) done += 1;
+      const child = getProgress(s.id);
+      done += child.done;
+      total += child.total;
+    }
+    return { done, total };
+  };
+
+  const quickAddSub = async (parent: Task) => {
+    const title = (quickSub[parent.id] || "").trim();
+    if (!title || !user) return;
+    const { data, error } = await supabase.from("tasks").insert({
+      user_id: user.id, title, parent_id: parent.id, priority: "none" as Priority,
+    }).select().single();
+    if (error) return toast.error(error.message);
+    if (data) {
+      setAllTasks(prev => [data as any, ...prev]);
+      setQuickSub(s => ({ ...s, [parent.id]: "" }));
+      setExpanded(s => ({ ...s, [parent.id]: true }));
+    }
+  };
+
+  // Drag & drop: drop a task onto another → set as child; drop in same parent zone → reorder
+  const onDragEnd = async (e: DragEndEvent) => {
+    setActiveDragId(null);
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const activeId = String(active.id);
+    const overId = String(over.id);
+    const activeTask = allTasks.find(t => t.id === activeId);
+    if (!activeTask) return;
+
+    // Drop targets we support:
+    //  - "child:<taskId>"   → make activeTask a child of <taskId>
+    //  - "root"             → make activeTask top-level (in current scope)
+    //  - "<taskId>"         → reorder above this sibling (or move to same parent if different)
+    if (overId.startsWith("child:")) {
+      const newParent = overId.slice(6);
+      if (newParent === activeId) return;
+      // prevent cycles
+      let p: string | null = newParent;
+      while (p) {
+        if (p === activeId) { toast.error("نمی‌توان داخل خودش انداخت"); return; }
+        const pt = allTasks.find(x => x.id === p);
+        p = pt?.parent_id || null;
+      }
+      setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, parent_id: newParent } : t));
+      setExpanded(s => ({ ...s, [newParent]: true }));
+      const { error } = await supabase.from("tasks").update({ parent_id: newParent }).eq("id", activeId);
+      if (error) toast.error(error.message);
+      return;
+    }
+    if (overId === "root") {
+      setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, parent_id: null } : t));
+      const { error } = await supabase.from("tasks").update({ parent_id: null }).eq("id", activeId);
+      if (error) toast.error(error.message);
+      return;
+    }
+    // Reorder: find sibling list of overId
+    const overTask = allTasks.find(t => t.id === overId);
+    if (!overTask) return;
+    const siblings = overTask.parent_id
+      ? (childrenMap[overTask.parent_id] || [])
+      : topLevel;
+    const fromIdx = siblings.findIndex(s => s.id === activeId);
+    const toIdx = siblings.findIndex(s => s.id === overId);
+    // Move into siblings parent if different
+    if (activeTask.parent_id !== overTask.parent_id) {
+      setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, parent_id: overTask.parent_id } : t));
+      await supabase.from("tasks").update({ parent_id: overTask.parent_id }).eq("id", activeId);
+      return;
+    }
+    if (fromIdx < 0 || toIdx < 0) return;
+    const reordered = arrayMove(siblings, fromIdx, toIdx);
+    // Persist new positions
+    const updates = reordered.map((s, i) =>
+      supabase.from("tasks").update({ position: i }).eq("id", s.id)
+    );
+    setAllTasks(prev => {
+      const map = new Map(reordered.map((s, i) => [s.id, i]));
+      return [...prev].sort((a, b) => {
+        const ai = map.get(a.id); const bi = map.get(b.id);
+        if (ai !== undefined && bi !== undefined) return ai - bi;
+        return 0;
+      }).map(t => map.has(t.id) ? { ...t, position: map.get(t.id)! } : t);
+    });
+    await Promise.all(updates);
+  };
+
   const renderTask = (t: Task, depth = 0) => {
     const subs = childrenMap[t.id] || [];
     const open = expanded[t.id];
     const pm = PRIORITY_META[t.priority] || PRIORITY_META.none;
+    const prog = getProgress(t.id);
+    const pct = prog.total > 0 ? Math.round((prog.done / prog.total) * 100) : 0;
     return (
       <div key={t.id}>
-        <Card className={`p-3 hover:shadow-soft transition-shadow animate-fade-in border-l-4 ${pm.borderClass}`}
-          style={{ marginInlineStart: depth * 20 }}>
-          <div className="flex items-start gap-2">
-            {subs.length > 0 ? (
-              <button onClick={() => setExpanded((s) => ({ ...s, [t.id]: !open }))} className="mt-1 text-muted-foreground hover:text-foreground">
-                {open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-              </button>
-            ) : <span className="w-4" />}
-            <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1" />
-            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelected(t)}>
-              <p className={`font-medium ${t.completed ? "line-through text-muted-foreground" : ""}`}>{t.title}</p>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                {t.priority !== "none" && (
-                  <Badge variant="outline" className={`text-xs gap-1 ${pm.bgClass} ${pm.textClass}`}>
-                    <Flag className="w-3 h-3" /> {pm.label}
-                  </Badge>
-                )}
-                {t.due_date && (
-                  <Badge variant="secondary" className="text-xs gap-1">
-                    <Calendar className="w-3 h-3" />
-                    {format(new Date(t.due_date), "MMM d, HH:mm")}
-                  </Badge>
-                )}
-                {t.recurrence_rule && (
-                  <Badge variant="outline" className="text-xs">🔁 {describeRule(t.recurrence_rule)}</Badge>
-                )}
-                {subs.length > 0 && (
-                  <span className="text-xs text-muted-foreground">
-                    {subs.filter(s => s.completed).length}/{subs.length} زیرتسک
-                  </span>
-                )}
+        <SortableTaskRow id={t.id}>
+          {(dragHandle) => (
+            <Card className={`p-3 hover:shadow-soft transition-shadow animate-fade-in border-l-4 ${pm.borderClass}`}
+              style={{ marginInlineStart: depth * 20 }}>
+              <div className="flex items-start gap-2">
+                <button {...dragHandle} className="mt-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none" aria-label="drag">
+                  <GripVertical className="w-4 h-4" />
+                </button>
+                {subs.length > 0 ? (
+                  <button onClick={() => setExpanded((s) => ({ ...s, [t.id]: !open }))} className="mt-1 text-muted-foreground hover:text-foreground">
+                    {open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  </button>
+                ) : <span className="w-4" />}
+                <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1" />
+                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelected(t)}>
+                  <p className={`font-medium ${t.completed ? "line-through text-muted-foreground" : ""}`}>{t.title}</p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {t.priority !== "none" && (
+                      <Badge variant="outline" className={`text-xs gap-1 ${pm.bgClass} ${pm.textClass}`}>
+                        <Flag className="w-3 h-3" /> {pm.label}
+                      </Badge>
+                    )}
+                    {t.due_date && (
+                      <Badge variant="secondary" className="text-xs gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {format(new Date(t.due_date), "MMM d, HH:mm")}
+                      </Badge>
+                    )}
+                    {t.recurrence_rule && (
+                      <Badge variant="outline" className="text-xs">🔁 {describeRule(t.recurrence_rule)}</Badge>
+                    )}
+                    {prog.total > 0 && (
+                      <span className="text-xs text-muted-foreground">{prog.done}/{prog.total}</span>
+                    )}
+                  </div>
+                  {prog.total > 0 && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <Progress value={pct} className="h-1.5 flex-1" />
+                      <span className="text-[10px] text-muted-foreground w-8 text-left">{pct}%</span>
+                    </div>
+                  )}
+                </div>
+                <ChildDropZone parentId={t.id} />
+                <Button size="icon" variant="ghost" onClick={() => askDeleteTask(t)}>
+                  <Trash2 className="w-3 h-3" />
+                </Button>
               </div>
-            </div>
-            <Button size="icon" variant="ghost" onClick={() => askDeleteTask(t)}>
-              <Trash2 className="w-3 h-3" />
-            </Button>
-          </div>
-        </Card>
+              {/* Inline + subtask quick add */}
+              <div className="mt-2 flex items-center gap-2 ml-10">
+                <CornerDownRight className="w-3 h-3 text-muted-foreground" />
+                <Input
+                  value={quickSub[t.id] || ""}
+                  onChange={(e) => setQuickSub(s => ({ ...s, [t.id]: e.target.value }))}
+                  onKeyDown={(e) => e.key === "Enter" && quickAddSub(t)}
+                  placeholder="+ زیرتسک سریع..."
+                  className="h-7 text-xs flex-1"
+                />
+                <Button size="icon" variant="ghost" onClick={() => quickAddSub(t)} className="h-7 w-7">
+                  <Plus className="w-3 h-3" />
+                </Button>
+              </div>
+            </Card>
+          )}
+        </SortableTaskRow>
         {open && subs.length > 0 && (
           <div className="mt-2 space-y-2">
-            {subs.map((s) => renderTask(s, depth + 1))}
+            <SortableContext items={subs.map(s => s.id)} strategy={verticalListSortingStrategy}>
+              {subs.map((s) => renderTask(s, depth + 1))}
+            </SortableContext>
           </div>
         )}
       </div>
@@ -221,12 +359,32 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
         <Button onClick={() => addTask()}><Plus className="w-4 h-4" /></Button>
       </div>
 
-      <div className="space-y-2">
-        {topLevel.length === 0 && (
-          <Card className="p-8 text-center text-muted-foreground">هیچ تسکی نیست</Card>
-        )}
-        {topLevel.map((t) => renderTask(t))}
-      </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={(e: DragStartEvent) => setActiveDragId(String(e.active.id))}
+        onDragEnd={onDragEnd}
+        onDragCancel={() => setActiveDragId(null)}
+      >
+        <RootDropZone />
+        <div className="space-y-2 mt-2">
+          {topLevel.length === 0 && (
+            <Card className="p-8 text-center text-muted-foreground">هیچ تسکی نیست</Card>
+          )}
+          <SortableContext items={topLevel.map(t => t.id)} strategy={verticalListSortingStrategy}>
+            {topLevel.map((t) => renderTask(t))}
+          </SortableContext>
+        </div>
+        <DragOverlay>
+          {activeDragId ? (
+            <Card className="p-3 shadow-lg opacity-90">
+              <p className="text-sm font-medium">
+                {allTasks.find(x => x.id === activeDragId)?.title || "..."}
+              </p>
+            </Card>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} onChanged={load} setConfirm={setConfirm} />}
 
@@ -431,5 +589,45 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
         onMetaApplied={refreshTask}
       />
     </>
+  );
+}
+
+// ============== DnD helpers ==============
+function SortableTaskRow({ id, children }: { id: string; children: (dragHandle: any) => React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style}>
+      {children({ ...attributes, ...listeners })}
+    </div>
+  );
+}
+
+function ChildDropZone({ parentId }: { parentId: string }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `child:${parentId}` });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`w-7 h-7 rounded-md border-2 border-dashed flex items-center justify-center transition ${isOver ? "border-primary bg-primary/10" : "border-transparent hover:border-muted-foreground/40"}`}
+      title="رها کن تا زیرتسک شود"
+    >
+      <CornerDownRight className="w-3 h-3 text-muted-foreground" />
+    </div>
+  );
+}
+
+function RootDropZone() {
+  const { setNodeRef, isOver } = useDroppable({ id: "root" });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`text-xs text-center py-2 rounded-md border border-dashed transition ${isOver ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground/60"}`}
+    >
+      {isOver ? "↑ رها کن تا تسک ریشه شود" : "— ناحیه‌ی ریشه (drop here to make top-level) —"}
+    </div>
   );
 }
