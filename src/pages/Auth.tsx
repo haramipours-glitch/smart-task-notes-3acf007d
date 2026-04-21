@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckSquare } from "lucide-react";
+import { CheckSquare, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+
+const DISCLAIMER_KEY = "clinical_disclaimer_accepted_v1";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -17,6 +21,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [accepted, setAccepted] = useState(() => localStorage.getItem(DISCLAIMER_KEY) === "1");
 
   useEffect(() => {
     if (!authLoading && user) navigate("/app", { replace: true });
