@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      folder_columns: {
+        Row: {
+          color: string | null
+          created_at: string
+          folder_id: string
+          id: string
+          name: string
+          position: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          folder_id: string
+          id?: string
+          name: string
+          position?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          folder_id?: string
+          id?: string
+          name?: string
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       folders: {
         Row: {
           color: string | null
@@ -235,6 +268,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_language: string
           avatar_url: string | null
           created_at: string
           display_name: string | null
@@ -242,6 +276,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_language?: string
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -249,6 +284,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_language?: string
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -361,6 +397,7 @@ export type Database = {
           due_date: string | null
           folder_id: string | null
           id: string
+          kanban_column_id: string | null
           parent_id: string | null
           position: number
           priority: Database["public"]["Enums"]["task_priority"]
@@ -380,6 +417,7 @@ export type Database = {
           due_date?: string | null
           folder_id?: string | null
           id?: string
+          kanban_column_id?: string | null
           parent_id?: string | null
           position?: number
           priority?: Database["public"]["Enums"]["task_priority"]
@@ -399,6 +437,7 @@ export type Database = {
           due_date?: string | null
           folder_id?: string | null
           id?: string
+          kanban_column_id?: string | null
           parent_id?: string | null
           position?: number
           priority?: Database["public"]["Enums"]["task_priority"]
