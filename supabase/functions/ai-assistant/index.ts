@@ -132,6 +132,36 @@ const TOOLS: Record<string, any> = {
       },
     },
   },
+  folder_chat: {
+    type: "function",
+    function: {
+      name: "propose_tasks",
+      description: "Propose tasks extracted from the project conversation",
+      parameters: {
+        type: "object",
+        properties: {
+          tasks: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                priority: { type: "string", enum: ["none", "low", "medium", "high"] },
+                due_date: { type: "string", description: "ISO 8601 or empty" },
+                kanban_column: { type: "string", enum: ["todo", "doing", "done"] },
+                description: { type: "string" },
+              },
+              required: ["title"],
+              additionalProperties: false,
+            },
+          },
+          summary: { type: "string", description: "Short rationale" },
+        },
+        required: ["tasks"],
+        additionalProperties: false,
+      },
+    },
+  },
 };
 
 const TONE_DIRECTIVES: Record<string, string> = {
