@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Pin, Trash2, Search } from "lucide-react";
+import { Plus, Pin, Trash2, Search, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,63 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { RichEditor } from "@/components/RichEditor";
-import { htmlToMarkdown, markdownToHtml } from "@/lib/markdown";
+import { markdownToHtml } from "@/lib/markdown";
+import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
+import { AILangToggle } from "@/components/AILangToggle";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null };
+
+const AI_GROUPS: { label: string; items: { key: string; label: string }[] }[] = [
+  {
+    label: "بهبود نگارش",
+    items: [
+      { key: "improve", label: "✨ بهبود کلی نگارش" },
+      { key: "fix_grammar", label: "✏️ اصلاح املا و گرامر" },
+      { key: "make_concise", label: "🎯 موجز و فشرده‌تر" },
+    ],
+  },
+  {
+    label: "ساختار و فرمت",
+    items: [
+      { key: "auto_format", label: "🪄 فرمت‌بندی هوشمند (سرتیتر، Bold، لیست)" },
+      { key: "add_headings", label: "📑 اضافه کردن سرتیتر مناسب" },
+      { key: "bold_keywords", label: "🅱️ Bold کردن نکات کلیدی" },
+      { key: "to_list", label: "• تبدیل به لیست" },
+      { key: "to_outline", label: "🗂 ساختار Outline" },
+    ],
+  },
+  {
+    label: "خلاصه و گسترش",
+    items: [
+      { key: "summarize", label: "📝 خلاصه کن" },
+      { key: "expand", label: "📖 گسترش بده" },
+      { key: "continue_writing", label: "✍️ ادامه‌ی متن را بنویس" },
+      { key: "tldr", label: "⚡ TL;DR در ۳ خط" },
+    ],
+  },
+  {
+    label: "سبک و لحن",
+    items: [
+      { key: "tone_formal", label: "👔 رسمی و حرفه‌ای" },
+      { key: "tone_casual", label: "😊 صمیمی و دوستانه" },
+      { key: "tone_academic", label: "🎓 آکادمیک" },
+      { key: "tone_motivational", label: "🔥 انگیزشی" },
+      { key: "simplify", label: "🧒 ساده برای همه‌فهم" },
+    ],
+  },
+  {
+    label: "ترجمه",
+    items: [
+      { key: "translate_fa", label: "🇮🇷 ترجمه به فارسی" },
+      { key: "translate_en", label: "🇬🇧 ترجمه به انگلیسی" },
+    ],
+  },
+];
 
 export default function NotesView() {
   const { user } = useAuth();
@@ -20,6 +72,8 @@ export default function NotesView() {
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState<{ html: string; md: string } | null>(null);
   const [confirmDel, setConfirmDel] = useState<Note | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiLang, setAiLang] = useState<AILanguage>(getAILanguage());
 
   const load = async () => {
     if (!user) return;
@@ -43,7 +97,6 @@ export default function NotesView() {
     }).select().single();
     if (error) toast.error(error.message);
     else if (data) {
-      // Optimistic: show immediately
       setNotes(prev => [data as any, ...prev]);
       setSelected(data as any);
       setDraft({ html: "", md: "" });
@@ -57,13 +110,9 @@ export default function NotesView() {
     await supabase.from("notes").update(patch).eq("id", selected.id);
   };
 
-  // Debounced save of editor content
   useEffect(() => {
     if (!draft || !selected) return;
-    const t = setTimeout(() => {
-      // store as markdown for portability
-      save({ content: draft.md });
-    }, 600);
+    const t = setTimeout(() => { save({ content: draft.md }); }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line
   }, [draft?.md]);
@@ -75,10 +124,32 @@ export default function NotesView() {
     toast.success("حذف شد");
   };
 
+  const runNoteAI = async (action: string) => {
+    if (!selected) return;
+    const md = (draft?.md ?? selected.content ?? "").trim();
+    if (!md) return toast.error("نوت خالی است");
+    setAiBusy(true);
+    try {
+      const r = await callAI("inline_edit", md, undefined, action, aiLang);
+      const newMd = (r.text || "").trim();
+      if (!newMd) throw new Error("نتیجه خالی");
+      setDraft({ md: newMd, html: markdownToHtml(newMd) });
+      await save({ content: newMd });
+      toast.success("اعمال شد ✨");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
   const filtered = notes.filter((n) =>
     n.title.toLowerCase().includes(search.toLowerCase()) ||
     n.content.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Plain-preview helper (strip MD chars) for sidebar
+  const stripMd = (s: string) => (s || "").replace(/[#*`>_\-!\[\]()~]+/g, "").replace(/\n+/g, " ").slice(0, 80);
 
   return (
     <div className="flex flex-col md:flex-row h-full">
@@ -101,7 +172,7 @@ export default function NotesView() {
                 {n.pinned && <Pin className="w-3 h-3 text-primary" />}
                 <span className="font-medium text-sm truncate flex-1">{n.title}</span>
               </div>
-              <p className="text-xs text-muted-foreground truncate mt-1">{(n.content || "").replace(/[#*`>_\-!\[\]()]/g, "").slice(0, 80)}</p>
+              <p className="text-xs text-muted-foreground truncate mt-1">{stripMd(n.content)}</p>
             </button>
           ))}
           {filtered.length === 0 && <p className="text-center text-muted-foreground p-6 text-sm">نوتی نیست</p>}
@@ -111,9 +182,31 @@ export default function NotesView() {
       <div className="flex-1 min-w-0 overflow-y-auto">
         {selected ? (
           <div className="p-4 max-w-4xl mx-auto">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Input value={selected.title} onChange={(e) => save({ title: e.target.value })}
-                className="text-xl font-bold border-none focus-visible:ring-0 px-0" />
+                className="text-xl font-bold border-none focus-visible:ring-0 px-0 flex-1 min-w-[120px]" />
+              <AILangToggle value={aiLang} onChange={setAiLang} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="default" className="gap-1" disabled={aiBusy}>
+                    {aiBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    AI
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="max-h-[70vh] overflow-y-auto w-64">
+                  {AI_GROUPS.map((g, gi) => (
+                    <div key={g.label}>
+                      {gi > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuLabel className="text-xs text-muted-foreground">{g.label}</DropdownMenuLabel>
+                      {g.items.map((it) => (
+                        <DropdownMenuItem key={it.key} onClick={() => runNoteAI(it.key)}>
+                          {it.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button size="icon" variant="ghost" onClick={() => save({ pinned: !selected.pinned })}>
                 <Pin className={`w-4 h-4 ${selected.pinned ? "text-primary fill-primary" : ""}`} />
               </Button>
@@ -124,8 +217,9 @@ export default function NotesView() {
 
             <Tabs defaultValue="visual">
               <TabsList>
-                <TabsTrigger value="visual">بصری</TabsTrigger>
-                <TabsTrigger value="markdown">Markdown</TabsTrigger>
+                <TabsTrigger value="visual">📖 نمایش/ویرایش</TabsTrigger>
+                <TabsTrigger value="markdown">📝 Markdown خام</TabsTrigger>
+                <TabsTrigger value="preview">👁 پیش‌نمایش</TabsTrigger>
               </TabsList>
               <TabsContent value="visual" className="mt-3">
                 <RichEditor
@@ -134,13 +228,30 @@ export default function NotesView() {
                   onChange={(html, md) => setDraft({ html, md })}
                 />
               </TabsContent>
-              <TabsContent value="markdown" className="mt-3">
+              <TabsContent value="markdown" className="mt-3 space-y-3">
                 <Textarea
                   value={draft?.md ?? selected.content}
                   onChange={(e) => setDraft({ md: e.target.value, html: markdownToHtml(e.target.value) })}
-                  className="min-h-[60vh] font-mono text-sm"
+                  className="min-h-[40vh] font-mono text-sm"
                   dir="ltr"
                 />
+                <div className="border rounded-lg p-4 bg-card/40">
+                  <p className="text-xs text-muted-foreground mb-2">پیش‌نمایش زنده:</p>
+                  <div className="prose-note">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {draft?.md ?? selected.content ?? ""}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="preview" className="mt-3">
+                <div className="border rounded-lg p-5 bg-card/40 min-h-[50vh]">
+                  <div className="prose-note">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {draft?.md ?? selected.content ?? ""}
+                    </ReactMarkdown>
+                  </div>
+                </div>
               </TabsContent>
             </Tabs>
           </div>

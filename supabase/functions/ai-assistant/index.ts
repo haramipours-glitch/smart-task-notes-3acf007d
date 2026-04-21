@@ -132,7 +132,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, input, context, settings, action } = await req.json();
+    const { mode, input, context, settings, action, language } = await req.json();
 
     const useCustom = settings && settings.provider && settings.provider !== "lovable" && settings.apiKey;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -141,6 +141,12 @@ serve(async (req) => {
     let systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.chat;
     if (mode === "inline_edit" && action) {
       systemPrompt += `\n\nAction: ${action}`;
+    }
+    // Language directive (overrides "match input language")
+    if (language === "fa") {
+      systemPrompt += `\n\nIMPORTANT: Always respond in Persian (Farsi / فارسی), regardless of the input language. Use natural, fluent Persian.`;
+    } else if (language === "en") {
+      systemPrompt += `\n\nIMPORTANT: Always respond in English, regardless of the input language. Use clear, natural English.`;
     }
     const today = new Date().toISOString();
 

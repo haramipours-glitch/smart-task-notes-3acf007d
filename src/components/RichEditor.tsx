@@ -23,7 +23,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { uploadMedia, detectMediaKind } from "@/lib/uploadMedia";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { callAI } from "@/lib/ai";
+import { callAI, getAILanguage } from "@/lib/ai";
 import { htmlToMarkdown, markdownToHtml } from "@/lib/markdown";
 
 const AI_ACTIONS = [
@@ -159,7 +159,7 @@ export function RichEditor({
     if (!selected.trim()) return toast.error("ابتدا متن را انتخاب کنید");
     setAiBusy(true);
     try {
-      const r = await callAI("inline_edit", selected, undefined, action);
+      const r = await callAI("inline_edit", selected, undefined, action, getAILanguage());
       const newText = (r.text || "").trim();
       if (!newText) throw new Error("نتیجه خالی");
       editor.chain().focus().deleteRange({ from, to }).insertContent(markdownToHtml(newText)).run();

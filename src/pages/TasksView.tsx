@@ -18,6 +18,8 @@ import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
 import { RichEditor } from "@/components/RichEditor";
+import { FolderKanban } from "@/components/FolderKanban";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { describeRule, nextOccurrence, type RecurrenceRule } from "@/lib/recurrence";
 import {
   DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor,
@@ -349,10 +351,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     );
   };
 
-  return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">{title}</h1>
+  const isFolder = scope === "folder" && !!params.id;
 
+  const listView = (
+    <>
       <div className="flex gap-2 mb-4">
         <Input placeholder="+ تسک جدید..." value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" />
@@ -385,6 +387,25 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           ) : null}
         </DragOverlay>
       </DndContext>
+    </>
+  );
+
+  return (
+    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">{title}</h1>
+
+      {isFolder ? (
+        <Tabs defaultValue="list">
+          <TabsList>
+            <TabsTrigger value="list">📋 لیست</TabsTrigger>
+            <TabsTrigger value="kanban">🗂 Kanban</TabsTrigger>
+          </TabsList>
+          <TabsContent value="list" className="mt-4">{listView}</TabsContent>
+          <TabsContent value="kanban" className="mt-4">
+            <FolderKanban folderId={params.id!} />
+          </TabsContent>
+        </Tabs>
+      ) : listView}
 
       {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} onChanged={load} setConfirm={setConfirm} />}
 
