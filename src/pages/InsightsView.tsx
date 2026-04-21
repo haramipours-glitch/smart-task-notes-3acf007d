@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { callAI } from "@/lib/ai";
-import { TrendingUp, Sparkles, CheckCircle2, AlertCircle, Target } from "lucide-react";
+import { TrendingUp, Sparkles, CheckCircle2, AlertCircle, Target, Brain, Activity } from "lucide-react";
 import { toPersianDigits } from "@/lib/jalali";
 import { toast } from "sonner";
+import { computeCognitiveLoad, loadStatus } from "@/lib/cognitiveLoad";
+import { pearson, confidenceLabel } from "@/lib/correlation";
 
 type Stats = {
   completed: number;
@@ -14,6 +17,9 @@ type Stats = {
   overdue: number;
   byQuadrant: Record<number, number>;
   topPriority: number;
+  cogLoad: { load: number; breakdown: any } | null;
+  cogStatus: { label: string; tone: string } | null;
+  correlations: { label: string; r: number; n: number; conf: string }[];
 };
 
 export default function InsightsView() {
