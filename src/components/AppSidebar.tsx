@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import {
   Inbox, Calendar as CalIcon, CalendarDays, Filter, FolderTree, Tag, FileText,
   Target, Timer, Calendar, Plus, ChevronRight, ChevronDown, LogOut, Sparkles, Settings, LayoutGrid,
-  Brain, TrendingUp, Moon, HeartPulse, Activity,
+  Brain, TrendingUp, Moon, HeartPulse, Activity, MessageCircleQuestion, Zap, Clock4, Heart, ShieldAlert, BookOpen, Sun,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -37,6 +37,13 @@ const EXTRA_ITEMS = [
   { url: "/app/zen", icon: Moon, label: "حالت ذن" },
   { url: "/app/self", icon: HeartPulse, label: "خودشناسی" },
   { url: "/app/checkin", icon: Activity, label: "Check-in روزانه" },
+  { url: "/app/thoughts", icon: BookOpen, label: "ثبت افکار (CBT)" },
+  { url: "/app/abc", icon: Zap, label: "مدل ABC" },
+  { url: "/app/prediction", icon: Clock4, label: "پیش‌بینی" },
+  { url: "/app/values", icon: Heart, label: "ارزش‌ها (ACT)" },
+  { url: "/app/meq", icon: Sun, label: "Chronotype" },
+  { url: "/app/socratic", icon: MessageCircleQuestion, label: "چت سقراطی" },
+  { url: "/app/crisis", icon: ShieldAlert, label: "بحران / SOS" },
   { url: "/app/habits", icon: Target, label: "عادت‌ها" },
   { url: "/app/pomodoro", icon: Timer, label: "Pomodoro" },
   { url: "/app/settings", icon: Settings, label: "تنظیمات" },

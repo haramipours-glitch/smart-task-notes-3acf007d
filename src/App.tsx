@@ -23,6 +23,13 @@ import SelfKnowledgeView from "./pages/SelfKnowledgeView";
 import AssessmentRunner from "./pages/AssessmentRunner";
 import AssessmentResult from "./pages/AssessmentResult";
 import CheckinView from "./pages/CheckinView";
+import ThoughtRecordsView from "./pages/ThoughtRecordsView";
+import ABCView from "./pages/ABCView";
+import PredictionView from "./pages/PredictionView";
+import ValuesView from "./pages/ValuesView";
+import MeqView from "./pages/MeqView";
+import CrisisView from "./pages/CrisisView";
+import SocraticView from "./pages/SocraticView";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +64,13 @@ const App = () => (
               <Route path="self/test/:type" element={<AssessmentRunner />} />
               <Route path="self/result/:type" element={<AssessmentResult />} />
               <Route path="checkin" element={<CheckinView />} />
+              <Route path="thoughts" element={<ThoughtRecordsView />} />
+              <Route path="abc" element={<ABCView />} />
+              <Route path="prediction" element={<PredictionView />} />
+              <Route path="values" element={<ValuesView />} />
+              <Route path="meq" element={<MeqView />} />
+              <Route path="crisis" element={<CrisisView />} />
+              <Route path="socratic" element={<SocraticView />} />
               <Route path="settings" element={<SettingsView />} />
             </Route>
             <Route path="*" element={<NotFound />} />
