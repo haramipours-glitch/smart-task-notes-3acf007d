@@ -84,6 +84,21 @@ export default function Auth() {
           <h1 className="text-2xl font-bold">TaskFlow</h1>
         </div>
 
+        <Alert className="mb-4 border-amber-500/40 bg-amber-500/5">
+          <ShieldAlert className="w-4 h-4 text-amber-600" />
+          <AlertDescription className="text-xs leading-6">
+            این اپ ابزار <strong>خودمدیریتی مبتنی بر شواهد</strong> است و جایگزین روان‌درمانی، تشخیص بالینی یا دارودرمانی نیست. در صورت علائم شدید یا پایدار، حتماً به متخصص مراجعه کن.
+            <label className="flex items-center gap-2 mt-2 cursor-pointer">
+              <Checkbox checked={accepted} onCheckedChange={(v) => {
+                const ok = v === true;
+                setAccepted(ok);
+                if (ok) localStorage.setItem(DISCLAIMER_KEY, "1"); else localStorage.removeItem(DISCLAIMER_KEY);
+              }} />
+              <span className="text-xs">مسئولیت‌نامه را خواندم و می‌پذیرم.</span>
+            </label>
+          </AlertDescription>
+        </Alert>
+
         <Tabs defaultValue="signin">
           <TabsList className="grid grid-cols-2 w-full mb-6">
             <TabsTrigger value="signin">ورود</TabsTrigger>
