@@ -20,6 +20,7 @@ import { TaskAIPanel } from "@/components/TaskAIPanel";
 import { RichEditor } from "@/components/RichEditor";
 import { FolderKanban } from "@/components/FolderKanban";
 import { EisenhowerMatrix } from "@/components/EisenhowerMatrix";
+import { Countdown } from "@/components/Countdown";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { describeRule, nextOccurrence, type RecurrenceRule } from "@/lib/recurrence";
 import {
@@ -304,6 +305,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                         <Calendar className="w-3 h-3" />
                         {format(new Date(t.due_date), "MMM d, HH:mm")}
                       </Badge>
+                    )}
+                    {t.due_date && !t.completed && (
+                      <Countdown target={t.due_date} className="text-xs" />
                     )}
                     {t.recurrence_rule && (
                       <Badge variant="outline" className="text-xs">🔁 {describeRule(t.recurrence_rule)}</Badge>

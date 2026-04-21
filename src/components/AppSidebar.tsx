@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import {
   Inbox, Calendar as CalIcon, CalendarDays, Filter, FolderTree, Tag, FileText,
   Target, Timer, Calendar, Plus, ChevronRight, ChevronDown, LogOut, Sparkles, Settings, LayoutGrid,
+  Brain, TrendingUp, Moon,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -31,6 +32,9 @@ const NAV_ITEMS = [
 
 const EXTRA_ITEMS = [
   { url: "/app/notes", icon: FileText, label: "نوت‌ها" },
+  { url: "/app/review", icon: Brain, label: "مرور (SR)" },
+  { url: "/app/insights", icon: TrendingUp, label: "بینش هفتگی" },
+  { url: "/app/zen", icon: Moon, label: "حالت ذن" },
   { url: "/app/habits", icon: Target, label: "عادت‌ها" },
   { url: "/app/pomodoro", icon: Timer, label: "Pomodoro" },
   { url: "/app/settings", icon: Settings, label: "تنظیمات" },

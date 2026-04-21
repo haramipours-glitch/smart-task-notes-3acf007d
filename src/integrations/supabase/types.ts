@@ -253,6 +253,12 @@ export type Database = {
           folder_id: string | null
           id: string
           pinned: boolean
+          sr_due_date: string | null
+          sr_ease: number
+          sr_enabled: boolean
+          sr_interval: number
+          sr_last_reviewed_at: string | null
+          sr_reps: number
           task_id: string | null
           title: string
           updated_at: string
@@ -264,6 +270,12 @@ export type Database = {
           folder_id?: string | null
           id?: string
           pinned?: boolean
+          sr_due_date?: string | null
+          sr_ease?: number
+          sr_enabled?: boolean
+          sr_interval?: number
+          sr_last_reviewed_at?: string | null
+          sr_reps?: number
           task_id?: string | null
           title?: string
           updated_at?: string
@@ -275,6 +287,12 @@ export type Database = {
           folder_id?: string | null
           id?: string
           pinned?: boolean
+          sr_due_date?: string | null
+          sr_ease?: number
+          sr_enabled?: boolean
+          sr_interval?: number
+          sr_last_reviewed_at?: string | null
+          sr_reps?: number
           task_id?: string | null
           title?: string
           updated_at?: string
