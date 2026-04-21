@@ -367,6 +367,7 @@ export type Database = {
           recurrence: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule: Json | null
           reminder_at: string | null
+          status: Database["public"]["Enums"]["task_status"]
           title: string
           updated_at: string
           user_id: string
@@ -385,6 +386,7 @@ export type Database = {
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule?: Json | null
           reminder_at?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
           title: string
           updated_at?: string
           user_id: string
@@ -403,6 +405,7 @@ export type Database = {
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule?: Json | null
           reminder_at?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
           title?: string
           updated_at?: string
           user_id?: string
@@ -434,6 +437,7 @@ export type Database = {
     Enums: {
       recurrence_type: "none" | "daily" | "weekly" | "monthly"
       task_priority: "none" | "low" | "medium" | "high"
+      task_status: "todo" | "in_progress" | "done"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -563,6 +567,7 @@ export const Constants = {
     Enums: {
       recurrence_type: ["none", "daily", "weekly", "monthly"],
       task_priority: ["none", "low", "medium", "high"],
+      task_status: ["todo", "in_progress", "done"],
     },
   },
 } as const

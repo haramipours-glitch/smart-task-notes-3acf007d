@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
   Inbox, Calendar as CalIcon, CalendarDays, Filter, FolderTree, Tag, FileText,
-  Target, Timer, Calendar, Plus, ChevronRight, ChevronDown, LogOut, Sparkles, Settings,
+  Target, Timer, Calendar, Plus, ChevronRight, ChevronDown, LogOut, Sparkles, Settings, LayoutGrid,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -25,6 +25,7 @@ const NAV_ITEMS = [
   { url: "/app/next7", icon: CalendarDays, label: "۷ روز آینده" },
   { url: "/app/smart", icon: Filter, label: "Smart Lists" },
   { url: "/app/calendar", icon: Calendar, label: "تقویم" },
+  { url: "/app/kanban", icon: LayoutGrid, label: "Kanban" },
 ];
 
 const EXTRA_ITEMS = [
