@@ -128,11 +128,18 @@ const TOOLS: Record<string, any> = {
   },
 };
 
+const TONE_DIRECTIVES: Record<string, string> = {
+  data_driven: "لحن: Data-Driven Minimal. بدون جملات همدلانه یا انگیزشی. فقط داده، درصد، استدلال شفاف و گزینه‌های تصمیم. جملات کوتاه.",
+  gentle_analytical: "لحن: Gentle Analytical. همان داده دقیق، اما با Framing نرم‌تر و فضای تفسیر شخصی. از جملات تحکمی پرهیز کن.",
+  exploratory: "لحن: Exploratory. چند زاویه دید ارائه بده، دعوت به کاوش کن، سوال‌های باز مطرح کن.",
+  neutral: "",
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, input, context, settings, action, language } = await req.json();
+    const { mode, input, context, settings, action, language, mhProfile } = await req.json();
 
     const useCustom = settings && settings.provider && settings.provider !== "lovable" && settings.apiKey;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -142,11 +149,24 @@ serve(async (req) => {
     if (mode === "inline_edit" && action) {
       systemPrompt += `\n\nAction: ${action}`;
     }
-    // Language directive (overrides "match input language")
     if (language === "fa") {
       systemPrompt += `\n\nIMPORTANT: Always respond in Persian (Farsi / فارسی), regardless of the input language. Use natural, fluent Persian.`;
     } else if (language === "en") {
       systemPrompt += `\n\nIMPORTANT: Always respond in English, regardless of the input language. Use clear, natural English.`;
+    }
+    // Mental health profile → tone calibration
+    if (mhProfile && typeof mhProfile === "object") {
+      const tone = TONE_DIRECTIVES[mhProfile.ai_tone || "neutral"];
+      if (tone) systemPrompt += `\n\n${tone}`;
+      if (mhProfile.signature_strengths?.length) {
+        systemPrompt += `\n\nنقاط قوت اصلی کاربر (Signature Strengths): ${mhProfile.signature_strengths.join(", ")}. در پیشنهادها و مداخله‌ها از این نقاط قوت استفاده کن، نه از جملات عمومی.`;
+      }
+      if (mhProfile.hexaco_pattern) {
+        systemPrompt += `\n\nالگوی شخصیتی کاربر: ${mhProfile.hexaco_pattern}.`;
+      }
+      if (mhProfile.attachment_quadrant) {
+        systemPrompt += `\n\nسبک دلبستگی: ${mhProfile.attachment_quadrant} — این را در نحوه ارائه بازخورد در نظر بگیر.`;
+      }
     }
     const today = new Date().toISOString();
 

@@ -14,6 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessment_responses: {
+        Row: {
+          assessment_type: string
+          completed: boolean
+          created_at: string
+          current_index: number
+          id: string
+          responses: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessment_type: string
+          completed?: boolean
+          created_at?: string
+          current_index?: number
+          id?: string
+          responses?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessment_type?: string
+          completed?: boolean
+          created_at?: string
+          current_index?: number
+          id?: string
+          responses?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      assessment_results: {
+        Row: {
+          analysis: Json | null
+          assessment_type: string
+          completed_at: string
+          id: string
+          scores: Json
+          user_id: string
+        }
+        Insert: {
+          analysis?: Json | null
+          assessment_type: string
+          completed_at?: string
+          id?: string
+          scores: Json
+          user_id: string
+        }
+        Update: {
+          analysis?: Json | null
+          assessment_type?: string
+          completed_at?: string
+          id?: string
+          scores?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_checkins: {
+        Row: {
+          checkin_date: string
+          created_at: string
+          energy: number | null
+          focus: number | null
+          id: string
+          mood: number | null
+          notes: string | null
+          sleep_hours: number | null
+          sleep_quality: number | null
+          stress: number | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checkin_date?: string
+          created_at?: string
+          energy?: number | null
+          focus?: number | null
+          id?: string
+          mood?: number | null
+          notes?: string | null
+          sleep_hours?: number | null
+          sleep_quality?: number | null
+          stress?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checkin_date?: string
+          created_at?: string
+          energy?: number | null
+          focus?: number | null
+          id?: string
+          mood?: number | null
+          notes?: string | null
+          sleep_hours?: number | null
+          sleep_quality?: number | null
+          stress?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       folder_columns: {
         Row: {
           color: string | null
@@ -210,6 +318,36 @@ export type Database = {
           local_name?: string | null
           name?: string
           type?: string | null
+        }
+        Relationships: []
+      }
+      mh_profile: {
+        Row: {
+          ai_tone: string
+          attachment_quadrant: string | null
+          attention_points: Json | null
+          hexaco_pattern: string | null
+          signature_strengths: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_tone?: string
+          attachment_quadrant?: string | null
+          attention_points?: Json | null
+          hexaco_pattern?: string | null
+          signature_strengths?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_tone?: string
+          attachment_quadrant?: string | null
+          attention_points?: Json | null
+          hexaco_pattern?: string | null
+          signature_strengths?: Json | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
