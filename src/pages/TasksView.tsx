@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
-import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText } from "lucide-react";
+import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText, GripVertical, CornerDownRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,14 @@ import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
 import { RichEditor } from "@/components/RichEditor";
 import { describeRule, nextOccurrence, type RecurrenceRule } from "@/lib/recurrence";
+import {
+  DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor,
+  closestCenter, useSensor, useSensors, useDroppable,
+} from "@dnd-kit/core";
+import {
+  SortableContext, verticalListSortingStrategy, useSortable, arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Task = {
   id: string; title: string; description: string | null; priority: Priority;
