@@ -34,7 +34,7 @@ export default function InsightsView() {
       const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
       const now = new Date().toISOString();
 
-      const [completed, created, overdue, all] = await Promise.all([
+      const [completed, created, overdue, all, activeTasks, chronoRes, checkins] = await Promise.all([
         supabase.from("tasks").select("id", { count: "exact", head: true })
           .eq("completed", true).gte("completed_at", weekAgo),
         supabase.from("tasks").select("id", { count: "exact", head: true })
@@ -42,6 +42,12 @@ export default function InsightsView() {
         supabase.from("tasks").select("id", { count: "exact", head: true })
           .eq("completed", false).lt("due_date", now),
         supabase.from("tasks").select("quadrant,priority").eq("completed", false),
+        supabase.from("tasks").select("id,priority,folder_id,quadrant").eq("completed", false)
+          .or(`due_date.lte.${new Date(Date.now() + 86400000).toISOString()},due_date.is.null`),
+        supabase.from("chronotype").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("daily_checkins").select("checkin_date,mood,energy,focus,sleep_hours,sleep_quality,stress")
+          .eq("user_id", user.id).gte("checkin_date", new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10))
+          .order("checkin_date"),
       ]);
 
       const byQuadrant: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0 };
@@ -51,12 +57,53 @@ export default function InsightsView() {
         if (t.priority === "high") topPriority++;
       });
 
+      // Cognitive Load v2
+      const lastCheckin = (checkins.data || []).slice(-1)[0];
+      const cog = computeCognitiveLoad({
+        tasks: activeTasks.data || [],
+        sleepHours: lastCheckin?.sleep_hours ?? null,
+        chronotype: chronoRes.data,
+      });
+      const cogStatus = loadStatus(cog.load);
+
+      // Cross-Correlation Radar: pair check-ins with completion count of that day
+      const dayCompletes: Record<string, number> = {};
+      const completedTasks = await supabase.from("tasks").select("completed_at")
+        .eq("completed", true).gte("completed_at", new Date(Date.now() - 30 * 86400000).toISOString());
+      (completedTasks.data || []).forEach((t: any) => {
+        const d = t.completed_at?.slice(0, 10);
+        if (d) dayCompletes[d] = (dayCompletes[d] || 0) + 1;
+      });
+      const corrs: { label: string; r: number; n: number; conf: string }[] = [];
+      const pairs = (key: string) => {
+        const xs: number[] = [], ys: number[] = [];
+        (checkins.data || []).forEach((c: any) => {
+          if (c[key] != null) { xs.push(c[key]); ys.push(dayCompletes[c.checkin_date] || 0); }
+        });
+        return { xs, ys };
+      };
+      [
+        { key: "mood", label: "روحیه ↔ تکمیل تسک" },
+        { key: "energy", label: "انرژی ↔ تکمیل تسک" },
+        { key: "focus", label: "تمرکز ↔ تکمیل تسک" },
+        { key: "sleep_hours", label: "ساعت خواب ↔ تکمیل تسک" },
+        { key: "sleep_quality", label: "کیفیت خواب ↔ تکمیل تسک" },
+        { key: "stress", label: "استرس ↔ تکمیل تسک" },
+      ].forEach(({ key, label }) => {
+        const { xs, ys } = pairs(key);
+        const r = pearson(xs, ys);
+        if (r != null) corrs.push({ label, r, n: xs.length, conf: confidenceLabel(xs.length, r) });
+      });
+
       setStats({
         completed: completed.count || 0,
         created: created.count || 0,
         overdue: overdue.count || 0,
         byQuadrant,
         topPriority,
+        cogLoad: cog,
+        cogStatus,
+        correlations: corrs,
       });
     })();
   }, [user]);
