@@ -27,8 +27,14 @@ export default function Auth() {
     if (!authLoading && user) navigate("/app", { replace: true });
   }, [user, authLoading, navigate]);
 
+  const requireDisclaimer = () => {
+    if (!accepted) { toast.error("لطفاً ابتدا مسئولیت‌نامه بالینی را تأیید کن"); return false; }
+    return true;
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!requireDisclaimer()) return;
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
@@ -38,6 +44,7 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!requireDisclaimer()) return;
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
@@ -53,6 +60,7 @@ export default function Auth() {
   };
 
   const handleGoogle = async () => {
+    if (!requireDisclaimer()) return;
     const { lovable } = await import("@/integrations/lovable");
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: `${window.location.origin}/app`,
