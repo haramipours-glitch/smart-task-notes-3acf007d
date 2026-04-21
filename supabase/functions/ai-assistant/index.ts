@@ -230,6 +230,7 @@ serve(async (req) => {
         openrouter: "https://openrouter.ai/api/v1",
         anthropic: "https://api.anthropic.com/v1",
         gemini: "https://generativelanguage.googleapis.com/v1beta/openai",
+        groq: "https://api.groq.com/openai/v1",
         custom: settings.baseUrl || "",
       };
       const base = baseUrls[settings.provider] || settings.baseUrl;
