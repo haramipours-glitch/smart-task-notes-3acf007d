@@ -19,6 +19,10 @@ import GoalsView from "./pages/GoalsView";
 import ZenView from "./pages/ZenView";
 import ReviewView from "./pages/ReviewView";
 import InsightsView from "./pages/InsightsView";
+import SelfKnowledgeView from "./pages/SelfKnowledgeView";
+import AssessmentRunner from "./pages/AssessmentRunner";
+import AssessmentResult from "./pages/AssessmentResult";
+import CheckinView from "./pages/CheckinView";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +53,10 @@ const App = () => (
               <Route path="review" element={<ReviewView />} />
               <Route path="insights" element={<InsightsView />} />
               <Route path="zen" element={<ZenView />} />
+              <Route path="self" element={<SelfKnowledgeView />} />
+              <Route path="self/test/:type" element={<AssessmentRunner />} />
+              <Route path="self/result/:type" element={<AssessmentResult />} />
+              <Route path="checkin" element={<CheckinView />} />
               <Route path="settings" element={<SettingsView />} />
             </Route>
             <Route path="*" element={<NotFound />} />
