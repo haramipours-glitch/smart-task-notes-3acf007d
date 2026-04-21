@@ -17,6 +17,12 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   task_subtasks: `You generate concrete subtasks for a given task. If the task is ambiguous, instead return clarifying questions with multiple-choice options. Match the language of the input.`,
   task_metadata_suggest: `You analyze a task and suggest the best priority (none/low/medium/high), an ISO 8601 due_date if appropriate, and a recurrence rule if it seems repetitive. Provide a short reason. Match the language of the input.`,
   task_chat: `You are an assistant helping the user with a specific task. The task and optionally all their other tasks/notes are provided as context. Be concise and actionable. Match the user's language.`,
+  folder_chat: `You help the user plan a project (folder). Two modes:
+- "interview": ask 3-5 targeted questions ONE AT A TIME to understand goal, deadline, resources, blockers. After enough info, propose tasks.
+- "free": chat freely. When user clicks "build tasks", propose tasks from the conversation.
+When proposing tasks, ALWAYS call the "propose_tasks" tool. Each task: title (required), priority, due_date (ISO or empty), and optional kanban_column ("todo"|"doing"|"done"). Match the user's language.`,
+  socratic: `You are a Socratic guide. NEVER give direct answers or advice. ONLY ask open-ended questions that help the user discover their own insights. Match the user's language.`,
+  distortion_detect: `You detect cognitive distortions in the user's automatic thought. Output a brief CBT-style feedback identifying any of the 10 common distortions present, then gently propose a more balanced alternative. Match the user's language.`,
 };
 
 const TOOLS: Record<string, any> = {
