@@ -15,6 +15,7 @@ import PomodoroView from "./pages/PomodoroView";
 import CalendarView from "./pages/CalendarView";
 import SettingsView from "./pages/SettingsView";
 import KanbanView from "./pages/KanbanView";
+import GoalsView from "./pages/GoalsView";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="pomodoro" element={<PomodoroView />} />
               <Route path="calendar" element={<CalendarView />} />
               <Route path="kanban" element={<KanbanView />} />
+              <Route path="goals" element={<GoalsView />} />
               <Route path="settings" element={<SettingsView />} />
             </Route>
             <Route path="*" element={<NotFound />} />

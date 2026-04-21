@@ -114,7 +114,7 @@ export function EisenhowerMatrix({ scope }: { scope: "inbox" | "today" | "next7"
 
       let slot = addDays(startOfDay(new Date()), 1);
       slot.setHours(10, 0, 0, 0);
-      const updates: Array<Promise<any>> = [];
+      const updates: Array<PromiseLike<any>> = [];
       for (const t of q2) {
         // find next free slot at 10am or 14pm
         let attempts = 0;
