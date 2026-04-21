@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sparkles, Send, Loader2 } from "lucide-react";
-import { callAI } from "@/lib/ai";
+import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
+import { AILangToggle } from "@/components/AILangToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -23,12 +24,13 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
   const [picked, setPicked] = useState<Record<number, boolean>>({});
   const [chat, setChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [chatInput, setChatInput] = useState("");
+  const [aiLang, setAiLang] = useState<AILanguage>(getAILanguage());
 
   const createTaskFromNL = async () => {
     if (!input.trim() || !user) return;
     setLoading(true);
     try {
-      const r = await callAI("parse_task", input);
+      const r = await callAI("parse_task", input, undefined, undefined, aiLang);
       if (!r.data?.title) throw new Error("نتوانست تسک بسازد");
       const { error } = await supabase.from("tasks").insert({
         user_id: user.id,
@@ -48,7 +50,7 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
     if (!input.trim() || !user) return;
     setLoading(true);
     try {
-      const r = await callAI("generate_note", input);
+      const r = await callAI("generate_note", input, undefined, undefined, aiLang);
       const { error } = await supabase.from("notes").insert({
         user_id: user.id,
         title: input.slice(0, 60),
@@ -65,7 +67,7 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
     if (!input.trim()) return;
     setLoading(true); setSuggestions([]); setPicked({});
     try {
-      const r = await callAI("suggest", input);
+      const r = await callAI("suggest", input, undefined, undefined, aiLang);
       if (r.data?.items) setSuggestions(r.data.items);
     } catch (e: any) { toast.error(e.message); }
     finally { setLoading(false); }
@@ -91,7 +93,7 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
       // Build minimal context
       const { data: tasks } = await supabase.from("tasks").select("title,priority,due_date,completed").limit(20);
       const ctx = `Recent tasks: ${JSON.stringify(tasks || [])}`;
-      const r = await callAI("chat", [...chat, newMsg], ctx);
+      const r = await callAI("chat", [...chat, newMsg], ctx, undefined, aiLang);
       setChat((c) => [...c, { role: "assistant", content: r.text }]);
     } catch (e: any) { toast.error(e.message); }
     finally { setLoading(false); }
@@ -105,6 +107,10 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
             <Sparkles className="w-5 h-5 text-primary" /> دستیار AI
           </SheetTitle>
         </SheetHeader>
+        <div className="mt-3 flex items-center justify-between p-2 rounded-lg border bg-accent/20">
+          <span className="text-sm">زبان پاسخ AI</span>
+          <AILangToggle value={aiLang} onChange={setAiLang} />
+        </div>
 
         <Tabs value={tab} onValueChange={setTab} className="mt-4">
           <TabsList className="grid grid-cols-4">
