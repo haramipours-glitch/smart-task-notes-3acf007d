@@ -619,7 +619,6 @@ function ChildDropZone({ parentId }: { parentId: string }) {
     </div>
   );
 }
-
 function RootDropZone() {
   const { setNodeRef, isOver } = useDroppable({ id: "root" });
   return (
