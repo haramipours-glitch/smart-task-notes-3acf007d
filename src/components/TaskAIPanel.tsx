@@ -10,7 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Sparkles, Loader2, Send, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { callAI } from "@/lib/ai";
+import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
+import { AILangToggle } from "@/components/AILangToggle";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -36,6 +37,7 @@ export function TaskAIPanel({
   const [tab, setTab] = useState("subtasks");
   const [globalCtx, setGlobalCtx] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [aiLang, setAiLang] = useState<AILanguage>(getAILanguage());
 
   // Subtasks
   const [subSugs, setSubSugs] = useState<string[]>([]);
