@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { RichEditor } from "@/components/RichEditor";
 import { htmlToMarkdown, markdownToHtml } from "@/lib/markdown";
@@ -18,6 +19,7 @@ export default function NotesView() {
   const [selected, setSelected] = useState<Note | null>(null);
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState<{ html: string; md: string } | null>(null);
+  const [confirmDel, setConfirmDel] = useState<Note | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -40,7 +42,12 @@ export default function NotesView() {
       user_id: user.id, title: "نوت جدید", content: "",
     }).select().single();
     if (error) toast.error(error.message);
-    else if (data) { setSelected(data as any); setDraft({ html: "", md: "" }); }
+    else if (data) {
+      // Optimistic: show immediately
+      setNotes(prev => [data as any, ...prev]);
+      setSelected(data as any);
+      setDraft({ html: "", md: "" });
+    }
   };
 
   const save = async (patch: Partial<Note>) => {
@@ -62,6 +69,7 @@ export default function NotesView() {
   }, [draft?.md]);
 
   const del = async (id: string) => {
+    setNotes(prev => prev.filter(n => n.id !== id));
     await supabase.from("notes").delete().eq("id", id);
     if (selected?.id === id) { setSelected(null); setDraft(null); }
     toast.success("حذف شد");
