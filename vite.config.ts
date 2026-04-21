@@ -46,6 +46,37 @@ export default defineConfig(({ mode }) => ({
             purpose: "maskable",
           },
         ],
+        // Home-screen shortcuts (Android long-press menu) — closest thing PWA has to widgets
+        shortcuts: [
+          {
+            name: "تسک امروز",
+            short_name: "امروز",
+            description: "تسک‌های امروز را ببین",
+            url: "/app/today",
+            icons: [{ src: "/pwa-512x512.png", sizes: "512x512" }],
+          },
+          {
+            name: "Check-in روزانه",
+            short_name: "Check-in",
+            description: "حال‌وهوای امروز را ثبت کن",
+            url: "/app/checkin",
+            icons: [{ src: "/pwa-512x512.png", sizes: "512x512" }],
+          },
+          {
+            name: "Pomodoro",
+            short_name: "تمرکز",
+            description: "شروع جلسه تمرکز",
+            url: "/app/pomodoro",
+            icons: [{ src: "/pwa-512x512.png", sizes: "512x512" }],
+          },
+          {
+            name: "SOS / بحران",
+            short_name: "SOS",
+            description: "دسترسی سریع به ابزارهای بحران",
+            url: "/app/crisis",
+            icons: [{ src: "/pwa-512x512.png", sizes: "512x512" }],
+          },
+        ],
       },
       workbox: {
         navigateFallback: "/index.html",
