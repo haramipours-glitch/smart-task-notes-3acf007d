@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Sparkles, Key, Save, Trash2, Info } from "lucide-react";
+import { Sparkles, Key, Save, Trash2, Info, Languages } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { getAILanguage, setAILanguage, type AILanguage } from "@/lib/ai";
 
 type Provider = "lovable" | "openai" | "anthropic" | "gemini" | "openrouter" | "custom";
 
@@ -31,13 +32,21 @@ const PROVIDER_INFO: Record<Provider, { label: string; defaultModel: string; bas
 
 export default function SettingsView() {
   const [s, setS] = useState<AISettings>(DEFAULTS);
+  const [lang, setLang] = useState<AILanguage>("fa");
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setS({ ...DEFAULTS, ...JSON.parse(raw) });
     } catch {}
+    setLang(getAILanguage());
   }, []);
+
+  const onLangChange = (v: AILanguage) => {
+    setLang(v);
+    setAILanguage(v);
+    toast.success("زبان AI ذخیره شد");
+  };
 
   const onProvider = (p: Provider) => {
     const info = PROVIDER_INFO[p];
