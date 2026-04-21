@@ -117,7 +117,7 @@ export default function NotesView() {
               <Button size="icon" variant="ghost" onClick={() => save({ pinned: !selected.pinned })}>
                 <Pin className={`w-4 h-4 ${selected.pinned ? "text-primary fill-primary" : ""}`} />
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => del(selected.id)}>
+              <Button size="icon" variant="ghost" onClick={() => setConfirmDel(selected)}>
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
@@ -150,6 +150,26 @@ export default function NotesView() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!confirmDel} onOpenChange={(v) => !v && setConfirmDel(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف نوت؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              آیا مطمئنی می‌خوای «{confirmDel?.title}» را حذف کنی؟ این عمل قابل بازگشت نیست.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>انصراف</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => { if (confirmDel) await del(confirmDel.id); setConfirmDel(null); }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
