@@ -243,6 +243,14 @@ export function AppSidebar() {
           {!collapsed && <span className="ml-2">خروج</span>}
         </Button>
       </SidebarFooter>
+      {aiFolder && (
+        <FolderAIChat
+          open={!!aiFolder}
+          onOpenChange={(v) => !v && setAiFolder(null)}
+          folderId={aiFolder.id}
+          folderName={aiFolder.name}
+        />
+      )}
     </Sidebar>
   );
 }
