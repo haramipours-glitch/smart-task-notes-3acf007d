@@ -175,7 +175,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, input, context, settings, action, language, mhProfile } = await req.json();
+    const { mode, input, context, settings, action, language, mhProfile, webSearch } = await req.json();
 
     const useCustom = settings && settings.provider && settings.provider !== "lovable" && settings.apiKey;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -212,7 +212,7 @@ serve(async (req) => {
 
     if (context) messages.push({ role: "system", content: `Context:\n${context}` });
 
-    if ((mode === "chat" || mode === "task_chat") && Array.isArray(input)) {
+    if ((mode === "chat" || mode === "task_chat" || mode === "folder_chat" || mode === "socratic") && Array.isArray(input)) {
       messages.push(...input);
     } else {
       messages.push({ role: "user", content: typeof input === "string" ? input : JSON.stringify(input) });
@@ -242,6 +242,22 @@ serve(async (req) => {
     if (TOOLS[mode]) {
       body.tools = [TOOLS[mode]];
       body.tool_choice = { type: "function", function: { name: TOOLS[mode].function.name } };
+    }
+
+    // Web search via Gemini google_search grounding (Lovable AI gateway only).
+    // Note: tool calling and grounding cannot be combined, so skip when a structured tool is in use.
+    if (webSearch && !useCustom && !TOOLS[mode] && model.startsWith("google/")) {
+      body.tools = [{ google_search: {} }];
+      systemPrompt += `\n\nThe user has enabled web search. Use up-to-date information from the web. Cite sources at the end as a "منابع" / "Sources" list.`;
+      // rewrite system message
+      messages[0] = { role: "system", content: `${systemPrompt}\n\nToday's date: ${today}` };
+    } else if (webSearch && !useCustom && !TOOLS[mode]) {
+      // Force gemini for grounded search
+      model = "google/gemini-2.5-flash";
+      body.model = model;
+      body.tools = [{ google_search: {} }];
+      systemPrompt += `\n\nThe user has enabled web search. Use up-to-date information and cite sources.`;
+      messages[0] = { role: "system", content: `${systemPrompt}\n\nToday's date: ${today}` };
     }
 
     const resp = await fetch(endpoint, {
