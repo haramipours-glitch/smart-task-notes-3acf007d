@@ -137,23 +137,36 @@ export default function ABCView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2"><TrendingUp className="w-5 h-5" /> الگوهای شناسایی‌شده</CardTitle>
-            <CardDescription>n = {records.length} ثبت در ۳۰ روز اخیر</CardDescription>
+            <CardDescription>
+              n = {records.length} ثبت در ۳۰ روز اخیر
+              {strongPatterns.length > 0 && <> · <span className="text-primary font-medium">{strongPatterns.length} الگوی قوی</span></>}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {patterns.slice(0, 5).map((p, i) => {
-              const conf = p.count >= 7 ? "قوی" : p.count >= 4 ? "متوسط" : "ضعیف";
+            {patterns.slice(0, 8).map((p, i) => {
+              const isStrong = p.confidence === "قوی";
               return (
-                <div key={i} className="p-3 rounded-lg bg-muted/30 text-sm space-y-1">
-                  <div className="flex justify-between">
+                <div key={i} className={`p-3 rounded-lg text-sm space-y-1.5 ${isStrong ? "bg-primary/10 border border-primary/30" : "bg-muted/30"}`}>
+                  <div className="flex justify-between items-start gap-2">
                     <span><strong>{p.trigger}</strong> → <strong className="text-primary">{p.consequence}</strong></span>
-                    <Badge variant="secondary">اعتماد: {conf}</Badge>
+                    <Badge variant={isStrong ? "default" : "secondary"} className="shrink-0">اعتماد: {p.confidence}</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {p.count} بار · میانگین {p.avgDuration.toFixed(0)} دقیقه · پشیمانی {p.avgRegret.toFixed(1)}/10
+                    {p.count} بار از {p.sampleSize} (فراوانی {(p.frequency * 100).toFixed(0)}٪) · میانگین {p.avgDuration.toFixed(0)} دقیقه · پشیمانی {p.avgRegret.toFixed(1)}/10
                   </div>
+                  {isStrong && (
+                    <div className="text-xs text-primary mt-1">
+                      💡 وقتی «{p.trigger}» رخ می‌دهد، در {(p.frequency * 100).toFixed(0)}٪ موارد به «{p.consequence}» می‌رسی. نقطه مداخله را اینجا قرار بده.
+                    </div>
+                  )}
                 </div>
               );
             })}
+            {strongPatterns.length === 0 && (
+              <div className="text-xs text-muted-foreground text-center pt-2">
+                برای الگوی «قوی» نیاز به ≥۷ نمونه و فراوانی ≥۶۰٪ است. ادامه بده.
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
