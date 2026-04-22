@@ -215,6 +215,66 @@ export type Database = {
         }
         Relationships: []
       }
+      decision_journal: {
+        Row: {
+          actual_outcome: string | null
+          chosen_option: string | null
+          context: string | null
+          created_at: string
+          decision_title: string
+          emotional_state: string | null
+          id: string
+          lessons_learned: string | null
+          options_considered: Json | null
+          outcome_rating: number | null
+          predicted_confidence: number | null
+          predicted_outcome: string | null
+          rationale: string | null
+          review_date: string | null
+          reviewed_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_outcome?: string | null
+          chosen_option?: string | null
+          context?: string | null
+          created_at?: string
+          decision_title: string
+          emotional_state?: string | null
+          id?: string
+          lessons_learned?: string | null
+          options_considered?: Json | null
+          outcome_rating?: number | null
+          predicted_confidence?: number | null
+          predicted_outcome?: string | null
+          rationale?: string | null
+          review_date?: string | null
+          reviewed_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_outcome?: string | null
+          chosen_option?: string | null
+          context?: string | null
+          created_at?: string
+          decision_title?: string
+          emotional_state?: string | null
+          id?: string
+          lessons_learned?: string | null
+          options_considered?: Json | null
+          outcome_rating?: number | null
+          predicted_confidence?: number | null
+          predicted_outcome?: string | null
+          rationale?: string | null
+          review_date?: string | null
+          reviewed_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       folder_columns: {
         Row: {
           color: string | null
@@ -632,6 +692,63 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_questions_queue: {
+        Row: {
+          answer: number | null
+          answered_at: string | null
+          asked_at: string | null
+          created_at: string
+          id: string
+          question_key: string
+          question_text: string
+          reverse_scored: boolean
+          scale_max: number
+          scale_min: number
+          scheduled_for: string | null
+          source: string
+          status: string
+          trait: string | null
+          trigger_context: string | null
+          user_id: string
+        }
+        Insert: {
+          answer?: number | null
+          answered_at?: string | null
+          asked_at?: string | null
+          created_at?: string
+          id?: string
+          question_key: string
+          question_text: string
+          reverse_scored?: boolean
+          scale_max?: number
+          scale_min?: number
+          scheduled_for?: string | null
+          source: string
+          status?: string
+          trait?: string | null
+          trigger_context?: string | null
+          user_id: string
+        }
+        Update: {
+          answer?: number | null
+          answered_at?: string | null
+          asked_at?: string | null
+          created_at?: string
+          id?: string
+          question_key?: string
+          question_text?: string
+          reverse_scored?: boolean
+          scale_max?: number
+          scale_min?: number
+          scheduled_for?: string | null
+          source?: string
+          status?: string
+          trait?: string | null
+          trigger_context?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ai_language: string
@@ -689,6 +806,51 @@ export type Database = {
           phone?: string
           relationship?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      sleep_logs: {
+        Row: {
+          awakenings: number | null
+          bedtime: string | null
+          caffeine_cutoff_hour: number | null
+          created_at: string
+          hours: number | null
+          id: string
+          notes: string | null
+          quality: number | null
+          sleep_date: string
+          updated_at: string
+          user_id: string
+          wake_time: string | null
+        }
+        Insert: {
+          awakenings?: number | null
+          bedtime?: string | null
+          caffeine_cutoff_hour?: number | null
+          created_at?: string
+          hours?: number | null
+          id?: string
+          notes?: string | null
+          quality?: number | null
+          sleep_date?: string
+          updated_at?: string
+          user_id: string
+          wake_time?: string | null
+        }
+        Update: {
+          awakenings?: number | null
+          bedtime?: string | null
+          caffeine_cutoff_hour?: number | null
+          created_at?: string
+          hours?: number | null
+          id?: string
+          notes?: string | null
+          quality?: number | null
+          sleep_date?: string
+          updated_at?: string
+          user_id?: string
+          wake_time?: string | null
         }
         Relationships: []
       }
