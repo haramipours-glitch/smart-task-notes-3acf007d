@@ -2,6 +2,9 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { initOfflineSync } from "@/lib/offlineQueue";
+import { bootApplyUIPrefs } from "@/lib/uiScale";
+
+bootApplyUIPrefs();
 
 // Guard: never register a service worker inside Lovable preview/iframe contexts
 const isInIframe = (() => {
