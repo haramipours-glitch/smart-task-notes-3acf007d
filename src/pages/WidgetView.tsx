@@ -167,8 +167,8 @@ export default function WidgetView() {
         {filtered.length === 0 && (
           <Card className="p-8 text-center text-muted-foreground">تسکی برای این ویجت نیست</Card>
         )}
-        {filtered.map((t) => (
-          <TaskCard key={t.id} task={t as any} layout={layout} onToggle={() => toggle(t as any)} onOpen={() => navigate(`/app/inbox`)} />
+        {filtered.map((t: any) => (
+          <TaskCard key={t.id} task={t as Task} layout={layout} onToggle={() => toggle(t as Task)} onOpen={() => navigate(`/app/inbox`)} />
         ))}
       </div>
 
