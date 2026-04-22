@@ -8,6 +8,7 @@ import { Sparkles } from "lucide-react";
 import OfflineIndicator from "@/components/OfflineIndicator";
 import InstallPrompt from "@/components/InstallPrompt";
 import EdgeSwipeHandler from "@/components/EdgeSwipeHandler";
+import ClinicalDisclaimer from "@/components/ClinicalDisclaimer";
 
 export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
@@ -32,6 +33,7 @@ export default function AppLayout() {
         <OfflineIndicator />
         <InstallPrompt />
         <EdgeSwipeHandler />
+        <ClinicalDisclaimer />
       </div>
     </SidebarProvider>
   );

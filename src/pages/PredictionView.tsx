@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, ScatterChart, Scatter, ReferenceLine, ZAxis } from "recharts";
 
 export default function PredictionView() {
   const { user } = useAuth();
@@ -138,18 +138,38 @@ export default function PredictionView() {
       )}
 
       {calibrated.length > 2 && (
-        <Card>
-          <CardHeader><CardTitle className="text-lg">روند ساعت کار: تخمین vs واقعیت</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={calibrated.map((h) => ({ date: h.prediction_date.slice(5), predicted: h.predicted_work_hours, actual: h.actual_work_hours }))}>
-                <XAxis dataKey="date" fontSize={11} /><YAxis fontSize={11} /><Tooltip /><Legend />
-                <Line type="monotone" dataKey="predicted" name="تخمین" stroke="hsl(var(--muted-foreground))" strokeWidth={2} dot={false} strokeDasharray="4 4" />
-                <Line type="monotone" dataKey="actual" name="واقعیت" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader><CardTitle className="text-lg">روند: تخمین vs واقعیت</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={240}>
+                <LineChart data={calibrated.map((h) => ({ date: h.prediction_date.slice(5), predicted: h.predicted_work_hours, actual: h.actual_work_hours }))}>
+                  <XAxis dataKey="date" fontSize={11} /><YAxis fontSize={11} /><Tooltip /><Legend />
+                  <Line type="monotone" dataKey="predicted" name="تخمین" stroke="hsl(var(--muted-foreground))" strokeWidth={2} dot={false} strokeDasharray="4 4" />
+                  <Line type="monotone" dataKey="actual" name="واقعیت" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">منحنی Calibration</CardTitle>
+              <CardDescription>هر نقطه یک روز · خط مورب = پیش‌بینی کامل</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={240}>
+                <ScatterChart>
+                  <XAxis type="number" dataKey="predicted" name="تخمین" fontSize={11} domain={[0, 'auto']} label={{ value: "تخمین (ساعت)", position: "bottom", fontSize: 10 }} />
+                  <YAxis type="number" dataKey="actual" name="واقعیت" fontSize={11} domain={[0, 'auto']} label={{ value: "واقعیت", angle: -90, position: "left", fontSize: 10 }} />
+                  <ZAxis range={[60, 60]} />
+                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                  <ReferenceLine segment={[{ x: 0, y: 0 }, { x: 12, y: 12 }]} stroke="hsl(var(--muted-foreground))" strokeDasharray="3 3" />
+                  <Scatter data={calibrated.map((h) => ({ predicted: h.predicted_work_hours, actual: h.actual_work_hours }))} fill="hsl(var(--primary))" />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );

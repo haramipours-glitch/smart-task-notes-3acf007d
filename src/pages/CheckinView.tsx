@@ -37,13 +37,17 @@ export default function CheckinView() {
   const [form, setForm] = useState<any>({ mood: null, energy: null, focus: null, sleep_quality: null, stress: null, sleep_hours: "", notes: "" });
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [todayLoad, setTodayLoad] = useState<number | null>(null);
+  const isEvening = new Date().getHours() >= 17;
 
   useEffect(() => { if (user) load(); }, [user]);
 
   async function load() {
-    const [{ data: today_data }, { data: hist }] = await Promise.all([
+    const [{ data: today_data }, { data: hist }, { data: tasks }, { data: chrono }] = await Promise.all([
       supabase.from("daily_checkins").select("*").eq("user_id", user!.id).eq("checkin_date", today).maybeSingle(),
       supabase.from("daily_checkins").select("*").eq("user_id", user!.id).gte("checkin_date", new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)).order("checkin_date"),
+      supabase.from("tasks").select("id,title,description,priority,folder_id,quadrant").eq("user_id", user!.id).eq("completed", false),
+      supabase.from("chronotype").select("*").eq("user_id", user!.id).maybeSingle(),
     ]);
     if (today_data) setForm({
       mood: today_data.mood, energy: today_data.energy, focus: today_data.focus,
@@ -51,8 +55,19 @@ export default function CheckinView() {
       sleep_hours: today_data.sleep_hours ?? "", notes: today_data.notes ?? "",
     });
     setHistory(hist || []);
+    // Compute today's load using current sleep/stress data + tasks for evening reflection
+    const { computeCognitiveLoad } = await import("@/lib/cognitiveLoad");
+    const r = computeCognitiveLoad({
+      tasks: tasks || [],
+      sleepHours: today_data?.sleep_hours ?? null,
+      sleepQuality: today_data?.sleep_quality ?? null,
+      stress: today_data?.stress ?? null,
+      chronotype: chrono,
+    });
+    setTodayLoad(r.load);
     setLoading(false);
   }
+
 
   async function save() {
     if (!user) return;
@@ -96,10 +111,32 @@ export default function CheckinView() {
               placeholder="مثلاً 7.5"
             />
           </div>
-          <div className="space-y-2">
-            <Label>یادداشت کوتاه</Label>
-            <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="چه چیزی امروز قابل توجه بود؟" rows={3} />
-          </div>
+          {/* A2 — Dynamic evening reflection: appears in evening + when load was high */}
+          {isEvening && todayLoad != null && todayLoad >= 12 && (
+            <div className="border-l-4 border-amber-500 bg-amber-500/5 rounded-md p-3 space-y-3">
+              <div className="text-sm font-semibold flex items-center gap-2">
+                🌙 تأمل شبانه — بار شناختی امروز <span className="tabular-nums">{todayLoad}</span> بود
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">سخت‌ترین بخش امروز چه بود؟</Label>
+                <Textarea
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  placeholder="یک نکته کوتاه بنویس..."
+                  rows={2}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                💡 با ثبت این تأمل، الگوی بار شناختی هفته بعد دقیق‌تر می‌شود.
+              </p>
+            </div>
+          )}
+          {(!isEvening || todayLoad == null || todayLoad < 12) && (
+            <div className="space-y-2">
+              <Label>یادداشت کوتاه</Label>
+              <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="چه چیزی امروز قابل توجه بود؟" rows={3} />
+            </div>
+          )}
           <Button onClick={save} className="w-full">ذخیره</Button>
         </CardContent>
       </Card>
