@@ -83,13 +83,14 @@ export default function CheckinView() {
     };
     const { error } = await supabase.from("daily_checkins").upsert(payload, { onConflict: "user_id,checkin_date" });
     if (error) toast.error(error.message);
-    else { toast.success("ثبت شد ✨"); load(); }
+    else { toast.success("ثبت شد ✨"); setSavedTick(Date.now()); load(); }
   }
 
   if (loading) return <div className="p-8 text-center text-muted-foreground">…</div>;
 
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
+      {savedTick && <ProfileMicroPrompt trigger={`checkin-${savedTick}`} />}
       <div>
         <h1 className="text-3xl font-bold mb-2">Check-in روزانه</h1>
         <p className="text-muted-foreground text-sm">ثبت کوتاه روزانه برای الگویابی بلندمدت.</p>
