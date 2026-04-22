@@ -175,7 +175,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, input, context, settings, action, language, mhProfile, webSearch } = await req.json();
+    const { mode, input, context, settings, action, language, mhProfile, aboutMe, webSearch } = await req.json();
 
     const useCustom = settings && settings.provider && settings.provider !== "lovable" && settings.apiKey;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -202,6 +202,27 @@ serve(async (req) => {
       }
       if (mhProfile.attachment_quadrant) {
         systemPrompt += `\n\nسبک دلبستگی: ${mhProfile.attachment_quadrant} — این را در نحوه ارائه بازخورد در نظر بگیر.`;
+      }
+    }
+    // About-me personalization → inject brief profile context
+    if (aboutMe && typeof aboutMe === "object") {
+      const parts: string[] = [];
+      if (aboutMe.ai_analysis?.summary) parts.push(`خلاصه پروفایل: ${aboutMe.ai_analysis.summary}`);
+      if (Array.isArray(aboutMe.ai_analysis?.themes) && aboutMe.ai_analysis.themes.length) {
+        parts.push(`تم‌های اصلی زندگی: ${aboutMe.ai_analysis.themes.join("، ")}`);
+      }
+      if (aboutMe.answers && typeof aboutMe.answers === "object") {
+        const a = aboutMe.answers;
+        const brief: string[] = [];
+        if (a.occupation) brief.push(`شغل: ${a.occupation}`);
+        if (a.main_goal) brief.push(`هدف اصلی: ${a.main_goal}`);
+        if (Array.isArray(a.life_areas) && a.life_areas.length) brief.push(`حوزه‌های تمرکز: ${a.life_areas.join("، ")}`);
+        if (Array.isArray(a.core_values) && a.core_values.length) brief.push(`ارزش‌ها: ${a.core_values.join("، ")}`);
+        if (a.biggest_challenge) brief.push(`چالش اصلی: ${a.biggest_challenge}`);
+        if (brief.length) parts.push(brief.join(" | "));
+      }
+      if (parts.length) {
+        systemPrompt += `\n\nاطلاعات شخصی کاربر (برای شخصی‌سازی پاسخ‌ها و پیشنهادها از این‌ها استفاده کن، اما به آن‌ها اشاره مستقیم نکن مگر مرتبط باشد):\n${parts.join("\n")}`;
       }
     }
     const today = new Date().toISOString();

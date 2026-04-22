@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
 import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText, GripVertical, CornerDownRight, FolderInput } from "lucide-react";
 import { MoveToDialog } from "@/components/MoveToDialog";
+import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
+import { startItemDrag } from "@/lib/dragToFolder";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -57,6 +60,8 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [quickSub, setQuickSub] = useState<Record<string, string>>({});
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
+  const [delFolderOpen, setDelFolderOpen] = useState(false);
+  const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const title = {
@@ -327,7 +332,15 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                   )}
                 </div>
                 <ChildDropZone parentId={t.id} />
-                <Button size="icon" variant="ghost" onClick={() => setMoveTask(t)} title="انتقال به فولدر">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setMoveTask(t)}
+                  title="انتقال یا Drag روی فولدر سایدبار"
+                  draggable
+                  onDragStart={(e) => startItemDrag(e, { kind: "task", id: t.id, title: t.title })}
+                  className="cursor-grab active:cursor-grabbing"
+                >
                   <FolderInput className="w-3 h-3" />
                 </Button>
                 <Button size="icon" variant="ghost" onClick={() => askDeleteTask(t)}>
@@ -403,7 +416,14 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">{title}</h1>
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {isFolder && (
+          <Button size="sm" variant="outline" onClick={() => setDelFolderOpen(true)} className="text-destructive">
+            <Trash2 className="w-3.5 h-3.5 ml-1" /> حذف فولدر
+          </Button>
+        )}
+      </div>
 
       {scope === "today" && <div className="mb-4"><CognitiveLoadCard /></div>}
 
@@ -474,6 +494,16 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           itemId={moveTask.id}
           currentFolderId={moveTask.folder_id}
           onMoved={() => { load(); setMoveTask(null); }}
+        />
+      )}
+
+      {isFolder && delFolderOpen && (
+        <FolderDeleteDialog
+          open={delFolderOpen}
+          onOpenChange={setDelFolderOpen}
+          folderId={params.id!}
+          folderName={folderName}
+          onDone={() => { setDelFolderOpen(false); navigate("/app/inbox"); }}
         />
       )}
     </div>

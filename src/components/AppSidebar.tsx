@@ -27,6 +27,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
+import { readItemDrag, moveItemToFolder } from "@/lib/dragToFolder";
 
 type Folder = { id: string; name: string; parent_id: string | null; color: string };
 type TagT = { id: string; name: string; color: string };
@@ -222,7 +223,24 @@ export function AppSidebar() {
         <div key={f.id}>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <div className="flex items-center w-full gap-1" style={{ paddingInlineStart: depth * 12 }}>
+              <div
+                className="flex items-center w-full gap-1 rounded transition data-[drag-over=true]:bg-primary/15 data-[drag-over=true]:ring-1 data-[drag-over=true]:ring-primary"
+                style={{ paddingInlineStart: depth * 12 }}
+                onDragOver={(e) => {
+                  if (!e.dataTransfer.types.includes("application/x-taskflow-item")) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  (e.currentTarget as HTMLElement).dataset.dragOver = "true";
+                }}
+                onDragLeave={(e) => { delete (e.currentTarget as HTMLElement).dataset.dragOver; }}
+                onDrop={async (e) => {
+                  delete (e.currentTarget as HTMLElement).dataset.dragOver;
+                  const payload = readItemDrag(e);
+                  if (!payload) return;
+                  e.preventDefault();
+                  await moveItemToFolder(payload, f.id);
+                }}
+              >
                 {has ? (
                   <button onClick={(e) => { e.preventDefault(); setExpanded((s) => ({ ...s, [f.id]: !open })); }}
                     className="p-0.5 hover:bg-muted rounded">
