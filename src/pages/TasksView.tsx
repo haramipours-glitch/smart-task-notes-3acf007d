@@ -294,76 +294,84 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
       <div key={t.id}>
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
-            <Card className={`p-3 hover:shadow-soft transition-shadow animate-fade-in border-l-4 ${pm.borderClass}`}
-              style={{ marginInlineStart: depth * 20 }}>
+            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-l-4 ${pm.borderClass}`}
+              style={{ marginInlineStart: depth * 16 }}>
+              {/* Row 1: handle + checkbox + TITLE (wide) */}
               <div className="flex items-start gap-2">
-                <button {...dragHandle} className="mt-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none" aria-label="drag">
+                <button {...dragHandle} className="mt-0.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0" aria-label="drag">
                   <GripVertical className="w-4 h-4" />
                 </button>
                 {subs.length > 0 ? (
-                  <button onClick={() => setExpanded((s) => ({ ...s, [t.id]: !open }))} className="mt-1 text-muted-foreground hover:text-foreground">
+                  <button onClick={() => setExpanded((s) => ({ ...s, [t.id]: !open }))} className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
                     {open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </button>
-                ) : <span className="w-4" />}
-                <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1" />
+                ) : <span className="w-4 shrink-0" />}
+                <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelected(t)}>
-                  <p className={`font-medium ${t.completed ? "line-through text-muted-foreground" : ""}`}>{t.title}</p>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    {t.priority !== "none" && (
-                      <Badge variant="outline" className={`text-xs gap-1 ${pm.bgClass} ${pm.textClass}`}>
-                        <Flag className="w-3 h-3" /> {pm.label}
-                      </Badge>
-                    )}
-                    {t.due_date && (
-                      <Badge variant="secondary" className="text-xs gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {format(new Date(t.due_date), "MMM d, HH:mm")}
-                      </Badge>
-                    )}
-                    {t.due_date && !t.completed && (
-                      <Countdown target={t.due_date} className="text-xs" />
-                    )}
-                    {t.recurrence_rule && (
-                      <Badge variant="outline" className="text-xs">🔁 {describeRule(t.recurrence_rule)}</Badge>
-                    )}
-                    {prog.total > 0 && (
-                      <span className="text-xs text-muted-foreground">{prog.done}/{prog.total}</span>
-                    )}
-                  </div>
+                  <p className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}>
+                    {t.title}
+                  </p>
+                </div>
+              </div>
+
+              {/* Row 2: badges + small action icons (below, small) */}
+              <div className="flex items-center justify-between gap-1 mt-1.5 ml-12 flex-wrap">
+                <div className="flex items-center gap-1 flex-wrap min-w-0">
+                  {t.priority !== "none" && (
+                    <Badge variant="outline" className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 ${pm.bgClass} ${pm.textClass}`}>
+                      <Flag className="w-2.5 h-2.5" /> {pm.label}
+                    </Badge>
+                  )}
+                  {t.due_date && (
+                    <Badge variant="secondary" className="text-[10px] gap-0.5 px-1.5 py-0 h-5">
+                      <Calendar className="w-2.5 h-2.5" />
+                      {format(new Date(t.due_date), "MMM d, HH:mm")}
+                    </Badge>
+                  )}
+                  {t.due_date && !t.completed && <Countdown target={t.due_date} className="text-[10px]" />}
+                  {t.recurrence_rule && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">🔁 {describeRule(t.recurrence_rule)}</Badge>
+                  )}
                   {prog.total > 0 && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <Progress value={pct} className="h-1.5 flex-1" />
-                      <span className="text-[10px] text-muted-foreground w-8 text-left">{pct}%</span>
-                    </div>
+                    <span className="text-[10px] text-muted-foreground">{prog.done}/{prog.total}</span>
                   )}
                 </div>
-                <ChildDropZone parentId={t.id} />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setMoveTask(t)}
-                  title="انتقال یا Drag روی فولدر سایدبار"
-                  draggable
-                  onDragStart={(e) => startItemDrag(e, { kind: "task", id: t.id, title: t.title })}
-                  className="cursor-grab active:cursor-grabbing"
-                >
-                  <FolderInput className="w-3 h-3" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={() => askDeleteTask(t)}>
-                  <Trash2 className="w-3 h-3" />
-                </Button>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <ChildDropZone parentId={t.id} />
+                  <Button
+                    size="icon" variant="ghost"
+                    onClick={() => setMoveTask(t)}
+                    title="انتقال"
+                    draggable
+                    onDragStart={(e) => startItemDrag(e, { kind: "task", id: t.id, title: t.title })}
+                    className="h-6 w-6 cursor-grab active:cursor-grabbing"
+                  >
+                    <FolderInput className="w-3 h-3" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => askDeleteTask(t)} className="h-6 w-6">
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
+
+              {prog.total > 0 && (
+                <div className="mt-1.5 ml-12 flex items-center gap-2">
+                  <Progress value={pct} className="h-1 flex-1" />
+                  <span className="text-[10px] text-muted-foreground w-8 text-left">{pct}%</span>
+                </div>
+              )}
+
               {/* Inline + subtask quick add */}
-              <div className="mt-2 flex items-center gap-2 ml-10">
-                <CornerDownRight className="w-3 h-3 text-muted-foreground" />
+              <div className="mt-1.5 flex items-center gap-2 ml-12">
+                <CornerDownRight className="w-3 h-3 text-muted-foreground shrink-0" />
                 <Input
                   value={quickSub[t.id] || ""}
                   onChange={(e) => setQuickSub(s => ({ ...s, [t.id]: e.target.value }))}
                   onKeyDown={(e) => e.key === "Enter" && quickAddSub(t)}
                   placeholder="+ زیرتسک سریع..."
-                  className="h-7 text-xs flex-1"
+                  className="h-6 text-[11px] flex-1"
                 />
-                <Button size="icon" variant="ghost" onClick={() => quickAddSub(t)} className="h-7 w-7">
+                <Button size="icon" variant="ghost" onClick={() => quickAddSub(t)} className="h-6 w-6">
                   <Plus className="w-3 h-3" />
                 </Button>
               </div>
