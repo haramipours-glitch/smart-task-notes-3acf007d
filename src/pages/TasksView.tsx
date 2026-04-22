@@ -50,6 +50,12 @@ type ConfirmState = { kind: "task" | "note" | "subtask-row"; id: string; title: 
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
   const params = useParams();
+  const [layout, setLayout] = useState<"compact" | "comfortable">("comfortable");
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("user_settings").select("task_card_layout").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => { if (data?.task_card_layout) setLayout(data.task_card_layout as any); });
+  }, [user]);
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [newTitle, setNewTitle] = useState("");
