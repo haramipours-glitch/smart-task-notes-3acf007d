@@ -60,6 +60,8 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [quickSub, setQuickSub] = useState<Record<string, string>>({});
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
+  const [delFolderOpen, setDelFolderOpen] = useState(false);
+  const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const title = {
@@ -414,7 +416,14 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">{title}</h1>
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {isFolder && (
+          <Button size="sm" variant="outline" onClick={() => setDelFolderOpen(true)} className="text-destructive">
+            <Trash2 className="w-3.5 h-3.5 ml-1" /> حذف فولدر
+          </Button>
+        )}
+      </div>
 
       {scope === "today" && <div className="mb-4"><CognitiveLoadCard /></div>}
 
@@ -485,6 +494,16 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           itemId={moveTask.id}
           currentFolderId={moveTask.folder_id}
           onMoved={() => { load(); setMoveTask(null); }}
+        />
+      )}
+
+      {isFolder && delFolderOpen && (
+        <FolderDeleteDialog
+          open={delFolderOpen}
+          onOpenChange={setDelFolderOpen}
+          folderId={params.id!}
+          folderName={folderName}
+          onDone={() => { setDelFolderOpen(false); navigate("/app/inbox"); }}
         />
       )}
     </div>
