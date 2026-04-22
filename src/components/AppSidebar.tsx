@@ -61,9 +61,11 @@ const SECTIONS: Section[] = [
       { url: "/app/self", icon: HeartPulse, label: "خودشناسی" },
       { url: "/app/insights", icon: TrendingUp, label: "بینش هفتگی" },
       { url: "/app/checkin", icon: Activity, label: "Check-in روزانه" },
+      { url: "/app/sleep", icon: Moon, label: "خواب" },
       { url: "/app/values", icon: Heart, label: "ارزش‌ها (ACT)" },
       { url: "/app/meq", icon: Sun, label: "Chronotype" },
       { url: "/app/prediction", icon: Clock4, label: "پیش‌بینی" },
+      { url: "/app/decisions", icon: BookOpen, label: "ژورنال تصمیم" },
     ],
   },
   {

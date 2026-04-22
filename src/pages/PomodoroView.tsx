@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import ProfileMicroPrompt from "@/components/ProfileMicroPrompt";
 
 export default function PomodoroView() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export default function PomodoroView() {
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const [mode, setMode] = useState<"work" | "break">("work");
+  const [completedTick, setCompletedTick] = useState<number | null>(null);
   const ref = useRef<number | null>(null);
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export default function PomodoroView() {
           if (user) supabase.from("pomodoro_sessions").insert({
             user_id: user.id, duration_minutes: 25, completed: true, ended_at: new Date().toISOString(),
           });
+          setCompletedTick(Date.now());
           setMode("break"); setMinutes(5); setSeconds(0);
         } else {
           toast.success("استراحت تمام شد!");
@@ -45,6 +48,7 @@ export default function PomodoroView() {
 
   return (
     <div className="p-4 md:p-6 max-w-md mx-auto mt-12">
+      {completedTick && <ProfileMicroPrompt trigger={`pomodoro-${completedTick}`} />}
       <Card className="p-8 text-center">
         <div className="text-sm text-muted-foreground mb-2">{mode === "work" ? "زمان تمرکز" : "استراحت"}</div>
         <div className="text-7xl font-bold tabular-nums my-6 text-primary">

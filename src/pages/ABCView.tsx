@@ -42,8 +42,11 @@ export default function ABCView() {
     else { toast.success("ثبت شد"); setEditing(false); setForm({ trigger: "", belief: "", consequences: [], duration_minutes: "", regret_level: 5 }); load(); }
   }
 
-  // Pattern Detection
-  const patterns: { trigger: string; consequence: string; count: number; avgDuration: number; avgRegret: number }[] = [];
+  // Pattern Detection v2 — threshold ≥7 samples & frequency ≥0.6
+  // For each trigger T and consequence C: frequency = count(T→C) / count(T)
+  const triggerCounts: Record<string, number> = {};
+  records.forEach((r) => { triggerCounts[r.trigger] = (triggerCounts[r.trigger] || 0) + 1; });
+
   const map: Record<string, any> = {};
   records.forEach((r) => {
     (r.consequences || []).forEach((c: string) => {
@@ -54,14 +57,30 @@ export default function ABCView() {
       if (r.regret_level != null) { map[key].totalRegret += r.regret_level; map[key].regretN++; }
     });
   });
+
+  type Pattern = {
+    trigger: string; consequence: string; count: number; frequency: number;
+    avgDuration: number; avgRegret: number; confidence: "قوی" | "متوسط" | "ضعیف";
+    sampleSize: number;
+  };
+  const strongPatterns: Pattern[] = [];
+  const weakPatterns: Pattern[] = [];
   Object.values(map).forEach((m: any) => {
-    if (m.count >= 3) patterns.push({
-      trigger: m.trigger, consequence: m.consequence, count: m.count,
+    const tCount = triggerCounts[m.trigger] || 1;
+    const frequency = m.count / tCount;
+    const p: Pattern = {
+      trigger: m.trigger, consequence: m.consequence, count: m.count, frequency,
       avgDuration: m.durN ? m.totalDur / m.durN : 0,
       avgRegret: m.regretN ? m.totalRegret / m.regretN : 0,
-    });
+      sampleSize: tCount,
+      confidence: m.count >= 7 && frequency >= 0.6 ? "قوی" : m.count >= 4 ? "متوسط" : "ضعیف",
+    };
+    if (m.count >= 7 && frequency >= 0.6) strongPatterns.push(p);
+    else if (m.count >= 3) weakPatterns.push(p);
   });
-  patterns.sort((a, b) => b.count - a.count);
+  strongPatterns.sort((a, b) => b.count - a.count);
+  weakPatterns.sort((a, b) => b.count - a.count);
+  const patterns = [...strongPatterns, ...weakPatterns];
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
@@ -118,23 +137,36 @@ export default function ABCView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2"><TrendingUp className="w-5 h-5" /> الگوهای شناسایی‌شده</CardTitle>
-            <CardDescription>n = {records.length} ثبت در ۳۰ روز اخیر</CardDescription>
+            <CardDescription>
+              n = {records.length} ثبت در ۳۰ روز اخیر
+              {strongPatterns.length > 0 && <> · <span className="text-primary font-medium">{strongPatterns.length} الگوی قوی</span></>}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {patterns.slice(0, 5).map((p, i) => {
-              const conf = p.count >= 7 ? "قوی" : p.count >= 4 ? "متوسط" : "ضعیف";
+            {patterns.slice(0, 8).map((p, i) => {
+              const isStrong = p.confidence === "قوی";
               return (
-                <div key={i} className="p-3 rounded-lg bg-muted/30 text-sm space-y-1">
-                  <div className="flex justify-between">
+                <div key={i} className={`p-3 rounded-lg text-sm space-y-1.5 ${isStrong ? "bg-primary/10 border border-primary/30" : "bg-muted/30"}`}>
+                  <div className="flex justify-between items-start gap-2">
                     <span><strong>{p.trigger}</strong> → <strong className="text-primary">{p.consequence}</strong></span>
-                    <Badge variant="secondary">اعتماد: {conf}</Badge>
+                    <Badge variant={isStrong ? "default" : "secondary"} className="shrink-0">اعتماد: {p.confidence}</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {p.count} بار · میانگین {p.avgDuration.toFixed(0)} دقیقه · پشیمانی {p.avgRegret.toFixed(1)}/10
+                    {p.count} بار از {p.sampleSize} (فراوانی {(p.frequency * 100).toFixed(0)}٪) · میانگین {p.avgDuration.toFixed(0)} دقیقه · پشیمانی {p.avgRegret.toFixed(1)}/10
                   </div>
+                  {isStrong && (
+                    <div className="text-xs text-primary mt-1">
+                      💡 وقتی «{p.trigger}» رخ می‌دهد، در {(p.frequency * 100).toFixed(0)}٪ موارد به «{p.consequence}» می‌رسی. نقطه مداخله را اینجا قرار بده.
+                    </div>
+                  )}
                 </div>
               );
             })}
+            {strongPatterns.length === 0 && (
+              <div className="text-xs text-muted-foreground text-center pt-2">
+                برای الگوی «قوی» نیاز به ≥۷ نمونه و فراوانی ≥۶۰٪ است. ادامه بده.
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

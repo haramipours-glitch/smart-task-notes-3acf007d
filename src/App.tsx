@@ -30,6 +30,8 @@ import ValuesView from "./pages/ValuesView";
 import MeqView from "./pages/MeqView";
 import CrisisView from "./pages/CrisisView";
 import SocraticView from "./pages/SocraticView";
+import SleepView from "./pages/SleepView";
+import DecisionJournalView from "./pages/DecisionJournalView";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,8 @@ const App = () => (
               <Route path="meq" element={<MeqView />} />
               <Route path="crisis" element={<CrisisView />} />
               <Route path="socratic" element={<SocraticView />} />
+              <Route path="sleep" element={<SleepView />} />
+              <Route path="decisions" element={<DecisionJournalView />} />
               <Route path="settings" element={<SettingsView />} />
             </Route>
             <Route path="*" element={<NotFound />} />
