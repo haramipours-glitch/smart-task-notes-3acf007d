@@ -36,18 +36,23 @@ export async function callAI(
   const lang = langOverride ?? getAILanguage();
   const language = lang === "auto" ? undefined : lang;
 
-  // Fetch mental-health profile for tone calibration (best-effort, silent on failure)
+  // Fetch mental-health profile + about-me for personalization (best-effort)
   let mhProfile: any = null;
+  let aboutMe: any = null;
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data } = await supabase.from("mh_profile").select("*").eq("user_id", user.id).maybeSingle();
-      if (data) mhProfile = data;
+      const [{ data: mh }, { data: am }] = await Promise.all([
+        supabase.from("mh_profile").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("about_me" as any).select("answers, free_text, ai_analysis").eq("user_id", user.id).maybeSingle(),
+      ]);
+      if (mh) mhProfile = mh;
+      if (am) aboutMe = am;
     }
   } catch { /* ignore */ }
 
   const { data, error } = await supabase.functions.invoke("ai-assistant", {
-    body: { mode, input, context, settings, action, language, mhProfile, webSearch: opts?.webSearch === true },
+    body: { mode, input, context, settings, action, language, mhProfile, aboutMe, webSearch: opts?.webSearch === true },
   });
   if (error) throw error;
   if (data?.error) throw new Error(data.error);

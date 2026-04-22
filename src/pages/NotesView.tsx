@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pin, Trash2, Search, Sparkles, Loader2, FolderInput } from "lucide-react";
 import { MoveToDialog } from "@/components/MoveToDialog";
+import { startItemDrag } from "@/lib/dragToFolder";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -168,14 +169,22 @@ export default function NotesView() {
         </div>
         <div className="flex-1 overflow-y-auto">
           {filtered.map((n) => (
-            <button key={n.id} onClick={() => { setSelected(n); setDraft({ html: markdownToHtml(n.content || ""), md: n.content || "" }); }}
-              className={`w-full text-right p-3 border-b hover:bg-accent/40 transition ${selected?.id === n.id ? "bg-accent/60" : ""}`}>
-              <div className="flex items-center gap-1">
-                {n.pinned && <Pin className="w-3 h-3 text-primary" />}
-                <span className="font-medium text-sm truncate flex-1">{n.title}</span>
-              </div>
-              <p className="text-xs text-muted-foreground truncate mt-1">{stripMd(n.content)}</p>
-            </button>
+            <div
+              key={n.id}
+              draggable
+              onDragStart={(e) => startItemDrag(e, { kind: "note", id: n.id, title: n.title })}
+              className="border-b"
+              title="Drag روی فولدر سایدبار برای انتقال"
+            >
+              <button onClick={() => { setSelected(n); setDraft({ html: markdownToHtml(n.content || ""), md: n.content || "" }); }}
+                className={`w-full text-right p-3 hover:bg-accent/40 transition cursor-grab active:cursor-grabbing ${selected?.id === n.id ? "bg-accent/60" : ""}`}>
+                <div className="flex items-center gap-1">
+                  {n.pinned && <Pin className="w-3 h-3 text-primary" />}
+                  <span className="font-medium text-sm truncate flex-1">{n.title}</span>
+                </div>
+                <p className="text-xs text-muted-foreground truncate mt-1">{stripMd(n.content)}</p>
+              </button>
+            </div>
           ))}
           {filtered.length === 0 && <p className="text-center text-muted-foreground p-6 text-sm">نوتی نیست</p>}
         </div>
