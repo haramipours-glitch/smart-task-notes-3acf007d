@@ -69,7 +69,7 @@ export default function WeekView({
                   </button>
                 );
               })}
-            </>
+            </div>
           ))}
         </div>
       </div>
