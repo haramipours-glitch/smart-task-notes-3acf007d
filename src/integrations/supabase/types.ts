@@ -636,6 +636,8 @@ export type Database = {
         Row: {
           ai_language: string
           avatar_url: string | null
+          clinical_consent: boolean
+          clinical_consent_at: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -644,6 +646,8 @@ export type Database = {
         Insert: {
           ai_language?: string
           avatar_url?: string | null
+          clinical_consent?: boolean
+          clinical_consent_at?: string | null
           created_at?: string
           display_name?: string | null
           id: string
@@ -652,6 +656,8 @@ export type Database = {
         Update: {
           ai_language?: string
           avatar_url?: string | null
+          clinical_consent?: boolean
+          clinical_consent_at?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
