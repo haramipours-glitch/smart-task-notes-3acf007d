@@ -42,8 +42,11 @@ export default function ABCView() {
     else { toast.success("ثبت شد"); setEditing(false); setForm({ trigger: "", belief: "", consequences: [], duration_minutes: "", regret_level: 5 }); load(); }
   }
 
-  // Pattern Detection
-  const patterns: { trigger: string; consequence: string; count: number; avgDuration: number; avgRegret: number }[] = [];
+  // Pattern Detection v2 — threshold ≥7 samples & frequency ≥0.6
+  // For each trigger T and consequence C: frequency = count(T→C) / count(T)
+  const triggerCounts: Record<string, number> = {};
+  records.forEach((r) => { triggerCounts[r.trigger] = (triggerCounts[r.trigger] || 0) + 1; });
+
   const map: Record<string, any> = {};
   records.forEach((r) => {
     (r.consequences || []).forEach((c: string) => {
@@ -54,14 +57,30 @@ export default function ABCView() {
       if (r.regret_level != null) { map[key].totalRegret += r.regret_level; map[key].regretN++; }
     });
   });
+
+  type Pattern = {
+    trigger: string; consequence: string; count: number; frequency: number;
+    avgDuration: number; avgRegret: number; confidence: "قوی" | "متوسط" | "ضعیف";
+    sampleSize: number;
+  };
+  const strongPatterns: Pattern[] = [];
+  const weakPatterns: Pattern[] = [];
   Object.values(map).forEach((m: any) => {
-    if (m.count >= 3) patterns.push({
-      trigger: m.trigger, consequence: m.consequence, count: m.count,
+    const tCount = triggerCounts[m.trigger] || 1;
+    const frequency = m.count / tCount;
+    const p: Pattern = {
+      trigger: m.trigger, consequence: m.consequence, count: m.count, frequency,
       avgDuration: m.durN ? m.totalDur / m.durN : 0,
       avgRegret: m.regretN ? m.totalRegret / m.regretN : 0,
-    });
+      sampleSize: tCount,
+      confidence: m.count >= 7 && frequency >= 0.6 ? "قوی" : m.count >= 4 ? "متوسط" : "ضعیف",
+    };
+    if (m.count >= 7 && frequency >= 0.6) strongPatterns.push(p);
+    else if (m.count >= 3) weakPatterns.push(p);
   });
-  patterns.sort((a, b) => b.count - a.count);
+  strongPatterns.sort((a, b) => b.count - a.count);
+  weakPatterns.sort((a, b) => b.count - a.count);
+  const patterns = [...strongPatterns, ...weakPatterns];
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
