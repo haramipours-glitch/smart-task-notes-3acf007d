@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
-import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette } from "lucide-react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { applyFontSize, applyUIScale, type FontSize } from "@/lib/uiScale";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -122,6 +124,14 @@ export default function SettingsView() {
       if (prefersDark) root.classList.add("dark"); else root.classList.remove("dark");
     }
   }, [reminders?.theme]);
+
+  // Apply UI scale & font live
+  useEffect(() => {
+    if (reminders?.ui_scale) applyUIScale(reminders.ui_scale);
+  }, [reminders?.ui_scale]);
+  useEffect(() => {
+    if (reminders?.font_size) applyFontSize(reminders.font_size as FontSize);
+  }, [reminders?.font_size]);
 
   const grouped = useMemo(() => {
     const m: Record<string, typeof OPERATIONS> = {};
@@ -331,6 +341,52 @@ export default function SettingsView() {
               <SelectItem value="dark">🌙 تیره</SelectItem>
             </SelectContent>
           </Select>
+        </Card>
+      )}
+
+      {reminders && (
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Type className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold">اندازه فونت</h2>
+          </div>
+          <Select
+            value={(reminders as any).font_size || "medium"}
+            onValueChange={(v) => updateReminder({ font_size: v as any })}
+          >
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="small">کوچک (14px)</SelectItem>
+              <SelectItem value="medium">متوسط (16px)</SelectItem>
+              <SelectItem value="large">بزرگ (18px)</SelectItem>
+              <SelectItem value="xlarge">خیلی بزرگ (20px)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-[11px] text-muted-foreground">روی همه‌ی متن‌های اپ اعمال می‌شه.</p>
+        </Card>
+      )}
+
+      {reminders && (
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <ZoomIn className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold">بزرگنمایی کلی صفحه</h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <Slider
+              value={[Math.round(((reminders as any).ui_scale || 1) * 100)]}
+              min={80} max={140} step={5}
+              onValueChange={([v]) => updateReminder({ ui_scale: v / 100 })}
+              className="flex-1"
+            />
+            <span className="text-sm font-mono w-12 text-center">
+              {Math.round(((reminders as any).ui_scale || 1) * 100)}%
+            </span>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => updateReminder({ ui_scale: 1 })}>
+            بازنشانی به 100%
+          </Button>
+          <p className="text-[11px] text-muted-foreground">کل رابط کاربری بزرگ یا کوچک می‌شه (مثل zoom مرورگر).</p>
         </Card>
       )}
 
