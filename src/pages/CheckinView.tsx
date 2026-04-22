@@ -111,10 +111,32 @@ export default function CheckinView() {
               placeholder="مثلاً 7.5"
             />
           </div>
-          <div className="space-y-2">
-            <Label>یادداشت کوتاه</Label>
-            <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="چه چیزی امروز قابل توجه بود؟" rows={3} />
-          </div>
+          {/* A2 — Dynamic evening reflection: appears in evening + when load was high */}
+          {isEvening && todayLoad != null && todayLoad >= 12 && (
+            <div className="border-l-4 border-amber-500 bg-amber-500/5 rounded-md p-3 space-y-3">
+              <div className="text-sm font-semibold flex items-center gap-2">
+                🌙 تأمل شبانه — بار شناختی امروز <span className="tabular-nums">{todayLoad}</span> بود
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">سخت‌ترین بخش امروز چه بود؟</Label>
+                <Textarea
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  placeholder="یک نکته کوتاه بنویس..."
+                  rows={2}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                💡 با ثبت این تأمل، الگوی بار شناختی هفته بعد دقیق‌تر می‌شود.
+              </p>
+            </div>
+          )}
+          {(!isEvening || todayLoad == null || todayLoad < 12) && (
+            <div className="space-y-2">
+              <Label>یادداشت کوتاه</Label>
+              <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="چه چیزی امروز قابل توجه بود؟" rows={3} />
+            </div>
+          )}
           <Button onClick={save} className="w-full">ذخیره</Button>
         </CardContent>
       </Card>
