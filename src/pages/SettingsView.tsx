@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2 } from "lucide-react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import {
 } from "@/lib/aiSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { loadSettings, saveSettings, ensureNotificationPermission, type UserSettings } from "@/lib/reminders";
 
 function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: (c: ProviderConfig) => void }) {
   const info = PROVIDER_INFO[value.provider];
@@ -82,11 +83,45 @@ export default function SettingsView() {
   const [lang, setLang] = useState<AILanguage>("fa");
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reminders, setReminders] = useState<UserSettings | null>(null);
 
   useEffect(() => {
     setSettings(loadAISettings());
     setLang(getAILanguage());
-  }, []);
+    if (user) loadSettings(user.id).then(setReminders);
+  }, [user]);
+
+  const updateReminder = async (patch: Partial<UserSettings>) => {
+    if (!user || !reminders) return;
+    const next = { ...reminders, ...patch };
+    setReminders(next);
+    try {
+      await saveSettings(user.id, patch);
+    } catch (e: any) {
+      toast.error("ذخیره نشد: " + e.message);
+    }
+  };
+
+  const enableNotifs = async () => {
+    const ok = await ensureNotificationPermission();
+    if (ok) {
+      await updateReminder({ notifications_enabled: true });
+      toast.success("نوتیفیکیشن فعال شد");
+    } else {
+      toast.error("اجازه نوتیف داده نشد");
+    }
+  };
+
+  useEffect(() => {
+    if (!reminders?.theme) return;
+    const root = document.documentElement;
+    if (reminders.theme === "dark") root.classList.add("dark");
+    else if (reminders.theme === "light") root.classList.remove("dark");
+    else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (prefersDark) root.classList.add("dark"); else root.classList.remove("dark");
+    }
+  }, [reminders?.theme]);
 
   const grouped = useMemo(() => {
     const m: Record<string, typeof OPERATIONS> = {};
