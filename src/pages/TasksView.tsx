@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
 import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText, GripVertical, CornerDownRight, FolderInput } from "lucide-react";
 import { MoveToDialog } from "@/components/MoveToDialog";
+import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
+import { startItemDrag } from "@/lib/dragToFolder";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -327,7 +330,15 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                   )}
                 </div>
                 <ChildDropZone parentId={t.id} />
-                <Button size="icon" variant="ghost" onClick={() => setMoveTask(t)} title="انتقال به فولدر">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setMoveTask(t)}
+                  title="انتقال یا Drag روی فولدر سایدبار"
+                  draggable
+                  onDragStart={(e) => startItemDrag(e, { kind: "task", id: t.id, title: t.title })}
+                  className="cursor-grab active:cursor-grabbing"
+                >
                   <FolderInput className="w-3 h-3" />
                 </Button>
                 <Button size="icon" variant="ghost" onClick={() => askDeleteTask(t)}>
