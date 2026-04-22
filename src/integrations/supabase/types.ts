@@ -1087,6 +1087,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          auto_create_daily_tasks: boolean
+          checkin_reminder_enabled: boolean
+          checkin_reminder_time: string
+          created_at: string
+          micro_prompt_enabled: boolean
+          notifications_enabled: boolean
+          sleep_goal_hours: number
+          sleep_reminder_enabled: boolean
+          sleep_reminder_time: string
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_create_daily_tasks?: boolean
+          checkin_reminder_enabled?: boolean
+          checkin_reminder_time?: string
+          created_at?: string
+          micro_prompt_enabled?: boolean
+          notifications_enabled?: boolean
+          sleep_goal_hours?: number
+          sleep_reminder_enabled?: boolean
+          sleep_reminder_time?: string
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_create_daily_tasks?: boolean
+          checkin_reminder_enabled?: boolean
+          checkin_reminder_time?: string
+          created_at?: string
+          micro_prompt_enabled?: boolean
+          notifications_enabled?: boolean
+          sleep_goal_hours?: number
+          sleep_reminder_enabled?: boolean
+          sleep_reminder_time?: string
+          theme?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_values: {
         Row: {
           created_at: string
