@@ -461,6 +461,11 @@ export default function SettingsView() {
         </Card>
       )}
 
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">پیش‌فرض سراسری AI</h2>
+        </div>
         <p className="text-xs text-muted-foreground">این provider/model برای هر عملیاتی که override جداگانه نداشته باشد استفاده می‌شود.</p>
         <ProviderEditor value={settings.default} onChange={(c) => setSettings({ ...settings, default: c })} />
       </Card>
