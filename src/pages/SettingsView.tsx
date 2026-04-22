@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
-import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn } from "lucide-react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home } from "lucide-react";
+import { Link } from "react-router-dom";
+import { listWidgets, type TaskWidget } from "@/lib/widgets";
 import { Slider } from "@/components/ui/slider";
 import { applyFontSize, applyUIScale, type FontSize } from "@/lib/uiScale";
 import { Card } from "@/components/ui/card";
@@ -86,11 +88,15 @@ export default function SettingsView() {
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [reminders, setReminders] = useState<UserSettings | null>(null);
+  const [widgets, setWidgets] = useState<TaskWidget[]>([]);
 
   useEffect(() => {
     setSettings(loadAISettings());
     setLang(getAILanguage());
-    if (user) loadSettings(user.id).then(setReminders);
+    if (user) {
+      loadSettings(user.id).then(setReminders);
+      listWidgets().then(setWidgets);
+    }
   }, [user]);
 
   const updateReminder = async (patch: Partial<UserSettings>) => {
@@ -387,6 +393,71 @@ export default function SettingsView() {
             بازنشانی به 100%
           </Button>
           <p className="text-[11px] text-muted-foreground">کل رابط کاربری بزرگ یا کوچک می‌شه (مثل zoom مرورگر).</p>
+        </Card>
+      )}
+
+      {reminders && (
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <LayoutGrid className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold">چیدمان کارت تسک</h2>
+          </div>
+          <Select
+            value={(reminders as any).task_card_layout || "comfortable"}
+            onValueChange={(v) => updateReminder({ task_card_layout: v as any })}
+          >
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="comfortable">راحت — فضای بیشتر</SelectItem>
+              <SelectItem value="compact">فشرده — متن عریض، آیکون‌ها کوچک‌تر و زیر</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-[11px] text-muted-foreground">عنوان تسک‌ها در حالت فشرده عریض‌تر و آیکون‌ها کوچک‌تر می‌شن.</p>
+        </Card>
+      )}
+
+      {reminders && (
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Home className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold">صفحه پیش‌فرض هنگام باز کردن اپ</h2>
+          </div>
+          <Select
+            value={(reminders as any).default_landing || "today"}
+            onValueChange={(v) => updateReminder({ default_landing: v as any })}
+          >
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">امروز</SelectItem>
+              <SelectItem value="widget">یک ویجت سفارشی</SelectItem>
+              <SelectItem value="last">آخرین صفحه باز</SelectItem>
+            </SelectContent>
+          </Select>
+          {(reminders as any).default_landing === "widget" && (
+            <div>
+              <Label className="text-xs">انتخاب ویجت پیش‌فرض</Label>
+              {widgets.length === 0 ? (
+                <p className="text-xs text-muted-foreground mt-1">
+                  هنوز ویجتی نساخته‌ای. <Link to="/app/widgets" className="text-primary underline">اولین ویجت رو بساز</Link>
+                </p>
+              ) : (
+                <Select
+                  value={(reminders as any).default_widget_id || ""}
+                  onValueChange={(v) => updateReminder({ default_widget_id: v } as any)}
+                >
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="انتخاب کن..." /></SelectTrigger>
+                  <SelectContent>
+                    {widgets.map((w) => (
+                      <SelectItem key={w.id} value={w.id}>{w.icon || "📋"} {w.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          )}
+          <Link to="/app/widgets" className="text-xs text-primary hover:underline inline-block">
+            مدیریت ویجت‌ها →
+          </Link>
         </Card>
       )}
 

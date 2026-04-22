@@ -33,6 +33,8 @@ import SocraticView from "./pages/SocraticView";
 import SleepView from "./pages/SleepView";
 import DecisionJournalView from "./pages/DecisionJournalView";
 import AboutMeView from "./pages/AboutMeView";
+import WidgetView from "./pages/WidgetView";
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -44,7 +46,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Navigate to="/app/today" replace />} />
+            <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route index element={<Navigate to="today" replace />} />
@@ -77,6 +79,8 @@ const App = () => (
               <Route path="sleep" element={<SleepView />} />
               <Route path="decisions" element={<DecisionJournalView />} />
               <Route path="about-me" element={<AboutMeView />} />
+              <Route path="widgets" element={<WidgetView />} />
+              <Route path="widget/:id" element={<WidgetView />} />
               <Route path="settings" element={<SettingsView />} />
             </Route>
             <Route path="*" element={<NotFound />} />

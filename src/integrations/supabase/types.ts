@@ -982,6 +982,57 @@ export type Database = {
           },
         ]
       }
+      task_widgets: {
+        Row: {
+          color: string | null
+          created_at: string
+          date_filter: string
+          folder_id: string | null
+          icon: string | null
+          id: string
+          name: string
+          position: number
+          scope: string
+          show_completed: boolean
+          sort_by: string
+          tag_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          date_filter?: string
+          folder_id?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          position?: number
+          scope?: string
+          show_completed?: boolean
+          sort_by?: string
+          tag_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          date_filter?: string
+          folder_id?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          position?: number
+          scope?: string
+          show_completed?: boolean
+          sort_by?: string
+          tag_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           completed: boolean
@@ -1126,12 +1177,15 @@ export type Database = {
           checkin_reminder_enabled: boolean
           checkin_reminder_time: string
           created_at: string
+          default_landing: string
+          default_widget_id: string | null
           font_size: string
           micro_prompt_enabled: boolean
           notifications_enabled: boolean
           sleep_goal_hours: number
           sleep_reminder_enabled: boolean
           sleep_reminder_time: string
+          task_card_layout: string
           theme: string
           ui_scale: number
           updated_at: string
@@ -1142,12 +1196,15 @@ export type Database = {
           checkin_reminder_enabled?: boolean
           checkin_reminder_time?: string
           created_at?: string
+          default_landing?: string
+          default_widget_id?: string | null
           font_size?: string
           micro_prompt_enabled?: boolean
           notifications_enabled?: boolean
           sleep_goal_hours?: number
           sleep_reminder_enabled?: boolean
           sleep_reminder_time?: string
+          task_card_layout?: string
           theme?: string
           ui_scale?: number
           updated_at?: string
@@ -1158,12 +1215,15 @@ export type Database = {
           checkin_reminder_enabled?: boolean
           checkin_reminder_time?: string
           created_at?: string
+          default_landing?: string
+          default_widget_id?: string | null
           font_size?: string
           micro_prompt_enabled?: boolean
           notifications_enabled?: boolean
           sleep_goal_hours?: number
           sleep_reminder_enabled?: boolean
           sleep_reminder_time?: string
+          task_card_layout?: string
           theme?: string
           ui_scale?: number
           updated_at?: string
