@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      about_me: {
+        Row: {
+          ai_analysis: Json | null
+          ai_suggestions: Json | null
+          analyzed_at: string | null
+          answers: Json
+          created_at: string
+          free_text: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          ai_suggestions?: Json | null
+          analyzed_at?: string | null
+          answers?: Json
+          created_at?: string
+          free_text?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          ai_suggestions?: Json | null
+          analyzed_at?: string | null
+          answers?: Json
+          created_at?: string
+          free_text?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       assessment_responses: {
         Row: {
           assessment_type: string
@@ -1093,12 +1126,14 @@ export type Database = {
           checkin_reminder_enabled: boolean
           checkin_reminder_time: string
           created_at: string
+          font_size: string
           micro_prompt_enabled: boolean
           notifications_enabled: boolean
           sleep_goal_hours: number
           sleep_reminder_enabled: boolean
           sleep_reminder_time: string
           theme: string
+          ui_scale: number
           updated_at: string
           user_id: string
         }
@@ -1107,12 +1142,14 @@ export type Database = {
           checkin_reminder_enabled?: boolean
           checkin_reminder_time?: string
           created_at?: string
+          font_size?: string
           micro_prompt_enabled?: boolean
           notifications_enabled?: boolean
           sleep_goal_hours?: number
           sleep_reminder_enabled?: boolean
           sleep_reminder_time?: string
           theme?: string
+          ui_scale?: number
           updated_at?: string
           user_id: string
         }
@@ -1121,12 +1158,14 @@ export type Database = {
           checkin_reminder_enabled?: boolean
           checkin_reminder_time?: string
           created_at?: string
+          font_size?: string
           micro_prompt_enabled?: boolean
           notifications_enabled?: boolean
           sleep_goal_hours?: number
           sleep_reminder_enabled?: boolean
           sleep_reminder_time?: string
           theme?: string
+          ui_scale?: number
           updated_at?: string
           user_id?: string
         }
