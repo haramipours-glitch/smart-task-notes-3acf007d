@@ -45,8 +45,8 @@ export default function WeekView({
         {/* Hour grid */}
         <div className="grid grid-cols-[48px_repeat(7,1fr)] gap-px bg-border">
           {HOURS.map((h) => (
-            <>
-              <div key={`h-${h}`} className="bg-card text-[10px] text-muted-foreground p-1 text-center border-t">
+            <div key={`row-${h}`} className="contents">
+              <div className="bg-card text-[10px] text-muted-foreground p-1 text-center border-t">
                 {toPersianDigits(String(h).padStart(2, "0"))}
               </div>
               {days.map((d) => {
