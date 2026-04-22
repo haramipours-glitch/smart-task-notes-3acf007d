@@ -13,6 +13,7 @@ export default function PomodoroView() {
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const [mode, setMode] = useState<"work" | "break">("work");
+  const [completedTick, setCompletedTick] = useState<number | null>(null);
   const ref = useRef<number | null>(null);
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function PomodoroView() {
           if (user) supabase.from("pomodoro_sessions").insert({
             user_id: user.id, duration_minutes: 25, completed: true, ended_at: new Date().toISOString(),
           });
+          setCompletedTick(Date.now());
           setMode("break"); setMinutes(5); setSeconds(0);
         } else {
           toast.success("استراحت تمام شد!");
