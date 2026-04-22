@@ -39,6 +39,7 @@ const SECTIONS: Section[] = [
   {
     id: "tasks", title: "کارها و برنامه‌ریزی", icon: ListTodo, defaultOpen: true,
     items: [
+      { url: "/app/widgets", icon: LayoutGrid, label: "ویجت‌ها" },
       { url: "/app/inbox", icon: Inbox, label: "Inbox" },
       { url: "/app/today", icon: CalIcon, label: "امروز" },
       { url: "/app/next7", icon: CalendarDays, label: "۷ روز آینده" },
