@@ -31,6 +31,7 @@ import {
   SortableContext, verticalListSortingStrategy, useSortable, arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import CognitiveLoadCard from "@/components/CognitiveLoadCard";
 
 type Task = {
   id: string; title: string; description: string | null; priority: Priority;
@@ -398,6 +399,8 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">{title}</h1>
+
+      {scope === "today" && <div className="mb-4"><CognitiveLoadCard /></div>}
 
       {isFolder ? (
         <Tabs defaultValue="list">
