@@ -12,6 +12,8 @@ export type UserSettings = {
   micro_prompt_enabled: boolean;
   theme: string;
   auto_create_daily_tasks: boolean;
+  font_size: "small" | "medium" | "large" | "xlarge";
+  ui_scale: number;
 };
 
 const LAST_NOTIFY_KEY = "reminder_last_fired_v1"; // {sleep:"YYYY-MM-DD", checkin:"YYYY-MM-DD"}

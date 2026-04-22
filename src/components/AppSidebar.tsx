@@ -3,7 +3,7 @@ import {
   Inbox, Calendar as CalIcon, CalendarDays, Filter, FolderTree, Tag, FileText,
   Target, Timer, Calendar, Plus, ChevronRight, ChevronDown, LogOut, Sparkles, Settings, LayoutGrid,
   Brain, TrendingUp, Moon, HeartPulse, Activity, MessageCircleQuestion, Zap, Clock4, Heart, ShieldAlert, BookOpen, Sun,
-  ListTodo, BrainCircuit, Wrench, GripVertical, RotateCcw,
+  ListTodo, BrainCircuit, Wrench, GripVertical, RotateCcw, User, Trash2,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -26,6 +26,7 @@ import {
   arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
 
 type Folder = { id: string; name: string; parent_id: string | null; color: string };
 type TagT = { id: string; name: string; color: string };
@@ -80,7 +81,10 @@ const SECTIONS: Section[] = [
   },
   {
     id: "settings", title: "ابزار و تنظیمات", icon: Wrench, defaultOpen: false,
-    items: [{ url: "/app/settings", icon: Settings, label: "تنظیمات" }],
+    items: [
+      { url: "/app/about-me", icon: User, label: "درباره من" },
+      { url: "/app/settings", icon: Settings, label: "تنظیمات" },
+    ],
   },
 ];
 
@@ -130,6 +134,7 @@ export function AppSidebar() {
   const [openFolderDlg, setOpenFolderDlg] = useState(false);
   const [openTagDlg, setOpenTagDlg] = useState(false);
   const [aiFolder, setAiFolder] = useState<Folder | null>(null);
+  const [delFolder, setDelFolder] = useState<Folder | null>(null);
   const [order, setOrder] = useState<string[]>(loadOrder);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
@@ -231,13 +236,22 @@ export function AppSidebar() {
                   {!collapsed && <span className="truncate">{f.name}</span>}
                 </NavLink>
                 {!collapsed && (
-                  <button
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAiFolder(f); }}
-                    className="p-1 hover:bg-muted rounded opacity-60 hover:opacity-100 transition"
-                    title="چت AI روی این فولدر"
-                  >
-                    <Sparkles className="w-3 h-3 text-primary" />
-                  </button>
+                  <>
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAiFolder(f); }}
+                      className="p-1 hover:bg-muted rounded opacity-60 hover:opacity-100 transition"
+                      title="چت AI روی این فولدر"
+                    >
+                      <Sparkles className="w-3 h-3 text-primary" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDelFolder(f); }}
+                      className="p-1 hover:bg-destructive/10 rounded opacity-40 hover:opacity-100 transition"
+                      title="حذف فولدر"
+                    >
+                      <Trash2 className="w-3 h-3 text-destructive" />
+                    </button>
+                  </>
                 )}
               </div>
             </SidebarMenuButton>
@@ -430,6 +444,15 @@ export function AppSidebar() {
           onOpenChange={(v) => !v && setAiFolder(null)}
           folderId={aiFolder.id}
           folderName={aiFolder.name}
+        />
+      )}
+      {delFolder && (
+        <FolderDeleteDialog
+          open={!!delFolder}
+          onOpenChange={(v) => !v && setDelFolder(null)}
+          folderId={delFolder.id}
+          folderName={delFolder.name}
+          onDone={load}
         />
       )}
     </Sidebar>

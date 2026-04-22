@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Plus, Pin, Trash2, Search, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Pin, Trash2, Search, Sparkles, Loader2, FolderInput } from "lucide-react";
+import { MoveToDialog } from "@/components/MoveToDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import { AILangToggle } from "@/components/AILangToggle";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null };
+type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null; folder_id?: string | null };
 
 const AI_GROUPS: { label: string; items: { key: string; label: string }[] }[] = [
   {
@@ -74,6 +75,7 @@ export default function NotesView() {
   const [confirmDel, setConfirmDel] = useState<Note | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiLang, setAiLang] = useState<AILanguage>(getAILanguage());
+  const [moveOpen, setMoveOpen] = useState(false);
 
   const load = async () => {
     if (!user) return;
@@ -210,6 +212,9 @@ export default function NotesView() {
               <Button size="icon" variant="ghost" onClick={() => save({ pinned: !selected.pinned })}>
                 <Pin className={`w-4 h-4 ${selected.pinned ? "text-primary fill-primary" : ""}`} />
               </Button>
+              <Button size="icon" variant="ghost" onClick={() => setMoveOpen(true)} title="انتقال به فولدر">
+                <FolderInput className="w-4 h-4" />
+              </Button>
               <Button size="icon" variant="ghost" onClick={() => setConfirmDel(selected)}>
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -281,6 +286,17 @@ export default function NotesView() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {selected && (
+        <MoveToDialog
+          open={moveOpen}
+          onOpenChange={setMoveOpen}
+          kind="note"
+          itemId={selected.id}
+          currentFolderId={selected.folder_id ?? null}
+          onMoved={(fid) => { setSelected({ ...selected, folder_id: fid } as any); load(); }}
+        />
+      )}
     </div>
   );
 }

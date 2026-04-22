@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
-import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText, GripVertical, CornerDownRight } from "lucide-react";
+import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText, GripVertical, CornerDownRight, FolderInput } from "lucide-react";
+import { MoveToDialog } from "@/components/MoveToDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [confirm, setConfirm] = useState<ConfirmState>(null);
   const [quickSub, setQuickSub] = useState<Record<string, string>>({});
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [moveTask, setMoveTask] = useState<Task | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const title = {
@@ -325,6 +327,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                   )}
                 </div>
                 <ChildDropZone parentId={t.id} />
+                <Button size="icon" variant="ghost" onClick={() => setMoveTask(t)} title="انتقال به فولدر">
+                  <FolderInput className="w-3 h-3" />
+                </Button>
                 <Button size="icon" variant="ghost" onClick={() => askDeleteTask(t)}>
                   <Trash2 className="w-3 h-3" />
                 </Button>
@@ -460,6 +465,17 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {moveTask && (
+        <MoveToDialog
+          open={!!moveTask}
+          onOpenChange={(v) => !v && setMoveTask(null)}
+          kind="task"
+          itemId={moveTask.id}
+          currentFolderId={moveTask.folder_id}
+          onMoved={() => { load(); setMoveTask(null); }}
+        />
+      )}
     </div>
   );
 }

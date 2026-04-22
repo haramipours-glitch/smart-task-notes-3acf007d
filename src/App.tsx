@@ -32,6 +32,7 @@ import CrisisView from "./pages/CrisisView";
 import SocraticView from "./pages/SocraticView";
 import SleepView from "./pages/SleepView";
 import DecisionJournalView from "./pages/DecisionJournalView";
+import AboutMeView from "./pages/AboutMeView";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const App = () => (
               <Route path="socratic" element={<SocraticView />} />
               <Route path="sleep" element={<SleepView />} />
               <Route path="decisions" element={<DecisionJournalView />} />
+              <Route path="about-me" element={<AboutMeView />} />
               <Route path="settings" element={<SettingsView />} />
             </Route>
             <Route path="*" element={<NotFound />} />
