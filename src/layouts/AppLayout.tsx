@@ -9,6 +9,7 @@ import OfflineIndicator from "@/components/OfflineIndicator";
 import InstallPrompt from "@/components/InstallPrompt";
 import EdgeSwipeHandler from "@/components/EdgeSwipeHandler";
 import ClinicalDisclaimer from "@/components/ClinicalDisclaimer";
+import RemindersRunner from "@/components/RemindersRunner";
 
 export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
@@ -34,6 +35,7 @@ export default function AppLayout() {
         <InstallPrompt />
         <EdgeSwipeHandler />
         <ClinicalDisclaimer />
+        <RemindersRunner />
       </div>
     </SidebarProvider>
   );
