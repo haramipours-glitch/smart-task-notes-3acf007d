@@ -10,10 +10,18 @@ import InstallPrompt from "@/components/InstallPrompt";
 import EdgeSwipeHandler from "@/components/EdgeSwipeHandler";
 import ClinicalDisclaimer from "@/components/ClinicalDisclaimer";
 import RemindersRunner from "@/components/RemindersRunner";
+import BackButtonHandler from "@/components/BackButtonHandler";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
-
+  const loc = useLocation();
+  useEffect(() => {
+    if (loc.pathname.startsWith("/app/")) {
+      try { localStorage.setItem("last_route", loc.pathname); } catch {}
+    }
+  }, [loc.pathname]);
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -36,6 +44,7 @@ export default function AppLayout() {
         <EdgeSwipeHandler />
         <ClinicalDisclaimer />
         <RemindersRunner />
+        <BackButtonHandler />
       </div>
     </SidebarProvider>
   );
