@@ -396,11 +396,71 @@ export default function SettingsView() {
         </Card>
       )}
 
-      <Card className="p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <h2 className="font-semibold">پیش‌فرض سراسری AI</h2>
-        </div>
+      {reminders && (
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <LayoutGrid className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold">چیدمان کارت تسک</h2>
+          </div>
+          <Select
+            value={(reminders as any).task_card_layout || "comfortable"}
+            onValueChange={(v) => updateReminder({ task_card_layout: v as any })}
+          >
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="comfortable">راحت — فضای بیشتر</SelectItem>
+              <SelectItem value="compact">فشرده — متن عریض، آیکون‌ها کوچک‌تر و زیر</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-[11px] text-muted-foreground">عنوان تسک‌ها در حالت فشرده عریض‌تر و آیکون‌ها کوچک‌تر می‌شن.</p>
+        </Card>
+      )}
+
+      {reminders && (
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Home className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold">صفحه پیش‌فرض هنگام باز کردن اپ</h2>
+          </div>
+          <Select
+            value={(reminders as any).default_landing || "today"}
+            onValueChange={(v) => updateReminder({ default_landing: v as any })}
+          >
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">امروز</SelectItem>
+              <SelectItem value="widget">یک ویجت سفارشی</SelectItem>
+              <SelectItem value="last">آخرین صفحه باز</SelectItem>
+            </SelectContent>
+          </Select>
+          {(reminders as any).default_landing === "widget" && (
+            <div>
+              <Label className="text-xs">انتخاب ویجت پیش‌فرض</Label>
+              {widgets.length === 0 ? (
+                <p className="text-xs text-muted-foreground mt-1">
+                  هنوز ویجتی نساخته‌ای. <Link to="/app/widgets" className="text-primary underline">اولین ویجت رو بساز</Link>
+                </p>
+              ) : (
+                <Select
+                  value={(reminders as any).default_widget_id || ""}
+                  onValueChange={(v) => updateReminder({ default_widget_id: v } as any)}
+                >
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="انتخاب کن..." /></SelectTrigger>
+                  <SelectContent>
+                    {widgets.map((w) => (
+                      <SelectItem key={w.id} value={w.id}>{w.icon || "📋"} {w.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          )}
+          <Link to="/app/widgets" className="text-xs text-primary hover:underline inline-block">
+            مدیریت ویجت‌ها →
+          </Link>
+        </Card>
+      )}
+
         <p className="text-xs text-muted-foreground">این provider/model برای هر عملیاتی که override جداگانه نداشته باشد استفاده می‌شود.</p>
         <ProviderEditor value={settings.default} onChange={(c) => setSettings({ ...settings, default: c })} />
       </Card>
