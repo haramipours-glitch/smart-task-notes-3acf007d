@@ -38,6 +38,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import CognitiveLoadCard from "@/components/CognitiveLoadCard";
+import { TaskStepLists } from "@/components/TaskStepLists";
+import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 
 type Task = {
   id: string; title: string; description: string | null; priority: Priority;
@@ -473,7 +475,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
             <FolderKanban folderId={params.id!} />
           </TabsContent>
           <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} />
+            <EisenhowerMatrix scope={scope} onOpenTask={(id) => {
+              const t = allTasks.find(x => x.id === id);
+              if (t) setSelected(t);
+            }} />
           </TabsContent>
         </Tabs>
       ) : (
@@ -484,7 +489,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           </TabsList>
           <TabsContent value="list" className="mt-4">{listView}</TabsContent>
           <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} />
+            <EisenhowerMatrix scope={scope} onOpenTask={(id) => {
+              const t = allTasks.find(x => x.id === id);
+              if (t) setSelected(t);
+            }} />
           </TabsContent>
         </Tabs>
       )}
@@ -674,8 +682,22 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
               onChange={(rule) => save({ recurrence_rule: rule } as any)}
             />
 
+            <TaskSubtasksInline
+              taskId={t.id}
+              onOpenSubtask={(id) => {
+                supabase.from("tasks").select("*").eq("id", id).single().then(({ data }) => {
+                  if (data) {
+                    onChanged();
+                    setT(data as any);
+                  }
+                });
+              }}
+            />
+
+            <TaskStepLists taskId={t.id} />
+
             <div className="rounded-lg bg-accent/30 p-2 text-xs text-muted-foreground">
-              💡 برای ایجاد زیرتسک، از پنل AI یا از لیست اصلی روی تسک کلیک راست/افزودن استفاده کن. زیرتسک‌ها هم خودشون یک تسک کامل هستند.
+              💡 زیرتسک = یک تسک کامل با تاریخ و اولویت. مرحله = آیتم سبک یک لیست (شماره/چک‌باکس/نقطه/فلش).
             </div>
 
             <div>
