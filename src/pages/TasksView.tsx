@@ -473,7 +473,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
             <FolderKanban folderId={params.id!} />
           </TabsContent>
           <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} />
+            <EisenhowerMatrix scope={scope} onOpenTask={(id) => {
+              const t = allTasks.find(x => x.id === id);
+              if (t) setSelected(t);
+            }} />
           </TabsContent>
         </Tabs>
       ) : (
@@ -484,7 +487,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           </TabsList>
           <TabsContent value="list" className="mt-4">{listView}</TabsContent>
           <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} />
+            <EisenhowerMatrix scope={scope} onOpenTask={(id) => {
+              const t = allTasks.find(x => x.id === id);
+              if (t) setSelected(t);
+            }} />
           </TabsContent>
         </Tabs>
       )}
