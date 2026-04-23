@@ -23,7 +23,10 @@ type Task = {
   parent_id: string | null; quadrant: number | null;
 };
 
-export function EisenhowerMatrix({ scope }: { scope: "inbox" | "today" | "next7" | "smart" | "folder" | "tag" }) {
+export function EisenhowerMatrix({ scope, onOpenTask }: {
+  scope: "inbox" | "today" | "next7" | "smart" | "folder" | "tag";
+  onOpenTask?: (taskId: string) => void;
+}) {
   const { user } = useAuth();
   const params = useParams();
   const [tasks, setTasks] = useState<Task[]>([]);
