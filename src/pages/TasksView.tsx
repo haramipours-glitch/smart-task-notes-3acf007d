@@ -11,6 +11,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AutoTextarea } from "@/components/ui/auto-textarea";
+import { BidiText } from "@/components/BidiText";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -308,9 +310,11 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                 ) : <span className="w-4 shrink-0" />}
                 <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelected(t)}>
-                  <p className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}>
-                    {t.title}
-                  </p>
+                  <BidiText
+                    as="p"
+                    text={t.title}
+                    className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}
+                  />
                 </div>
               </div>
 
@@ -395,7 +399,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     <>
       <div className="flex gap-2 mb-4">
         <Input placeholder="+ تسک جدید..." value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" />
+          onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" dir="auto" />
         <Button onClick={() => addTask()}><Plus className="w-4 h-4" /></Button>
       </div>
 
@@ -596,10 +600,15 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
           </SheetHeader>
           <div className="space-y-4 mt-4">
             <Input value={t.title} onChange={(e) => setT({ ...t, title: e.target.value })}
-              onBlur={() => save({ title: t.title })} className="text-lg font-semibold" />
-            <Textarea placeholder="توضیحات..." value={t.description || ""}
+              onBlur={() => save({ title: t.title })} className="text-lg font-semibold" dir="auto" />
+            <AutoTextarea
+              placeholder="توضیحات..."
+              value={t.description || ""}
               onChange={(e) => setT({ ...t, description: e.target.value })}
-              onBlur={() => save({ description: t.description })} rows={3} />
+              onBlur={() => save({ description: t.description })}
+              minHeight={72}
+              maxHeight={360}
+            />
 
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">اولویت</label>
