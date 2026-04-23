@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { toast } from "sonner";
 import { RichEditor } from "@/components/RichEditor";
 import { markdownToHtml } from "@/lib/markdown";
+import { BidiText } from "@/components/BidiText";
 import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
 import { AILangToggle } from "@/components/AILangToggle";
 import ReactMarkdown from "react-markdown";
@@ -164,7 +165,7 @@ export default function NotesView() {
           </div>
           <div className="relative">
             <Search className="w-4 h-4 absolute left-2 top-2.5 text-muted-foreground" />
-            <Input placeholder="جستجو..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
+            <Input placeholder="جستجو..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" dir="auto" />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -180,9 +181,9 @@ export default function NotesView() {
                 className={`w-full text-right p-3 hover:bg-accent/40 transition cursor-grab active:cursor-grabbing ${selected?.id === n.id ? "bg-accent/60" : ""}`}>
                 <div className="flex items-center gap-1">
                   {n.pinned && <Pin className="w-3 h-3 text-primary" />}
-                  <span className="font-medium text-sm truncate flex-1">{n.title}</span>
+                  <BidiText as="span" text={n.title} className="font-medium text-sm truncate flex-1" />
                 </div>
-                <p className="text-xs text-muted-foreground truncate mt-1">{stripMd(n.content)}</p>
+                <BidiText as="p" text={stripMd(n.content)} className="text-xs text-muted-foreground truncate mt-1" />
               </button>
             </div>
           ))}
@@ -195,7 +196,7 @@ export default function NotesView() {
           <div className="p-4 max-w-4xl mx-auto">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Input value={selected.title} onChange={(e) => save({ title: e.target.value })}
-                className="text-xl font-bold border-none focus-visible:ring-0 px-0 flex-1 min-w-[120px]" />
+                className="text-xl font-bold border-none focus-visible:ring-0 px-0 flex-1 min-w-[120px]" dir="auto" />
               <AILangToggle value={aiLang} onChange={setAiLang} />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
