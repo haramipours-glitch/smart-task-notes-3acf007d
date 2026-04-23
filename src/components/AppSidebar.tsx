@@ -488,6 +488,15 @@ export function AppSidebar() {
           onDone={load}
         />
       )}
+      {delTag && (
+        <TagDeleteDialog
+          open={!!delTag}
+          onOpenChange={(v) => !v && setDelTag(null)}
+          tagId={delTag.id}
+          tagName={delTag.name}
+          onDone={load}
+        />
+      )}
     </Sidebar>
   );
 }
