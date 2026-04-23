@@ -159,7 +159,7 @@ export function EisenhowerMatrix({ scope, onOpenTask }: {
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {([1, 2, 3, 4] as Quadrant[]).map((q) => (
-            <QuadrantBox key={q} q={q} tasks={grouped[q]} onToggle={toggleDone} />
+            <QuadrantBox key={q} q={q} tasks={grouped[q]} onToggle={toggleDone} onOpen={onOpenTask} />
           ))}
         </div>
         <DragOverlay>
@@ -174,7 +174,9 @@ export function EisenhowerMatrix({ scope, onOpenTask }: {
   );
 }
 
-function QuadrantBox({ q, tasks, onToggle }: { q: Quadrant; tasks: Task[]; onToggle: (t: Task) => void }) {
+function QuadrantBox({ q, tasks, onToggle, onOpen }: {
+  q: Quadrant; tasks: Task[]; onToggle: (t: Task) => void; onOpen?: (id: string) => void;
+}) {
   const meta = QUADRANT_META[q];
   const { setNodeRef, isOver } = useDroppable({ id: `q:${q}` });
   return (
@@ -193,7 +195,7 @@ function QuadrantBox({ q, tasks, onToggle }: { q: Quadrant; tasks: Task[]; onTog
       </div>
       <div className="space-y-1.5">
         {tasks.map((t) => (
-          <DraggableCard key={t.id} task={t} onToggle={onToggle} />
+          <DraggableCard key={t.id} task={t} onToggle={onToggle} onOpen={onOpen} />
         ))}
         {tasks.length === 0 && (
           <p className="text-xs text-muted-foreground/60 text-center py-4">— خالی —</p>
@@ -203,14 +205,14 @@ function QuadrantBox({ q, tasks, onToggle }: { q: Quadrant; tasks: Task[]; onTog
   );
 }
 
-function DraggableCard({ task, onToggle }: { task: Task; onToggle: (t: Task) => void }) {
+function DraggableCard({ task, onToggle, onOpen }: {
+  task: Task; onToggle: (t: Task) => void; onOpen?: (id: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: task.id });
   return (
     <Card
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      className={`p-2 cursor-grab active:cursor-grabbing bg-card/80 backdrop-blur ${isDragging ? "opacity-30" : ""}`}
+      className={`p-2 bg-card/80 backdrop-blur ${isDragging ? "opacity-30" : ""}`}
     >
       <div className="flex items-start gap-2">
         <Checkbox
@@ -219,15 +221,29 @@ function DraggableCard({ task, onToggle }: { task: Task; onToggle: (t: Task) => 
           onClick={(e) => e.stopPropagation()}
           className="mt-0.5"
         />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm truncate">{task.title}</p>
+        {/* Drag handle: only this region initiates drag, so click-to-open works on the title */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing px-1 text-muted-foreground/60 hover:text-foreground touch-none"
+          aria-label="drag"
+          title="بکش برای جابجایی"
+        >
+          ⋮⋮
+        </button>
+        <button
+          type="button"
+          onClick={() => onOpen?.(task.id)}
+          className="flex-1 min-w-0 text-right"
+        >
+          <p className="text-sm truncate hover:underline">{task.title}</p>
           {task.due_date && (
             <div className="flex items-center gap-1 mt-0.5 text-[10px] text-muted-foreground">
               <CalIcon className="w-2.5 h-2.5" />
               {formatDate(new Date(task.due_date), "yyyy/MM/dd")}
             </div>
           )}
-        </div>
+        </button>
       </div>
     </Card>
   );
