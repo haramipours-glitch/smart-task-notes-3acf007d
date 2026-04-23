@@ -154,22 +154,37 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
 
   const toggleTask = async (t: Task) => {
     const newCompleted = !t.completed;
-    setAllTasks(prev => prev.map(x => x.id === t.id ? { ...x, completed: newCompleted } : x));
-    await supabase.from("tasks").update({
-      completed: newCompleted, completed_at: newCompleted ? new Date().toISOString() : null,
-    }).eq("id", t.id);
 
+    // Recurring task: instead of marking complete, roll forward to next occurrence
     if (newCompleted && t.recurrence_rule && user) {
       const base = t.due_date ? new Date(t.due_date) : new Date();
       const next = nextOccurrence(t.recurrence_rule, base);
       if (next) {
-        await supabase.from("tasks").insert({
-          user_id: user.id, title: t.title, description: t.description, priority: t.priority,
-          folder_id: t.folder_id, due_date: next.toISOString(), recurrence_rule: t.recurrence_rule as any,
-        });
-        toast.success(`نمونه بعدی برای ${format(next, "yyyy-MM-dd HH:mm")} ساخته شد ✨`);
+        // Shift reminder by the same delta as the due date
+        let nextReminderIso: string | null = null;
+        if (t.reminder_at && t.due_date) {
+          const delta = next.getTime() - new Date(t.due_date).getTime();
+          nextReminderIso = new Date(new Date(t.reminder_at).getTime() + delta).toISOString();
+        } else if (t.reminder_at) {
+          nextReminderIso = next.toISOString();
+        }
+        const patch: any = {
+          due_date: next.toISOString(),
+          reminder_at: nextReminderIso,
+          completed: false,
+          completed_at: null,
+        };
+        setAllTasks(prev => prev.map(x => x.id === t.id ? { ...x, ...patch } : x));
+        await supabase.from("tasks").update(patch).eq("id", t.id);
+        toast.success(`نمونه بعدی به ${format(next, "yyyy-MM-dd HH:mm")} منتقل شد 🔁`);
+        return;
       }
     }
+
+    setAllTasks(prev => prev.map(x => x.id === t.id ? { ...x, completed: newCompleted } : x));
+    await supabase.from("tasks").update({
+      completed: newCompleted, completed_at: newCompleted ? new Date().toISOString() : null,
+    }).eq("id", t.id);
   };
 
   const delTask = async (id: string) => {
@@ -631,7 +646,21 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
               <div>
                 <label className="text-xs text-muted-foreground">سررسید</label>
                 <Input type="datetime-local" value={t.due_date ? t.due_date.slice(0, 16) : ""}
-                  onChange={(e) => save({ due_date: e.target.value ? new Date(e.target.value).toISOString() : null })} />
+                  onChange={(e) => {
+                    const newDue = e.target.value ? new Date(e.target.value) : null;
+                    const patch: Partial<Task> = { due_date: newDue ? newDue.toISOString() : null };
+                    // Shift reminder to follow the new due date, preserving time-of-day relationship
+                    if (t.reminder_at && newDue) {
+                      if (t.due_date) {
+                        const delta = newDue.getTime() - new Date(t.due_date).getTime();
+                        patch.reminder_at = new Date(new Date(t.reminder_at).getTime() + delta).toISOString();
+                      } else {
+                        // No previous due date; align reminder to new due date (same time)
+                        patch.reminder_at = newDue.toISOString();
+                      }
+                    }
+                    save(patch);
+                  }} />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">یادآور</label>
