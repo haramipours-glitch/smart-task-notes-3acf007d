@@ -374,6 +374,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                   onKeyDown={(e) => e.key === "Enter" && quickAddSub(t)}
                   placeholder="+ زیرتسک سریع..."
                   className="h-6 text-[11px] flex-1"
+                  dir="auto"
                 />
                 <Button size="icon" variant="ghost" onClick={() => quickAddSub(t)} className="h-6 w-6">
                   <Plus className="w-3 h-3" />
@@ -661,7 +662,7 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
                 {taskNotes.map((n) => (
                   <Card key={n.id} className="p-2 flex items-center gap-2">
                     <button className="flex-1 text-right text-sm truncate" onClick={() => setActiveNote(n)}>
-                      {n.title}
+                      <BidiText text={n.title} />
                     </button>
                     <Button size="icon" variant="ghost" onClick={() => askDelNote(n)}>
                       <Trash2 className="w-3 h-3" />
