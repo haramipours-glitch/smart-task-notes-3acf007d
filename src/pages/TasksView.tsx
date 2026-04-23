@@ -38,6 +38,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import CognitiveLoadCard from "@/components/CognitiveLoadCard";
+import { TaskStepLists } from "@/components/TaskStepLists";
+import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 
 type Task = {
   id: string; title: string; description: string | null; priority: Priority;
