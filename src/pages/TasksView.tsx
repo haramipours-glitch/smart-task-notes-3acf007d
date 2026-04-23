@@ -11,6 +11,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AutoTextarea } from "@/components/ui/auto-textarea";
+import { BidiText } from "@/components/BidiText";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -308,9 +310,11 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                 ) : <span className="w-4 shrink-0" />}
                 <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelected(t)}>
-                  <p className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}>
-                    {t.title}
-                  </p>
+                  <BidiText
+                    as="p"
+                    text={t.title}
+                    className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}
+                  />
                 </div>
               </div>
 
@@ -370,6 +374,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                   onKeyDown={(e) => e.key === "Enter" && quickAddSub(t)}
                   placeholder="+ زیرتسک سریع..."
                   className="h-6 text-[11px] flex-1"
+                  dir="auto"
                 />
                 <Button size="icon" variant="ghost" onClick={() => quickAddSub(t)} className="h-6 w-6">
                   <Plus className="w-3 h-3" />
@@ -395,7 +400,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     <>
       <div className="flex gap-2 mb-4">
         <Input placeholder="+ تسک جدید..." value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" />
+          onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" dir="auto" />
         <Button onClick={() => addTask()}><Plus className="w-4 h-4" /></Button>
       </div>
 
@@ -431,7 +436,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-        <h1 className="text-2xl font-bold">{title}</h1>
+        <BidiText as="h1" text={title} className="text-2xl font-bold" />
         {isFolder && (
           <Button size="sm" variant="outline" onClick={() => setDelFolderOpen(true)} className="text-destructive">
             <Trash2 className="w-3.5 h-3.5 ml-1" /> حذف فولدر
@@ -596,10 +601,15 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
           </SheetHeader>
           <div className="space-y-4 mt-4">
             <Input value={t.title} onChange={(e) => setT({ ...t, title: e.target.value })}
-              onBlur={() => save({ title: t.title })} className="text-lg font-semibold" />
-            <Textarea placeholder="توضیحات..." value={t.description || ""}
+              onBlur={() => save({ title: t.title })} className="text-lg font-semibold" dir="auto" />
+            <AutoTextarea
+              placeholder="توضیحات..."
+              value={t.description || ""}
               onChange={(e) => setT({ ...t, description: e.target.value })}
-              onBlur={() => save({ description: t.description })} rows={3} />
+              onBlur={() => save({ description: t.description })}
+              minHeight={72}
+              maxHeight={360}
+            />
 
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">اولویت</label>
@@ -652,7 +662,7 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
                 {taskNotes.map((n) => (
                   <Card key={n.id} className="p-2 flex items-center gap-2">
                     <button className="flex-1 text-right text-sm truncate" onClick={() => setActiveNote(n)}>
-                      {n.title}
+                      <BidiText text={n.title} />
                     </button>
                     <Button size="icon" variant="ghost" onClick={() => askDelNote(n)}>
                       <Trash2 className="w-3 h-3" />
@@ -672,7 +682,7 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
             <SheetHeader>
               <SheetTitle>
                 <Input value={activeNote.title} onChange={(e) => saveNote(activeNote.id, { title: e.target.value })}
-                  className="border-none focus-visible:ring-0 px-0 text-lg font-semibold" />
+                  className="border-none focus-visible:ring-0 px-0 text-lg font-semibold" dir="auto" />
               </SheetTitle>
             </SheetHeader>
             <div className="mt-4">
