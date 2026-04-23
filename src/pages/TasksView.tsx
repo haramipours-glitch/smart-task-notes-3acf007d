@@ -436,7 +436,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-        <h1 className="text-2xl font-bold">{title}</h1>
+        <BidiText as="h1" text={title} className="text-2xl font-bold" />
         {isFolder && (
           <Button size="sm" variant="outline" onClick={() => setDelFolderOpen(true)} className="text-destructive">
             <Trash2 className="w-3.5 h-3.5 ml-1" /> حذف فولدر
@@ -682,7 +682,7 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
             <SheetHeader>
               <SheetTitle>
                 <Input value={activeNote.title} onChange={(e) => saveNote(activeNote.id, { title: e.target.value })}
-                  className="border-none focus-visible:ring-0 px-0 text-lg font-semibold" />
+                  className="border-none focus-visible:ring-0 px-0 text-lg font-semibold" dir="auto" />
               </SheetTitle>
             </SheetHeader>
             <div className="mt-4">
