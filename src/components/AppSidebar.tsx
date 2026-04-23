@@ -27,6 +27,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
+import { TagDeleteDialog } from "@/components/TagDeleteDialog";
 import { readItemDrag, moveItemToFolder } from "@/lib/dragToFolder";
 
 type Folder = { id: string; name: string; parent_id: string | null; color: string };
@@ -137,6 +138,7 @@ export function AppSidebar() {
   const [openTagDlg, setOpenTagDlg] = useState(false);
   const [aiFolder, setAiFolder] = useState<Folder | null>(null);
   const [delFolder, setDelFolder] = useState<Folder | null>(null);
+  const [delTag, setDelTag] = useState<TagT | null>(null);
   const [order, setOrder] = useState<string[]>(loadOrder);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
@@ -393,13 +395,25 @@ export function AppSidebar() {
             <SidebarMenu>
               {tags.map((t) => (
                 <SidebarMenuItem key={t.id}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={`/app/tag/${t.id}`} onClick={closeOnMobile} className="flex items-center gap-2"
-                      activeClassName="bg-accent text-accent-foreground font-medium">
-                      <Tag className="w-4 h-4" style={{ color: t.color }} />
-                      {!collapsed && <span className="truncate">{t.name}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
+                  <div className="flex items-center group">
+                    <SidebarMenuButton asChild className="flex-1">
+                      <NavLink to={`/app/tag/${t.id}`} onClick={closeOnMobile} className="flex items-center gap-2"
+                        activeClassName="bg-accent text-accent-foreground font-medium">
+                        <Tag className="w-4 h-4" style={{ color: t.color }} />
+                        {!collapsed && <span className="truncate">{t.name}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                    {!collapsed && (
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDelTag(t); }}
+                        className="p-1 opacity-0 group-hover:opacity-100 transition text-muted-foreground hover:text-destructive"
+                        title="حذف تگ"
+                        aria-label="حذف تگ"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -471,6 +485,15 @@ export function AppSidebar() {
           onOpenChange={(v) => !v && setDelFolder(null)}
           folderId={delFolder.id}
           folderName={delFolder.name}
+          onDone={load}
+        />
+      )}
+      {delTag && (
+        <TagDeleteDialog
+          open={!!delTag}
+          onOpenChange={(v) => !v && setDelTag(null)}
+          tagId={delTag.id}
+          tagName={delTag.name}
           onDone={load}
         />
       )}

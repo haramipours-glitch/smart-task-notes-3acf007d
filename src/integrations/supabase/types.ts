@@ -949,6 +949,48 @@ export type Database = {
         }
         Relationships: []
       }
+      task_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          id: string
+          kind: string
+          mime_type: string | null
+          position: number
+          size_bytes: number | null
+          storage_path: string
+          task_id: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          position?: number
+          size_bytes?: number | null
+          storage_path: string
+          task_id: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          position?: number
+          size_bytes?: number | null
+          storage_path?: string
+          task_id?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       task_step_lists: {
         Row: {
           created_at: string

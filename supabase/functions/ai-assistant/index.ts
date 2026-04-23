@@ -23,6 +23,10 @@ const SYSTEM_PROMPTS: Record<string, string> = {
 When proposing tasks, ALWAYS call the "propose_tasks" tool. Each task: title (required), priority, due_date (ISO or empty), and optional kanban_column ("todo"|"doing"|"done"). Match the user's language.`,
   socratic: `You are a Socratic guide. NEVER give direct answers or advice. ONLY ask open-ended questions that help the user discover their own insights. Match the user's language.`,
   distortion_detect: `You detect cognitive distortions in the user's automatic thought. Output a brief CBT-style feedback identifying any of the 10 common distortions present, then gently propose a more balanced alternative. Match the user's language.`,
+  image_extract: `You extract ALL readable text from the provided image accurately. Preserve structure (lines, lists, headings). Output Markdown only. Match the language detected in the image.`,
+  image_summarize: `You analyze the provided image (text + visuals). Produce a well-structured Markdown note: a short summary, then key points/sections. Expand on important details. Match the language of the image.`,
+  image_research: `You analyze the provided image, identify the main topic(s), and produce structured research notes in Markdown: background, key concepts, important questions, references to explore. Match the language of the image.`,
+  image_to_tasks: `You analyze the provided image and extract concrete actionable tasks. If the image suggests timing/dates, include them. Match the language of the image.`,
 };
 
 const TOOLS: Record<string, any> = {
@@ -132,6 +136,34 @@ const TOOLS: Record<string, any> = {
       },
     },
   },
+  image_to_tasks: {
+    type: "function",
+    function: {
+      name: "image_tasks",
+      description: "Tasks extracted from an image",
+      parameters: {
+        type: "object",
+        properties: {
+          tasks: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                priority: { type: "string", enum: ["none","low","medium","high"] },
+                due_date: { type: "string", description: "ISO 8601 or empty" },
+              },
+              required: ["title"],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ["tasks"],
+        additionalProperties: false,
+      },
+    },
+  },
   folder_chat: {
     type: "function",
     function: {
@@ -235,6 +267,15 @@ serve(async (req) => {
 
     if ((mode === "chat" || mode === "task_chat" || mode === "folder_chat" || mode === "socratic") && Array.isArray(input)) {
       messages.push(...input);
+    } else if (input && typeof input === "object" && input.imageUrl) {
+      const userText = input.text || "Analyze this image.";
+      messages.push({
+        role: "user",
+        content: [
+          { type: "text", text: userText },
+          { type: "image_url", image_url: { url: input.imageUrl } },
+        ],
+      });
     } else {
       messages.push({ role: "user", content: typeof input === "string" ? input : JSON.stringify(input) });
     }

@@ -40,6 +40,7 @@ import { CSS } from "@dnd-kit/utilities";
 import CognitiveLoadCard from "@/components/CognitiveLoadCard";
 import { TaskStepLists } from "@/components/TaskStepLists";
 import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
+import { TaskAttachments } from "@/components/TaskAttachments";
 
 type Task = {
   id: string; title: string; description: string | null; priority: Priority;
@@ -695,6 +696,8 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
             />
 
             <TaskStepLists taskId={t.id} />
+
+            <TaskAttachments taskId={t.id} />
 
             <div className="rounded-lg bg-accent/30 p-2 text-xs text-muted-foreground">
               💡 زیرتسک = یک تسک کامل با تاریخ و اولویت. مرحله = آیتم سبک یک لیست (شماره/چک‌باکس/نقطه/فلش).
