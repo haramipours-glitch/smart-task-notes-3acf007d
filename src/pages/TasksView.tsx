@@ -682,8 +682,22 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
               onChange={(rule) => save({ recurrence_rule: rule } as any)}
             />
 
+            <TaskSubtasksInline
+              taskId={t.id}
+              onOpenSubtask={(id) => {
+                supabase.from("tasks").select("*").eq("id", id).single().then(({ data }) => {
+                  if (data) {
+                    onChanged();
+                    setT(data as any);
+                  }
+                });
+              }}
+            />
+
+            <TaskStepLists taskId={t.id} />
+
             <div className="rounded-lg bg-accent/30 p-2 text-xs text-muted-foreground">
-              💡 برای ایجاد زیرتسک، از پنل AI یا از لیست اصلی روی تسک کلیک راست/افزودن استفاده کن. زیرتسک‌ها هم خودشون یک تسک کامل هستند.
+              💡 زیرتسک = یک تسک کامل با تاریخ و اولویت. مرحله = آیتم سبک یک لیست (شماره/چک‌باکس/نقطه/فلش).
             </div>
 
             <div>
