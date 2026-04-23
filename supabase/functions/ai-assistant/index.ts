@@ -267,6 +267,15 @@ serve(async (req) => {
 
     if ((mode === "chat" || mode === "task_chat" || mode === "folder_chat" || mode === "socratic") && Array.isArray(input)) {
       messages.push(...input);
+    } else if (input && typeof input === "object" && input.imageUrl) {
+      const userText = input.text || "Analyze this image.";
+      messages.push({
+        role: "user",
+        content: [
+          { type: "text", text: userText },
+          { type: "image_url", image_url: { url: input.imageUrl } },
+        ],
+      });
     } else {
       messages.push({ role: "user", content: typeof input === "string" ? input : JSON.stringify(input) });
     }
