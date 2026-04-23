@@ -26,7 +26,7 @@ type Task = {
 
 const UNASSIGNED = "__unassigned__";
 
-export function FolderKanban({ folderId }: { folderId: string }) {
+export function FolderKanban({ folderId, onOpenTask }: { folderId: string; onOpenTask?: (taskId: string) => void }) {
   const { user } = useAuth();
   const [cols, setCols] = useState<Col[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -178,6 +178,7 @@ export function FolderKanban({ folderId }: { folderId: string }) {
               onAdd={() => addCard(col.id)}
               onRename={col.id !== UNASSIGNED ? () => setRenaming({ id: col.id, name: col.name }) : undefined}
               onDelete={col.id !== UNASSIGNED ? () => setDelCol(col) : undefined}
+              onOpenTask={onOpenTask}
             />
           ))}
         </div>
@@ -229,11 +230,12 @@ export function FolderKanban({ folderId }: { folderId: string }) {
 }
 
 function Column({
-  col, tasks, newValue, setNewValue, onAdd, onRename, onDelete,
+  col, tasks, newValue, setNewValue, onAdd, onRename, onDelete, onOpenTask,
 }: {
   col: Col; tasks: Task[]; newValue: string;
   setNewValue: (v: string) => void; onAdd: () => void;
   onRename?: () => void; onDelete?: () => void;
+  onOpenTask?: (id: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.id });
   const accent = col.color || "#3B82F6";
@@ -276,7 +278,7 @@ function Column({
 
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-2 min-h-[40px]">
-          {tasks.map(t => <SortableTaskCard key={t.id} task={t} />)}
+          {tasks.map(t => <SortableTaskCard key={t.id} task={t} onOpen={onOpenTask} />)}
           {tasks.length === 0 && (
             <div className="text-[11px] text-muted-foreground text-center py-4 border border-dashed rounded-lg">
               اینجا رها کن
@@ -288,7 +290,7 @@ function Column({
   );
 }
 
-function SortableTaskCard({ task }: { task: Task }) {
+function SortableTaskCard({ task, onOpen }: { task: Task; onOpen?: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -296,29 +298,49 @@ function SortableTaskCard({ task }: { task: Task }) {
     opacity: isDragging ? 0.4 : 1,
   };
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TaskCard task={task} />
+    <div ref={setNodeRef} style={style}>
+      <TaskCard task={task} dragHandleProps={{ ...attributes, ...listeners }} onOpen={onOpen} />
     </div>
   );
 }
 
-function TaskCard({ task, dragging }: { task: Task; dragging?: boolean }) {
+function TaskCard({ task, dragging, dragHandleProps, onOpen }: {
+  task: Task; dragging?: boolean;
+  dragHandleProps?: any; onOpen?: (id: string) => void;
+}) {
   const pm = PRIORITY_META[task.priority] || PRIORITY_META.none;
   return (
-    <Card className={`p-2.5 cursor-grab active:cursor-grabbing border-l-4 ${pm.borderClass} ${dragging ? "shadow-lg" : "hover:shadow-soft"}`}>
-      <p className={`text-xs font-medium ${task.completed ? "line-through text-muted-foreground" : ""}`}>{task.title}</p>
-      <div className="flex flex-wrap items-center gap-1 mt-1.5">
-        {task.priority !== "none" && (
-          <Badge variant="outline" className={`text-[9px] gap-0.5 px-1.5 ${pm.bgClass} ${pm.textClass}`}>
-            <Flag className="w-2 h-2" /> {pm.label}
-          </Badge>
-        )}
-        {task.due_date && (
-          <Badge variant="secondary" className="text-[9px] gap-0.5 px-1.5">
-            <Calendar className="w-2 h-2" />
-            {format(new Date(task.due_date), "MMM d")}
-          </Badge>
-        )}
+    <Card className={`p-2.5 border-l-4 ${pm.borderClass} ${dragging ? "shadow-lg" : "hover:shadow-soft"}`}>
+      <div className="flex items-start gap-1.5">
+        <button
+          {...(dragHandleProps || {})}
+          className="cursor-grab active:cursor-grabbing px-0.5 text-muted-foreground/60 hover:text-foreground touch-none shrink-0"
+          aria-label="drag"
+          title="بکش برای جابجایی"
+          onClick={(e) => e.stopPropagation()}
+        >
+          ⋮⋮
+        </button>
+        <button
+          type="button"
+          onClick={() => onOpen?.(task.id)}
+          className="flex-1 min-w-0 text-right"
+        >
+          <p className={`text-xs font-medium hover:underline ${task.completed ? "line-through text-muted-foreground" : ""}`}>{task.title}</p>
+          <div className="flex flex-wrap items-center gap-1 mt-1.5">
+            {task.priority !== "none" && (
+              <Badge variant="outline" className={`text-[9px] gap-0.5 px-1.5 ${pm.bgClass} ${pm.textClass}`}>
+                <Flag className="w-2 h-2" /> {pm.label}
+              </Badge>
+            )}
+            {task.due_date && (
+              <Badge variant="secondary" className="text-[9px] gap-0.5 px-1.5">
+                <Calendar className="w-2 h-2" />
+                {format(new Date(task.due_date), "MMM d")}
+              </Badge>
+            )}
+          </div>
+        </button>
       </div>
     </Card>
   );
