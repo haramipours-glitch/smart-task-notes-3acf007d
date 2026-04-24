@@ -34,7 +34,7 @@ export default function DayView({
             <button
               key={h}
               onClick={() => onSlotClick?.(h)}
-              className="w-full grid grid-cols-[60px_1fr] gap-2 p-2 text-right hover:bg-accent/40 transition min-h-[44px]"
+              className="w-full grid grid-cols-[60px_1fr] gap-2 p-2 text-end hover:bg-accent/40 transition min-h-[44px]"
             >
               <div className="text-xs text-muted-foreground tabular-nums">
                 {toPersianDigits(String(h).padStart(2, "0"))}:۰۰

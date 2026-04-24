@@ -60,7 +60,7 @@ export default function HabitsView() {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto">
+    <div dir="rtl" className="p-4 md:p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">عادت‌ها</h1>
       <div className="flex gap-2 mb-6">
         <Input placeholder="عادت جدید..." value={name} onChange={(e) => setName(e.target.value)}
@@ -75,7 +75,7 @@ export default function HabitsView() {
               <div className="flex items-center gap-2">
                 <span className="text-xl">{h.icon}</span>
                 <span className="font-medium">{h.name}</span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1 ml-2">
+                <span className="text-xs text-muted-foreground flex items-center gap-1 ms-2">
                   <Flame className="w-3 h-3 text-warning" /> {streak(h.id)}
                 </span>
               </div>

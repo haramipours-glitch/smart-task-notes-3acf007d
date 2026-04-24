@@ -62,7 +62,7 @@ export default function DayDetailSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
-        <SheetHeader className="text-right">
+        <SheetHeader className="text-end">
           <SheetTitle className="flex items-center justify-between">
             <span>
               {system === "jalali"
@@ -75,7 +75,7 @@ export default function DayDetailSheet({
           </SheetTitle>
           <p className="text-xs text-muted-foreground">
             {system === "jalali" ? format(date, "EEEE, MMMM d, yyyy") : formatDate(date, "EEEE d MMMM yyyy", "jalali")}
-            {(system === "jalali" && isFriday) && <span className="text-rose-500 mr-2">• تعطیل</span>}
+            {(system === "jalali" && isFriday) && <span className="text-rose-500 me-2">• تعطیل</span>}
           </p>
         </SheetHeader>
 

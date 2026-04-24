@@ -87,7 +87,7 @@ export default function SelfKnowledgeView() {
           <div className="flex items-center gap-2 font-medium">
             <Info className="w-4 h-4 text-primary" /> سه مسیر ورود
           </div>
-          <ul className="space-y-1 list-disc pr-5 text-muted-foreground">
+          <ul className="space-y-1 list-disc pe-5 text-muted-foreground">
             <li><strong>Deep Dive:</strong> همه ۱۶۸ سوال در یک نشست (~۵۰ دقیقه)</li>
             <li><strong>Split Sessions:</strong> در چند جلسه ۱۵–۲۰ دقیقه‌ای</li>
             <li><strong>Mini:</strong> فقط HEXACO برای کالیبراسیون لحن AI</li>
@@ -106,8 +106,8 @@ export default function SelfKnowledgeView() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <Icon className={`w-8 h-8 ${t.color}`} />
-                  {done && <Badge variant="secondary"><CheckCircle2 className="w-3 h-3 ml-1" /> تکمیل</Badge>}
-                  {!done && p && !p.completed && <Badge variant="outline"><Clock className="w-3 h-3 ml-1" /> ناتمام</Badge>}
+                  {done && <Badge variant="secondary"><CheckCircle2 className="w-3 h-3 ms-1" /> تکمیل</Badge>}
+                  {!done && p && !p.completed && <Badge variant="outline"><Clock className="w-3 h-3 ms-1" /> ناتمام</Badge>}
                 </div>
                 <CardTitle className="mt-3">{t.title}</CardTitle>
                 <CardDescription>{t.subtitle}</CardDescription>
@@ -149,7 +149,7 @@ export default function SelfKnowledgeView() {
           <Accordion type="single" collapsible className="w-full">
             {TESTS.map((t) => (
               <AccordionItem key={t.type} value={t.type}>
-                <AccordionTrigger className="text-right hover:no-underline">
+                <AccordionTrigger className="text-end hover:no-underline">
                   <div className="flex items-center gap-2">
                     <t.icon className={`w-5 h-5 ${t.color}`} />
                     <span className="font-medium">{t.title} — {t.subtitle}</span>

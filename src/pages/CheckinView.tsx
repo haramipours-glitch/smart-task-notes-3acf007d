@@ -11,7 +11,7 @@ import ProfileMicroPrompt from "@/components/ProfileMicroPrompt";
 
 function Slider10({ label, value, onChange }: { label: string; value: number | null; onChange: (v: number) => void }) {
   return (
-    <div className="space-y-2">
+    <div dir="rtl" className="space-y-2">
       <div className="flex justify-between text-sm">
         <Label>{label}</Label>
         <span className="font-mono text-muted-foreground">{value ?? "—"}/10</span>
@@ -113,7 +113,7 @@ export default function CheckinView() {
           </div>
           {/* A2 — Dynamic evening reflection: appears in evening + when load was high */}
           {isEvening && todayLoad != null && todayLoad >= 12 && (
-            <div className="border-l-4 border-amber-500 bg-amber-500/5 rounded-md p-3 space-y-3">
+            <div className="border-s-4 border-amber-500 bg-amber-500/5 rounded-md p-3 space-y-3">
               <div className="text-sm font-semibold flex items-center gap-2">
                 🌙 تأمل شبانه — بار شناختی امروز <span className="tabular-nums">{todayLoad}</span> بود
               </div>

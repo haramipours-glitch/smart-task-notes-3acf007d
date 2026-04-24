@@ -112,7 +112,7 @@ export default function WidgetView() {
 
   if (widgets.length === 0) {
     return (
-      <div className="p-6 max-w-2xl mx-auto text-center space-y-4">
+      <div dir="rtl" className="p-6 max-w-2xl mx-auto text-center space-y-4">
         <h1 className="text-2xl font-bold">ویجت‌ها</h1>
         <p className="text-muted-foreground">هنوز ویجتی نساخته‌ای. اولین ویجت سفارشی خودت رو بساز.</p>
         <Button onClick={() => { setEditing(null); setEditorOpen(true); }} className="gap-2">
@@ -182,7 +182,7 @@ function TaskCard({ task, layout, onToggle, onOpen }: {
 }) {
   const pm = PRIORITY_META[task.priority] || PRIORITY_META.none;
   return (
-    <Card className={`hover:shadow-soft transition-shadow border-l-4 ${pm.borderClass} ${layout === "compact" ? "p-2" : "p-3"}`}>
+    <Card className={`hover:shadow-soft transition-shadow border-s-4 ${pm.borderClass} ${layout === "compact" ? "p-2" : "p-3"}`}>
       <div className="flex items-start gap-2">
         <Checkbox checked={task.completed} onCheckedChange={onToggle} className="mt-1 shrink-0" />
         <div className="flex-1 min-w-0 cursor-pointer" onClick={onOpen}>

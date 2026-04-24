@@ -127,7 +127,7 @@ export default function InsightsView() {
   const fa = (n: number) => toPersianDigits(String(n));
 
   return (
-    <div dir="rtl" className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 [&_*]:text-right">
+    <div dir="rtl" className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 [&_*]:text-end">
       <div className="flex items-center gap-2">
         <TrendingUp className="w-6 h-6 text-primary" />
         <h1 className="text-2xl font-bold">بینش هفتگی</h1>
@@ -228,7 +228,7 @@ export default function InsightsView() {
           </Button>
         </div>
         {advice && (
-          <div dir="rtl" className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm leading-7 text-right" style={{ unicodeBidi: "plaintext" }}>
+          <div dir="rtl" className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm leading-7 text-end" style={{ unicodeBidi: "plaintext" }}>
             {advice}
           </div>
         )}

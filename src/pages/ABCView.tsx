@@ -90,7 +90,7 @@ export default function ABCView() {
           <h1 className="text-3xl font-bold mb-2">مدل ABC</h1>
           <p className="text-muted-foreground text-sm">محرک ← باور ← پیامد. کشف الگوهای تکراری برای پیدا کردن نقطه مداخله.</p>
         </div>
-        {!editing && <Button onClick={() => setEditing(true)}><Plus className="w-4 h-4 ml-1" /> ثبت جدید</Button>}
+        {!editing && <Button onClick={() => setEditing(true)}><Plus className="w-4 h-4 ms-1" /> ثبت جدید</Button>}
       </div>
 
       {/* راهنمای کامل */}
@@ -99,7 +99,7 @@ export default function ABCView() {
           <Accordion type="single" collapsible>
             <AccordionItem value="guide" className="border-0">
               <AccordionTrigger className="px-5 py-4 hover:no-underline">
-                <div className="flex items-center gap-2 text-right">
+                <div className="flex items-center gap-2 text-end">
                   <BookOpen className="w-5 h-5 text-primary" />
                   <span className="font-medium">راهنمای کامل: مدل ABC چیست و چگونه پر کنم؟</span>
                 </div>
@@ -116,7 +116,7 @@ export default function ABCView() {
                 </section>
                 <section>
                   <div className="font-semibold text-foreground mb-1">🧩 چه زمانی استفاده کنم؟</div>
-                  <ul className="text-muted-foreground list-disc pr-5 space-y-1">
+                  <ul className="text-muted-foreground list-disc pe-5 space-y-1">
                     <li>وقتی متوجه می‌شوی رفتار خاصی را تکرار می‌کنی و بعد پشیمان می‌شوی.</li>
                     <li>وقتی نمی‌فهمی چرا یک محرک ساده تو را به واکنش بزرگ می‌رساند.</li>
                     <li>برای الگوهایی مثل: گوشی‌گردی شبانه، خوردن استرسی، تعویق، انفجارهای خشم.</li>
@@ -124,7 +124,7 @@ export default function ABCView() {
                 </section>
                 <section>
                   <div className="font-semibold text-foreground mb-1">📝 چگونه فرم را پر کنم؟</div>
-                  <ol className="text-muted-foreground list-decimal pr-5 space-y-2">
+                  <ol className="text-muted-foreground list-decimal pe-5 space-y-2">
                     <li>
                       <strong className="text-foreground">A — محرک (Activating event):</strong> فقط فکت بیرونی.
                       مثال خوب: «ساعت ۲۳ پیامی از همکار رسید». مثال بد: «همکارم دوباره مزاحم شد».

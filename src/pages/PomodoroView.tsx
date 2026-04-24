@@ -36,7 +36,7 @@ export default function PomodoroView() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-md mx-auto space-y-4">
+    <div dir="rtl" className="p-4 md:p-6 max-w-md mx-auto space-y-4">
       <Card className="p-6">
         <PomodoroTimer onSessionComplete={() => setRefreshTick(t => t + 1)} />
       </Card>
@@ -60,7 +60,7 @@ export default function PomodoroView() {
               </div>
               {Array.from(taskTotals.entries()).map(([id, v]) => (
                 <div key={id} className="flex justify-between text-sm">
-                  <span className="truncate flex-1 ml-2">{v.title}</span>
+                  <span className="truncate flex-1 ms-2">{v.title}</span>
                   <span className="tabular-nums text-muted-foreground">{v.min}د</span>
                 </div>
               ))}

@@ -29,6 +29,7 @@ import DecisionJournalView from "./pages/DecisionJournalView";
 import AboutMeView from "./pages/AboutMeView";
 import WidgetView from "./pages/WidgetView";
 import Index from "./pages/Index";
+import HomeView from "./pages/HomeView";
 
 const queryClient = new QueryClient();
 
@@ -43,7 +44,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route index element={<Navigate to="today" replace />} />
+              <Route index element={<Navigate to="home" replace />} />
+              <Route path="home" element={<HomeView />} />
               <Route path="inbox" element={<TasksView scope="inbox" />} />
               <Route path="today" element={<TasksView scope="today" />} />
               <Route path="next7" element={<TasksView scope="next7" />} />

@@ -297,10 +297,10 @@ export function TaskAIPanel({
 
           {/* Chat */}
           <TabsContent value="chat" className="mt-4 flex flex-col h-[55vh]">
-            <div className="flex-1 overflow-y-auto space-y-2 mb-2 pr-1">
+            <div className="flex-1 overflow-y-auto space-y-2 mb-2 pe-1">
               {chat.length === 0 && <p className="text-sm text-muted-foreground text-center mt-8">درباره این تسک سوال بپرس</p>}
               {chat.map((m, i) => (
-                <div key={i} className={`p-2 rounded-lg text-sm ${m.role === "user" ? "bg-primary/10 ml-6" : "bg-muted mr-6"}`}>
+                <div key={i} className={`p-2 rounded-lg text-sm ${m.role === "user" ? "bg-primary/10 ms-6" : "bg-muted me-6"}`}>
                   <div className="prose-note text-xs">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                   </div>

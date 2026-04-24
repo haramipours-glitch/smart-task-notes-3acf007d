@@ -3,12 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type UserSettings = {
   user_id: string;
-  sleep_reminder_enabled: boolean;
-  sleep_reminder_time: string; // "HH:MM" or "HH:MM:SS"
   checkin_reminder_enabled: boolean;
   checkin_reminder_time: string;
   notifications_enabled: boolean;
-  sleep_goal_hours: number;
   micro_prompt_enabled: boolean;
   theme: string;
   auto_create_daily_tasks: boolean;

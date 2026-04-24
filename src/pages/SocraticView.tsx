@@ -77,7 +77,7 @@ export default function SocraticView() {
           <Accordion type="single" collapsible>
             <AccordionItem value="guide" className="border-0">
               <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                <div className="flex items-center gap-2 text-right text-sm">
+                <div className="flex items-center gap-2 text-end text-sm">
                   <BookOpen className="w-4 h-4 text-primary" />
                   <span className="font-medium">راهنمای کامل: روش سقراطی چیست و چگونه استفاده کنم؟</span>
                 </div>
@@ -94,7 +94,7 @@ export default function SocraticView() {
                 </section>
                 <section>
                   <div className="font-semibold text-foreground mb-1">🎯 چه زمانی استفاده کنم؟</div>
-                  <ul className="text-muted-foreground list-disc pr-5 space-y-1">
+                  <ul className="text-muted-foreground list-disc pe-5 space-y-1">
                     <li>وقتی یک فکر اذیت‌کننده گیرت کرده و نمی‌توانی از زاویه‌ی دیگری ببینی.</li>
                     <li>وقتی بین دو تصمیم گیر کرده‌ای و فرض‌های ضمنی‌ات را نمی‌شناسی.</li>
                     <li>وقتی می‌خواهی یک «باور قطعی» را آزمایش کنی: واقعاً این درست است؟</li>
@@ -103,7 +103,7 @@ export default function SocraticView() {
                 </section>
                 <section>
                   <div className="font-semibold text-foreground mb-1">💡 چگونه بهترین نتیجه را بگیرم؟</div>
-                  <ol className="text-muted-foreground list-decimal pr-5 space-y-1">
+                  <ol className="text-muted-foreground list-decimal pe-5 space-y-1">
                     <li>با یک «فکر یا موقعیت مشخص» شروع کن، نه پرسش کلی.</li>
                     <li>به سؤال‌های AI صادقانه پاسخ بده، حتی اگر اول دفاعی شدی.</li>
                     <li>اگر سؤالی برایت سخت بود، همان لحظه‌ی سکوت، نقطه‌ی بینش است.</li>
@@ -127,7 +127,7 @@ export default function SocraticView() {
           <div dir="rtl" className="space-y-4">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div dir="rtl" className={`rounded-2xl px-4 py-2 max-w-[80%] text-sm leading-7 text-right ${
+                <div dir="rtl" className={`rounded-2xl px-4 py-2 max-w-[80%] text-sm leading-7 text-end ${
                   m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                 }`}>{m.content}</div>
               </div>

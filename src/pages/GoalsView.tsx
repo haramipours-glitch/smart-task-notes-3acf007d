@@ -140,7 +140,7 @@ export default function GoalsView() {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto">
+    <div dir="rtl" className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Target className="w-6 h-6 text-primary" /> اهداف
@@ -187,7 +187,7 @@ export default function GoalsView() {
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <Progress value={prog} className="flex-1 h-2" />
-                <span className="text-xs text-muted-foreground w-10 text-left">{toPersianDigits(prog)}%</span>
+                <span className="text-xs text-muted-foreground w-10 text-start">{toPersianDigits(prog)}%</span>
               </div>
 
               <div className="mt-4 space-y-2">
@@ -195,18 +195,18 @@ export default function GoalsView() {
                   const open = expanded[m.id] ?? true;
                   const weekly = childrenOf(m.id);
                   return (
-                    <div key={m.id} className="border-l-2 border-primary/30 pl-3">
+                    <div key={m.id} className="border-s-2 border-primary/30 ps-3">
                       <button
                         onClick={() => setExpanded(s => ({ ...s, [m.id]: !open }))}
                         className="flex items-center gap-1 text-sm font-medium hover:text-primary"
                       >
                         {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                         🏁 {m.title}
-                        {m.due_date && <span className="text-[10px] text-muted-foreground mr-2">({formatDate(new Date(m.due_date), "MM/dd")})</span>}
+                        {m.due_date && <span className="text-[10px] text-muted-foreground me-2">({formatDate(new Date(m.due_date), "MM/dd")})</span>}
                         {m.completed && <span className="text-emerald-500">✓</span>}
                       </button>
                       {open && weekly.length > 0 && (
-                        <div className="mt-1 space-y-1 pl-4">
+                        <div className="mt-1 space-y-1 ps-4">
                           {weekly.map((w) => {
                             const daily = childrenOf(w.id);
                             const wOpen = expanded[w.id] ?? false;
@@ -221,7 +221,7 @@ export default function GoalsView() {
                                   {w.completed && <span className="text-emerald-500">✓</span>}
                                 </button>
                                 {wOpen && daily.length > 0 && (
-                                  <div className="pl-4 mt-1 space-y-0.5">
+                                  <div className="ps-4 mt-1 space-y-0.5">
                                     {daily.map((d) => (
                                       <div key={d.id} className={`text-[11px] ${d.completed ? "line-through text-muted-foreground" : ""}`}>
                                         • {d.title}

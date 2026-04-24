@@ -57,7 +57,7 @@ export function MoveToDialog({
         <div className="space-y-1 max-h-[50vh] overflow-y-auto">
           <button
             onClick={() => setPick(null)}
-            className={`w-full flex items-center gap-2 p-2 rounded-md text-right transition ${pick === null ? "bg-accent text-accent-foreground" : "hover:bg-muted"}`}
+            className={`w-full flex items-center gap-2 p-2 rounded-md text-end transition ${pick === null ? "bg-accent text-accent-foreground" : "hover:bg-muted"}`}
           >
             <Inbox className="w-4 h-4" />
             <span className="text-sm">بدون فولدر (Inbox)</span>
@@ -66,7 +66,7 @@ export function MoveToDialog({
             <button
               key={f.id}
               onClick={() => setPick(f.id)}
-              className={`w-full flex items-center gap-2 p-2 rounded-md text-right transition ${pick === f.id ? "bg-accent text-accent-foreground" : "hover:bg-muted"}`}
+              className={`w-full flex items-center gap-2 p-2 rounded-md text-end transition ${pick === f.id ? "bg-accent text-accent-foreground" : "hover:bg-muted"}`}
             >
               <FolderTree className="w-4 h-4" style={{ color: f.color || undefined }} />
               <span className="text-sm">{f.name}</span>

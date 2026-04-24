@@ -169,7 +169,7 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
             <div dir="rtl" className="flex-1 overflow-y-auto space-y-2 mb-2">
               {chat.length === 0 && <p className="text-sm text-muted-foreground text-center mt-8">سؤالی درباره تسک‌هات بپرس</p>}
               {chat.map((m, i) => (
-                <div key={i} dir="rtl" className={`p-3 rounded-2xl text-right leading-7 ${m.role === "user" ? "bg-primary/10 ms-8" : "bg-muted me-8"}`}>
+                <div key={i} dir="rtl" className={`p-3 rounded-2xl text-end leading-7 ${m.role === "user" ? "bg-primary/10 ms-8" : "bg-muted me-8"}`}>
                   <div className="text-xs prose-note">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                   </div>

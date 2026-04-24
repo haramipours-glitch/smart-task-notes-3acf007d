@@ -77,7 +77,7 @@ export default function AssessmentResult() {
   return (
     <div dir="rtl" className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
       <Button variant="ghost" size="sm" onClick={() => navigate("/app/self")}>
-        <ArrowRight className="w-4 h-4 ml-1" /> بازگشت
+        <ArrowRight className="w-4 h-4 ms-1" /> بازگشت
       </Button>
 
       {type === "hexaco" && <HexacoReport scores={data.scores} analysis={data.analysis} />}
@@ -101,9 +101,9 @@ export default function AssessmentResult() {
           {!aiAnalysis && (
             <Button onClick={generateAiAnalysis} disabled={loadingAi} size="lg" className="w-full sm:w-auto">
               {loadingAi ? (
-                <><Loader2 className="w-4 h-4 ml-2 animate-spin" /> در حال تحلیل عمیق…</>
+                <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> در حال تحلیل عمیق…</>
               ) : (
-                <><Sparkles className="w-4 h-4 ml-2" /> دریافت تحلیل جامع</>
+                <><Sparkles className="w-4 h-4 ms-2" /> دریافت تحلیل جامع</>
               )}
             </Button>
           )}
@@ -120,12 +120,12 @@ export default function AssessmentResult() {
                   prose-strong:text-foreground prose-strong:font-semibold
                   prose-hr:my-6 prose-hr:border-primary/15
                   prose-blockquote:border-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-3 prose-blockquote:rounded
-                  text-right"
+                  text-end"
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(aiAnalysis) }}
               />
               <div className="flex gap-2 pt-4 border-t">
                 <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
-                  {loadingAi ? <Loader2 className="w-4 h-4 ml-1 animate-spin" /> : <Sparkles className="w-4 h-4 ml-1" />}
+                  {loadingAi ? <Loader2 className="w-4 h-4 ms-1 animate-spin" /> : <Sparkles className="w-4 h-4 ms-1" />}
                   تولید مجدد
                 </Button>
                 <Button

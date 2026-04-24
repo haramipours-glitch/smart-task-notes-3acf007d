@@ -161,7 +161,7 @@ export default function DecisionJournalView() {
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2"><BookCheck className="w-7 h-7" /> ژورنال تصمیم</h1>
           <p className="text-muted-foreground text-sm">تصمیم‌هایت را قبل از اقدام ثبت کن. بعداً نتیجه را بسنج تا کالیبراسیون قضاوتت بهتر شود.</p>
         </div>
-        {!creating && <Button onClick={() => setCreating(true)}><Plus className="w-4 h-4 ml-1" /> تصمیم جدید</Button>}
+        {!creating && <Button onClick={() => setCreating(true)}><Plus className="w-4 h-4 ms-1" /> تصمیم جدید</Button>}
       </div>
 
       {creating && (
@@ -357,7 +357,7 @@ export default function DecisionJournalView() {
             </div>
           )}
           {biasText && (
-            <div className="prose prose-sm dark:prose-invert max-w-none text-right leading-7">
+            <div className="prose prose-sm dark:prose-invert max-w-none text-end leading-7">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{biasText}</ReactMarkdown>
             </div>
           )}

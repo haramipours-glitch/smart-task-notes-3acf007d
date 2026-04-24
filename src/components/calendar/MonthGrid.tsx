@@ -41,7 +41,7 @@ export default function MonthGrid({
             <button
               key={d.toISOString()}
               onClick={() => onDayClick(d)}
-              className={`aspect-square border rounded-md p-1 text-xs flex flex-col text-right transition hover:bg-accent/50 hover:border-primary/40
+              className={`aspect-square border rounded-md p-1 text-xs flex flex-col text-end transition hover:bg-accent/50 hover:border-primary/40
                 ${isSameMonth(d, month) ? "" : "opacity-30"}
                 ${isSameDay(d, new Date()) ? "ring-2 ring-primary" : ""}
                 ${isOff ? "bg-rose-500/5 border-rose-500/30" : ""}`}
