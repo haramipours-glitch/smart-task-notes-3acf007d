@@ -83,6 +83,8 @@ export function checkAndFireReminders(s: UserSettings) {
       });
   }
 
+  localStorage.setItem(LAST_NOTIFY_KEY, JSON.stringify(stored));
+}
 
 export async function ensureDailyTasks(userId: string, s: UserSettings) {
   if (!s.auto_create_daily_tasks) return;
