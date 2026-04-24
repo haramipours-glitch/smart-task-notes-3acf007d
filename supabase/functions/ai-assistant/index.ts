@@ -377,6 +377,11 @@ serve(async (req) => {
     let apiKey = LOVABLE_API_KEY!;
     let model = "google/gemini-2.5-flash";
 
+    // Use a more capable model for deep analysis modes
+    if (mode === "assessment_analysis" || mode === "decision_bias_analysis") {
+      model = "google/gemini-2.5-pro";
+    }
+
     if (useCustom) {
       apiKey = settings.apiKey;
       model = settings.model || model;
