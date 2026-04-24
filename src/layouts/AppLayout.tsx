@@ -12,6 +12,7 @@ import ClinicalDisclaimer from "@/components/ClinicalDisclaimer";
 import RemindersRunner from "@/components/RemindersRunner";
 import BackButtonHandler from "@/components/BackButtonHandler";
 import CommandPalette from "@/components/CommandPalette";
+import { BottomTabBar } from "@/components/BottomTabBar";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -47,7 +48,7 @@ export default function AppLayout() {
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto pb-16 md:pb-0">
             <Outlet />
           </main>
         </div>
@@ -59,6 +60,7 @@ export default function AppLayout() {
         <RemindersRunner />
         <BackButtonHandler />
         <CommandPalette />
+        <BottomTabBar />
       </div>
     </SidebarProvider>
   );
