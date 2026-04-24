@@ -34,7 +34,7 @@ export default function InsightsView() {
       const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
       const now = new Date().toISOString();
 
-      const [completed, created, overdue, all, activeTasks, chronoRes, checkins] = await Promise.all([
+      const [completed, created, overdue, all, activeTasks, checkins] = await Promise.all([
         supabase.from("tasks").select("id", { count: "exact", head: true })
           .eq("completed", true).gte("completed_at", weekAgo),
         supabase.from("tasks").select("id", { count: "exact", head: true })
@@ -44,7 +44,6 @@ export default function InsightsView() {
         supabase.from("tasks").select("quadrant,priority").eq("completed", false),
         supabase.from("tasks").select("id,priority,folder_id,quadrant").eq("completed", false)
           .or(`due_date.lte.${new Date(Date.now() + 86400000).toISOString()},due_date.is.null`),
-        supabase.from("chronotype").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("daily_checkins").select("checkin_date,mood,energy,focus,sleep_hours,sleep_quality,stress")
           .eq("user_id", user.id).gte("checkin_date", new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10))
           .order("checkin_date"),
@@ -62,7 +61,8 @@ export default function InsightsView() {
       const cog = computeCognitiveLoad({
         tasks: activeTasks.data || [],
         sleepHours: lastCheckin?.sleep_hours ?? null,
-        chronotype: chronoRes.data,
+        sleepQuality: lastCheckin?.sleep_quality ?? null,
+        stress: lastCheckin?.stress ?? null,
       });
       const cogStatus = loadStatus(cog.load);
 
@@ -189,14 +189,13 @@ export default function InsightsView() {
             </Badge>
           </div>
           <div className="text-3xl font-bold">{fa(stats.cogLoad.load)}</div>
-          <div className="text-xs text-muted-foreground grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="text-xs text-muted-foreground grid grid-cols-2 md:grid-cols-3 gap-2">
             <div>پایه: {fa(Math.round(stats.cogLoad.breakdown.base))}</div>
             <div>سوئیچ: ×{stats.cogLoad.breakdown.switchMult}</div>
-            <div>خواب: ×{stats.cogLoad.breakdown.sleepMult}</div>
-            <div>زمان‌بندی: ×{stats.cogLoad.breakdown.chronoMult}</div>
+            <div>خواب: ×{stats.cogLoad.breakdown.sleepMult.toFixed(2)}</div>
           </div>
           <p className="text-xs text-muted-foreground">
-            فرمول: مجموع وزن تسک‌ها × ضریب سوئیچ × ضریب خواب × ضریب همگامی با Chronotype
+            فرمول: مجموع وزن تسک‌ها × ضریب سوئیچ × ضریب خواب × ضریب استرس
           </p>
         </Card>
       )}
