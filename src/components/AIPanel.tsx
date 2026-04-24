@@ -166,10 +166,10 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
           </TabsContent>
 
           <TabsContent value="chat" className="mt-4 flex flex-col h-[60vh]">
-            <div className="flex-1 overflow-y-auto space-y-2 mb-2">
-              {chat.length === 0 && <p className="text-sm text-muted-foreground text-center mt-8">سوالی درباره تسک‌هات بپرس</p>}
+            <div dir="rtl" className="flex-1 overflow-y-auto space-y-2 mb-2">
+              {chat.length === 0 && <p className="text-sm text-muted-foreground text-center mt-8">سؤالی درباره تسک‌هات بپرس</p>}
               {chat.map((m, i) => (
-                <div key={i} className={`p-2 rounded-lg ${m.role === "user" ? "bg-primary/10 ml-8" : "bg-muted mr-8"}`}>
+                <div key={i} dir="rtl" className={`p-3 rounded-2xl text-right leading-7 ${m.role === "user" ? "bg-primary/10 ms-8" : "bg-muted me-8"}`}>
                   <div className="text-xs prose-note">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                   </div>
@@ -178,7 +178,7 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
               {loading && <Loader2 className="w-4 h-4 animate-spin mx-auto" />}
             </div>
             <div className="flex gap-2">
-              <Input value={chatInput} onChange={(e) => setChatInput(e.target.value)}
+              <Input dir="rtl" value={chatInput} onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendChat()} placeholder="بپرس..." />
               <Button size="icon" onClick={sendChat} disabled={loading}><Send className="w-4 h-4" /></Button>
             </div>

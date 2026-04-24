@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Plus, X, Sparkles, Brain } from "lucide-react";
+import { Plus, X, Sparkles, Brain, BookOpen } from "lucide-react";
 import { detectDistortions, DISTORTION_LABELS, DISTORTION_HINTS, type Distortion } from "@/lib/distortions";
 
 const EMOTIONS = ["اضطراب", "خشم", "غم", "شرم", "گناه", "ترس", "نومیدی", "سرخوردگی"];
@@ -76,14 +77,69 @@ export default function ThoughtRecordsView() {
     .reduce((s, r) => s + (r.emotion_intensity_before - r.emotion_intensity_after), 0) / Math.max(1, records.filter((r) => r.emotion_intensity_after != null).length);
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div dir="rtl" className="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold mb-2">ثبت افکار (CBT)</h1>
-          <p className="text-muted-foreground text-sm">شکستن چرخه فکر خودکار → احساس → رفتار با فرم ساختاریافته</p>
+          <p className="text-muted-foreground text-sm">شکستن چرخه فکر خودکار ← احساس ← رفتار با فرم ساختاریافته</p>
         </div>
         {!editing && <Button onClick={() => setEditing(true)}><Plus className="w-4 h-4 ml-1" /> ثبت جدید</Button>}
       </div>
+
+      {/* راهنمای کامل */}
+      <Card className="border-primary/20">
+        <CardContent className="p-0">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="guide" className="border-0">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline">
+                <div className="flex items-center gap-2 text-right">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                  <span className="font-medium">راهنمای کامل: Thought Record چیست؟</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 space-y-4 text-sm leading-7">
+                <section>
+                  <div className="font-semibold text-foreground mb-1">🧠 CBT چیست؟</div>
+                  <p className="text-muted-foreground">
+                    درمان شناختی-رفتاری (CBT) می‌گوید: احساسات منفی شدید معمولاً از خود اتفاق نمی‌آیند،
+                    از «تفسیر ما» از اتفاق می‌آیند. اگر فکر خودکار را شناسایی و آزمون کنی،
+                    شدت احساس عملاً کم می‌شود — این یک یافته‌ی تجربی پایدار است.
+                  </p>
+                </section>
+                <section>
+                  <div className="font-semibold text-foreground mb-1">🎯 این فرم برای چه چیزی است؟</div>
+                  <p className="text-muted-foreground">
+                    وقتی احساس می‌کنی موجی از اضطراب، خشم، شرم یا غم تو را گرفته،
+                    این فرم کمک می‌کند با ساختار «شواهد له و علیه فکر» از موج بیرون بیایی و
+                    یک «فکر متعادل» بسازی که همان داده‌ها را بهتر توضیح می‌دهد.
+                  </p>
+                </section>
+                <section>
+                  <div className="font-semibold text-foreground mb-1">📝 چگونه پر کنم؟</div>
+                  <ol className="text-muted-foreground list-decimal pr-5 space-y-2">
+                    <li><strong className="text-foreground">موقعیت:</strong> فقط فکت بیرونی (کجا، کی، با چه کسی).</li>
+                    <li><strong className="text-foreground">فکر خودکار:</strong> اولین جمله‌ی ذهنی، عیناً همان‌طور که از ذهن گذشت.</li>
+                    <li><strong className="text-foreground">شدت احساس قبل (۰–۱۰۰):</strong> بنچمارک شروع.</li>
+                    <li><strong className="text-foreground">نوع احساس:</strong> چند تا را می‌توانی انتخاب کنی.</li>
+                    <li><strong className="text-foreground">شواهد تاییدکننده:</strong> دلایل واقعی که فکرت را پشتیبانی می‌کنند.</li>
+                    <li><strong className="text-foreground">شواهد ردکننده:</strong> فکت‌هایی که با فکر همخوان نیستند (سخت‌ترین قسمت).</li>
+                    <li><strong className="text-foreground">تشخیص خطاهای شناختی:</strong> دکمه‌اش الگوهای فکری کلاسیک (مثل فاجعه‌سازی، سیاه-سفید) را پیدا می‌کند.</li>
+                    <li><strong className="text-foreground">فکر جایگزین:</strong> یک جمله که هر دو دسته شواهد را در نظر بگیرد.</li>
+                    <li><strong className="text-foreground">شدت احساس بعد:</strong> اگر کاهش ≥۲۵ بود، تکنیک برای تو کار می‌کند.</li>
+                  </ol>
+                </section>
+                <section>
+                  <div className="font-semibold text-foreground mb-1">📊 تحلیل بلندمدت</div>
+                  <p className="text-muted-foreground">
+                    بعد از چند ثبت، توزیع خطاهای شناختی غالبت را می‌بینی و میانگین کاهش شدت احساس
+                    نشان می‌دهد آیا این تکنیک برای تو موثر است یا نه.
+                  </p>
+                </section>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </CardContent>
+      </Card>
 
       {editing && (
         <Card>

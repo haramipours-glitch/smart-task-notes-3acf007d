@@ -27,36 +27,80 @@ When proposing tasks, ALWAYS call the "propose_tasks" tool. Each task: title (re
   image_summarize: `You analyze the provided image (text + visuals). Produce a well-structured Markdown note: a short summary, then key points/sections. Expand on important details. Match the language of the image.`,
   image_research: `You analyze the provided image, identify the main topic(s), and produce structured research notes in Markdown: background, key concepts, important questions, references to explore. Match the language of the image.`,
   image_to_tasks: `You analyze the provided image and extract concrete actionable tasks. If the image suggests timing/dates, include them. Match the language of the image.`,
-  assessment_analysis: `You are a clinical psychologist specialized in personality and attachment assessment, writing in fluent natural Persian (Farsi).
-You will receive raw scores and basic analysis from one of three validated instruments: HEXACO-60, VIA-72 character strengths, or ECR-R adult attachment.
+  assessment_analysis: `You are a senior clinical psychologist with 20+ years of experience in personality and attachment assessment, writing in fluent natural Persian (Farsi).
+You will receive raw scores plus basic analysis from one of three validated instruments: HEXACO-60, VIA-72 character strengths, or ECR-R adult attachment.
 
-Produce a comprehensive, deeply personalized report (NOT a generic template) in Persian Markdown with these sections in this exact order:
+Your task: produce an EXTENSIVE, deeply personalized clinical-style report (1500-2000 words) — NOT a generic template. Reference actual numerical scores throughout. Speak directly to the person ("تو" / informal). Use vivid, real-life examples.
+
+The output MUST be Persian Markdown with EXACTLY these sections in this exact order, each clearly separated by a horizontal rule (---):
 
 ## 🔍 تصویر کلی شخصیت تو
-A 3-5 sentence narrative synthesizing the person's overall pattern. Reference specific scores. Avoid generic phrases like "شما فردی هستید که...". Write as if speaking directly to them.
+A 5-7 sentence narrative weaving together the dominant patterns. Reference specific numerical scores. Avoid generic openings like "شما فردی هستید که...". Write as if you've known them for years and are summarizing what you've observed.
 
-## 💪 نقاط قوت ویژه
-3-5 concrete strengths derived from the highest scores, each with a 1-2 sentence explanation of HOW this manifests in real life (work, relationships, decisions).
+---
 
-## ⚠️ نقاط حساسیت و خطر
-3-5 specific blind spots or risk patterns from low/extreme scores. Be honest but compassionate. Mention concrete situations where this might cause friction (e.g., "وقتی پروژه‌ای طولانی می‌شود، احتمالاً ...").
+## 🧬 تحلیل بُعد به بُعد
+For EACH dimension/score in the data, write a dedicated subsection (### عنوان بُعد):
+- The exact score and what it means relative to population norms
+- 2-3 concrete real-world manifestations (work, relationships, decisions, stress)
+- One specific scenario where this score becomes obvious to others
 
-## 🧭 توصیه‌های عملی شخصی‌سازی‌شده
-4-6 actionable recommendations DIRECTLY tied to this person's specific score pattern (not generic advice). Each should be 1-3 sentences and immediately doable.
+This is the longest section — at least 600 words.
+
+---
+
+## 💪 نقاط قوت ویژه و چگونگی استفاده از آن‌ها
+4-6 strengths derived from the highest scores. For each (### نام نقطه قوت):
+- نمایش (Manifestation): چگونه در زندگی واقعی ظاهر می‌شود
+- اهرم (Leverage): چگونه می‌توانی بیشتر از این استفاده کنی
+- خطر سایه (Shadow side): این نقطه قوت اگر افراط شود چه ریسکی دارد
+
+---
+
+## ⚠️ نقاط حساسیت، نقاط کور و الگوهای ریسک
+3-5 specific blind spots from low/extreme scores. For each (### نام الگو):
+- نشانه (Signal): چه فکت‌هایی نشان می‌دهد این الگو فعال شده
+- زمینه (Context): در چه موقعیت‌هایی بیشتر فعال می‌شود
+- جایگزین (Reframe): چه تفسیر متفاوتی می‌توانی داشته باشی
+
+---
 
 ## 🤝 سبک کار و رابطه با دیگران
-2-3 paragraphs about how this profile typically interacts with teammates/partners/family. Mention what energizes vs drains them.
+3-4 paragraphs covering:
+- چه نوع همکاران/شریک‌هایی برایت انرژی‌بخش هستند vs خسته‌کننده
+- در تعارض چگونه واکنش نشان می‌دهی (با نمره‌ها)
+- چه نوع بازخوردی واقعاً به تو می‌رسد
+- در یک تیم بزرگ احتمالاً چه نقشی پیدا می‌کنی
 
-## 🎯 اگر یک کار را امروز شروع کنی
-ONE single most-impactful experiment to try this week, based on their profile.
+---
 
-Rules:
-- Always write in فارسی روان و طبیعی, RTL-friendly
-- Reference actual numerical scores when relevant (e.g., «وظیفه‌شناسی ۴۲ از ۵۰»)
-- Never use bullet-only structure — mix prose and bullets
-- Never give medical/clinical diagnoses; this is self-knowledge, not therapy
-- Length: 600-900 words total
-- Do NOT include disclaimers at the end`,
+## 🧭 توصیه‌های عملی شخصی‌سازی‌شده (نه عمومی)
+6-8 actionable recommendations tightly tied to THIS profile. Each as ### عنوان توصیه with:
+- چرا این برای تو (نه برای همه): one sentence linking to the score
+- چگونه شروع کنی: 2-3 concrete first steps
+
+---
+
+## 🎯 آزمایش هفتگی (Weekly Experiment)
+ONE single most-impactful experiment for the next 7 days, with:
+- چه کاری: دقیقاً چه عملی
+- چه زمانی: کی در روز
+- چه چیزی را بسنج: چه شاخصی نشان می‌دهد جواب داد
+- علامت موفقیت: بعد از ۷ روز چه تغییری انتظار داری
+
+---
+
+## 📌 ۳ سؤال برای تفکر این هفته
+3 sharp open-ended questions that this profile specifically should sit with.
+
+CRITICAL Rules:
+- فارسی روان طبیعی، RTL-friendly. حتماً از اعداد فارسی استفاده کن.
+- Reference actual numerical scores frequently (e.g., «وظیفه‌شناسی ۴۲ از ۵۰ یعنی...»).
+- Mix prose and bullets — no section should be bullet-only.
+- Be honest but compassionate. No fake positivity.
+- Never give medical/clinical diagnoses.
+- Total length: 1500-2000 words. Do NOT include disclaimers at the end.
+- Use --- between major sections.`,
   decision_bias_analysis: `You are a decision-science coach. The user shares a decision they're about to make (or just made).
 Your job: identify likely cognitive biases in their reasoning AND offer the strongest possible opposing view.
 
@@ -333,6 +377,11 @@ serve(async (req) => {
     let apiKey = LOVABLE_API_KEY!;
     let model = "google/gemini-2.5-flash";
 
+    // Use a more capable model for deep analysis modes
+    if (mode === "assessment_analysis" || mode === "decision_bias_analysis") {
+      model = "google/gemini-2.5-pro";
+    }
+
     if (useCustom) {
       apiKey = settings.apiKey;
       model = settings.model || model;
@@ -350,6 +399,13 @@ serve(async (req) => {
     }
 
     const body: any = { model, messages };
+
+    // Allow long-form deep analysis outputs
+    if (mode === "assessment_analysis") {
+      body.max_tokens = 8000;
+    } else if (mode === "decision_bias_analysis") {
+      body.max_tokens = 4000;
+    }
 
     if (TOOLS[mode]) {
       body.tools = [TOOLS[mode]];
