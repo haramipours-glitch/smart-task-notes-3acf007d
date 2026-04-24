@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Plus, X, Sparkles, Brain } from "lucide-react";
+import { Plus, X, Sparkles, Brain, BookOpen } from "lucide-react";
 import { detectDistortions, DISTORTION_LABELS, DISTORTION_HINTS, type Distortion } from "@/lib/distortions";
 
 const EMOTIONS = ["اضطراب", "خشم", "غم", "شرم", "گناه", "ترس", "نومیدی", "سرخوردگی"];
