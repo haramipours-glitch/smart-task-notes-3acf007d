@@ -2,19 +2,23 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { HEXACO_LABELS, type HexacoFactor } from "@/lib/assessments/hexaco";
 import { VIA_LABELS, type ViaStrength } from "@/lib/assessments/via";
 import { QUADRANT_LABELS, QUADRANT_DESC, type AttachmentQuadrant } from "@/lib/assessments/ecr";
+import { renderMarkdown } from "@/lib/markdown";
+import { toast } from "sonner";
 
 export default function AssessmentResult() {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [data, setData] = useState<any>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [loadingAi, setLoadingAi] = useState(false);
 
   useEffect(() => {
     if (!user || !type) return;
@@ -28,13 +32,50 @@ export default function AssessmentResult() {
         .limit(1)
         .maybeSingle();
       setData(data);
+      // Restore cached AI analysis if any
+      const cachedKey = `assessment_ai_${type}_${data?.id}`;
+      const cached = localStorage.getItem(cachedKey);
+      if (cached) setAiAnalysis(cached);
     })();
   }, [user, type]);
+
+  async function generateAiAnalysis() {
+    if (!data || !type) return;
+    setLoadingAi(true);
+    try {
+      const labelMap: Record<string, string> = {
+        hexaco: "HEXACO-60 (شش بُعد شخصیت: H/E/X/A/C/O، هر بُعد 10..50)",
+        via: "VIA-72 (24 نقطه قوت، هر کدام 3..15)",
+        ecr: "ECR-R (دو بُعد دلبستگی: anxiety و avoidance، 1..7)",
+      };
+      const payload = {
+        instrument: labelMap[type] || type,
+        scores: data.scores,
+        analysis: data.analysis,
+      };
+      const { data: resp, error } = await supabase.functions.invoke("ai-assistant", {
+        body: {
+          mode: "assessment_analysis",
+          input: JSON.stringify(payload),
+          language: "fa",
+        },
+      });
+      if (error) throw error;
+      const text = resp?.text || "";
+      setAiAnalysis(text);
+      localStorage.setItem(`assessment_ai_${type}_${data.id}`, text);
+      toast.success("تحلیل جامع آماده شد");
+    } catch (e: any) {
+      toast.error(e.message || "خطا در دریافت تحلیل");
+    } finally {
+      setLoadingAi(false);
+    }
+  }
 
   if (!data) return <div className="p-8 text-center text-muted-foreground">در حال بارگذاری…</div>;
 
   return (
-    <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
+    <div dir="rtl" className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
       <Button variant="ghost" size="sm" onClick={() => navigate("/app/self")}>
         <ArrowRight className="w-4 h-4 ml-1" /> بازگشت
       </Button>
@@ -42,6 +83,41 @@ export default function AssessmentResult() {
       {type === "hexaco" && <HexacoReport scores={data.scores} analysis={data.analysis} />}
       {type === "via" && <ViaReport scores={data.scores} analysis={data.analysis} />}
       {type === "ecr" && <EcrReport scores={data.scores} analysis={data.analysis} />}
+
+      <Card className="border-primary/30 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Sparkles className="w-5 h-5 text-primary" />
+            تحلیل جامع شخصی‌سازی‌شده
+          </CardTitle>
+          <CardDescription>
+            یک گزارش عمیق و اختصاصی بر اساس نمره‌های دقیق تو — نقاط قوت، حساسیت‌ها، توصیه‌های عملی و سبک رابطه.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {!aiAnalysis && (
+            <Button onClick={generateAiAnalysis} disabled={loadingAi}>
+              {loadingAi ? (
+                <><Loader2 className="w-4 h-4 ml-1 animate-spin" /> در حال تحلیل…</>
+              ) : (
+                <><Sparkles className="w-4 h-4 ml-1" /> دریافت تحلیل جامع</>
+              )}
+            </Button>
+          )}
+          {aiAnalysis && (
+            <>
+              <div
+                className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(aiAnalysis) }}
+              />
+              <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
+                {loadingAi ? <Loader2 className="w-4 h-4 ml-1 animate-spin" /> : <Sparkles className="w-4 h-4 ml-1" />}
+                تولید مجدد
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
