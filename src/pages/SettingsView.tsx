@@ -249,7 +249,7 @@ export default function SettingsView() {
             <h2 className="font-semibold">یادآورهای روزانه</h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            هر شب/روز در ساعت دلخواه، نوتیفیکیشن می‌گیری و یک تسک خودکار تو Today اضافه می‌شه.
+            هر روز در ساعت دلخواه، نوتیفیکیشن می‌گیری و یک تسک «چک‌این» در Today اضافه می‌شه. وقتی روش بزنی مستقیم به صفحه چک‌این می‌ره.
           </p>
 
           <div className="flex items-center justify-between rounded-lg border p-3">
@@ -266,8 +266,8 @@ export default function SettingsView() {
 
           <div className="flex items-center justify-between rounded-lg border p-3">
             <div>
-              <div className="text-sm font-medium">تسک خودکار روزانه</div>
-              <div className="text-xs text-muted-foreground">«ثبت خواب» و «چک‌این» هر روز در Today</div>
+              <div className="text-sm font-medium">تسک خودکار «چک‌این» روزانه</div>
+              <div className="text-xs text-muted-foreground">یک تسک هر روز در Today ساخته می‌شه</div>
             </div>
             <Switch
               checked={reminders.auto_create_daily_tasks}
@@ -277,7 +277,41 @@ export default function SettingsView() {
 
           <div className="rounded-lg border p-3 space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm">یادآور خواب 🌙</Label>
+              <Label className="text-sm">یادآور چک‌این 📝</Label>
+              <Switch
+                checked={reminders.checkin_reminder_enabled}
+                onCheckedChange={(v) => updateReminder({ checkin_reminder_enabled: v })}
+              />
+            </div>
+            {reminders.checkin_reminder_enabled && (
+              <>
+                <Label className="text-xs text-muted-foreground">ساعت یادآور</Label>
+                <Input
+                  type="time"
+                  value={reminders.checkin_reminder_time.slice(0, 5)}
+                  onChange={(e) => updateReminder({ checkin_reminder_time: e.target.value })}
+                />
+              </>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {false && reminders && (
+        <Card className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Moon className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold">هدف خواب</h2>
+          </div>
+        </Card>
+      )}
+
+      {/* Sleep cards removed — feature deprecated */}
+      {false && reminders && (
+        <Card className="p-5 space-y-4">
+          <div className="rounded-lg border p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm">یادآور خواب</Label>
               <Switch
                 checked={reminders.sleep_reminder_enabled}
                 onCheckedChange={(v) => updateReminder({ sleep_reminder_enabled: v })}
@@ -290,44 +324,6 @@ export default function SettingsView() {
                 onChange={(e) => updateReminder({ sleep_reminder_time: e.target.value })}
               />
             )}
-          </div>
-
-          <div className="rounded-lg border p-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm">یادآور چک‌این 📝</Label>
-              <Switch
-                checked={reminders.checkin_reminder_enabled}
-                onCheckedChange={(v) => updateReminder({ checkin_reminder_enabled: v })}
-              />
-            </div>
-            {reminders.checkin_reminder_enabled && (
-              <Input
-                type="time"
-                value={reminders.checkin_reminder_time.slice(0, 5)}
-                onChange={(e) => updateReminder({ checkin_reminder_time: e.target.value })}
-              />
-            )}
-          </div>
-        </Card>
-      )}
-
-      {reminders && (
-        <Card className="p-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <Moon className="w-4 h-4 text-primary" />
-            <h2 className="font-semibold">هدف خواب</h2>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs">ساعت هدف روزانه</Label>
-            <Input
-              type="number"
-              step="0.5"
-              min="4"
-              max="12"
-              value={reminders.sleep_goal_hours}
-              onChange={(e) => updateReminder({ sleep_goal_hours: parseFloat(e.target.value) || 7.5 })}
-            />
-            <p className="text-[11px] text-muted-foreground">برای محاسبه Sleep Debt در صفحه خواب استفاده می‌شه.</p>
           </div>
         </Card>
       )}
