@@ -140,66 +140,6 @@ export type Database = {
         }
         Relationships: []
       }
-      chronotype: {
-        Row: {
-          category: string | null
-          meq_score: number | null
-          peak_window_end: number | null
-          peak_window_start: number | null
-          trough_window_end: number | null
-          trough_window_start: number | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          category?: string | null
-          meq_score?: number | null
-          peak_window_end?: number | null
-          peak_window_start?: number | null
-          trough_window_end?: number | null
-          trough_window_start?: number | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          category?: string | null
-          meq_score?: number | null
-          peak_window_end?: number | null
-          peak_window_start?: number | null
-          trough_window_end?: number | null
-          trough_window_start?: number | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      crisis_events: {
-        Row: {
-          created_at: string
-          id: string
-          outcome: string | null
-          steps_taken: Json | null
-          trigger_type: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          outcome?: string | null
-          steps_taken?: Json | null
-          trigger_type: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          outcome?: string | null
-          steps_taken?: Json | null
-          trigger_type?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       daily_checkins: {
         Row: {
           checkin_date: string
@@ -677,54 +617,6 @@ export type Database = {
           },
         ]
       }
-      predictions: {
-        Row: {
-          actual_completion_pct: number | null
-          actual_productivity: number | null
-          actual_work_hours: number | null
-          created_at: string
-          evening_reflection: string | null
-          hardest_part: string | null
-          id: string
-          predicted_completion_pct: number | null
-          predicted_productivity: number | null
-          predicted_work_hours: number | null
-          prediction_date: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          actual_completion_pct?: number | null
-          actual_productivity?: number | null
-          actual_work_hours?: number | null
-          created_at?: string
-          evening_reflection?: string | null
-          hardest_part?: string | null
-          id?: string
-          predicted_completion_pct?: number | null
-          predicted_productivity?: number | null
-          predicted_work_hours?: number | null
-          prediction_date?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          actual_completion_pct?: number | null
-          actual_productivity?: number | null
-          actual_work_hours?: number | null
-          created_at?: string
-          evening_reflection?: string | null
-          hardest_part?: string | null
-          id?: string
-          predicted_completion_pct?: number | null
-          predicted_productivity?: number | null
-          predicted_work_hours?: number | null
-          prediction_date?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       profile_questions_queue: {
         Row: {
           answer: number | null
@@ -812,78 +704,6 @@ export type Database = {
           display_name?: string | null
           id?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      safe_contacts: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          phone: string
-          relationship: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          phone: string
-          relationship?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          phone?: string
-          relationship?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      sleep_logs: {
-        Row: {
-          awakenings: number | null
-          bedtime: string | null
-          caffeine_cutoff_hour: number | null
-          created_at: string
-          hours: number | null
-          id: string
-          notes: string | null
-          quality: number | null
-          sleep_date: string
-          updated_at: string
-          user_id: string
-          wake_time: string | null
-        }
-        Insert: {
-          awakenings?: number | null
-          bedtime?: string | null
-          caffeine_cutoff_hour?: number | null
-          created_at?: string
-          hours?: number | null
-          id?: string
-          notes?: string | null
-          quality?: number | null
-          sleep_date?: string
-          updated_at?: string
-          user_id: string
-          wake_time?: string | null
-        }
-        Update: {
-          awakenings?: number | null
-          bedtime?: string | null
-          caffeine_cutoff_hour?: number | null
-          created_at?: string
-          hours?: number | null
-          id?: string
-          notes?: string | null
-          quality?: number | null
-          sleep_date?: string
-          updated_at?: string
-          user_id?: string
-          wake_time?: string | null
         }
         Relationships: []
       }
@@ -1344,33 +1164,6 @@ export type Database = {
           ui_scale?: number
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      user_values: {
-        Row: {
-          created_at: string
-          id: string
-          meaning: string | null
-          position: number
-          user_id: string
-          value_name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          meaning?: string | null
-          position?: number
-          user_id: string
-          value_name: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          meaning?: string | null
-          position?: number
-          user_id?: string
-          value_name?: string
         }
         Relationships: []
       }
