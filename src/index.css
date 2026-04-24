@@ -117,8 +117,7 @@
   }
 }
 
-/* Persian font (Vazirmatn) */
-@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+
 
 /* Markdown preview */
 .prose-note h1 { @apply text-2xl font-bold mt-4 mb-2; }
