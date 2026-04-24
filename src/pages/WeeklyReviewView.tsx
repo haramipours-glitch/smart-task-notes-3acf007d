@@ -185,7 +185,7 @@ export default function WeeklyReviewView() {
 
   if (!data) return <div className="p-8 text-center text-muted-foreground">در حال بارگذاری...</div>;
 
-  const periodLabel = `${formatDate(new Date(data.startISO))} → ${formatDate(new Date(new Date(data.endISO).getTime() - 86400000))}`;
+  const periodLabel = `${formatDate(new Date(data.startISO), "YYYY/MM/DD")} → ${formatDate(new Date(new Date(data.endISO).getTime() - 86400000), "YYYY/MM/DD")}`;
 
   return (
     <div dir="rtl" className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">
@@ -240,7 +240,7 @@ export default function WeeklyReviewView() {
                 <TrendingUp className="w-5 h-5 text-emerald-500" />
                 <div>
                   <div className="text-xs text-muted-foreground">پربارترین روز</div>
-                  <div className="font-semibold">{formatDate(new Date(data.bestDay.date))}</div>
+                  <div className="font-semibold">{formatDate(new Date(data.bestDay.date), "dddd D MMM")}</div>
                 </div>
                 <Badge variant="outline" className="ms-auto">{fa(data.bestDay.count)} تسک</Badge>
               </div>
@@ -250,7 +250,7 @@ export default function WeeklyReviewView() {
                 <TrendingDown className="w-5 h-5 text-rose-500" />
                 <div>
                   <div className="text-xs text-muted-foreground">کم‌بارترین روز</div>
-                  <div className="font-semibold">{formatDate(new Date(data.worstDay.date))}</div>
+                  <div className="font-semibold">{formatDate(new Date(data.worstDay.date), "dddd D MMM")}</div>
                 </div>
                 <Badge variant="outline" className="ms-auto">{fa(data.worstDay.count)} تسک</Badge>
               </div>
