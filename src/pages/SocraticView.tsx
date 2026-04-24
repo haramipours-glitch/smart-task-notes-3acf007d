@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
-import { Brain, Send, AlertCircle } from "lucide-react";
+import { Brain, Send, AlertCircle, BookOpen } from "lucide-react";
 import { detectCrisis } from "@/lib/crisisDetection";
 
 import { toast } from "sonner";
