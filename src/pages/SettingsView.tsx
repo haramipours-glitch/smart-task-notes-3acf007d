@@ -22,6 +22,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { loadSettings, saveSettings, ensureNotificationPermission, type UserSettings } from "@/lib/reminders";
+import WidgetTokenCard from "@/components/WidgetTokenCard";
 
 function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: (c: ProviderConfig) => void }) {
   const info = PROVIDER_INFO[value.provider];
@@ -555,6 +556,8 @@ export default function SettingsView() {
           </AlertDialog>
         </div>
       </Card>
+
+      <WidgetTokenCard />
 
       <Card className="p-5 space-y-2">
         <h2 className="font-semibold">درباره</h2>
