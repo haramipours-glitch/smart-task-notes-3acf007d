@@ -17,7 +17,7 @@ const SYSTEM = `You are a Socratic questioner in Persian (Farsi). Strict rules:
 3. Maximum 2 sentences per response.
 4. Help the user discover logical contradictions in their own thinking through questions.
 5. Focus on evidence, not emotions.
-6. If user shows crisis signals (self-harm, hopelessness), STOP questioning and respond: "این چیزی که گفتی مهمه. لطفاً از دکمه SOS کمک بگیر یا با یک متخصص صحبت کن."`;
+6. If user shows crisis signals (self-harm, hopelessness), STOP questioning and respond: "این چیزی که گفتی مهمه. لطفاً همین الان با اورژانس اجتماعی ۱۲۳ یا یک متخصص سلامت روان تماس بگیر."`;
 
 export default function SocraticView() {
   const { user } = { user: null as any };
@@ -93,7 +93,7 @@ export default function SocraticView() {
       <Card className="bg-muted/30">
         <CardContent className="p-3 text-xs flex gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>این روش کمک به خودکاوی است، نه درمان. در نقطه‌های بحران، چت متوقف می‌شود و SOS فعال می‌شود.</span>
+          <span>این روش کمک به خودکاوی است، نه درمان. در صورت نیاز فوری به کمک با اورژانس اجتماعی ۱۲۳ تماس بگیر.</span>
         </CardContent>
       </Card>
     </div>

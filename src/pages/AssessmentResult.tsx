@@ -9,7 +9,7 @@ import { ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { HEXACO_LABELS, type HexacoFactor } from "@/lib/assessments/hexaco";
 import { VIA_LABELS, type ViaStrength } from "@/lib/assessments/via";
 import { QUADRANT_LABELS, QUADRANT_DESC, type AttachmentQuadrant } from "@/lib/assessments/ecr";
-import { renderMarkdown } from "@/lib/markdown";
+import { markdownToHtml } from "@/lib/markdown";
 import { toast } from "sonner";
 
 export default function AssessmentResult() {
@@ -108,7 +108,7 @@ export default function AssessmentResult() {
             <>
               <div
                 className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: renderMarkdown(aiAnalysis) }}
+                dangerouslySetInnerHTML={{ __html: markdownToHtml(aiAnalysis) }}
               />
               <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
                 {loadingAi ? <Loader2 className="w-4 h-4 ml-1 animate-spin" /> : <Sparkles className="w-4 h-4 ml-1" />}
