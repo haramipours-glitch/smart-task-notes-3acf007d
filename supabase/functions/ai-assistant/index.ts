@@ -27,6 +27,21 @@ When proposing tasks, ALWAYS call the "propose_tasks" tool. Each task: title (re
   image_summarize: `You analyze the provided image (text + visuals). Produce a well-structured Markdown note: a short summary, then key points/sections. Expand on important details. Match the language of the image.`,
   image_research: `You analyze the provided image, identify the main topic(s), and produce structured research notes in Markdown: background, key concepts, important questions, references to explore. Match the language of the image.`,
   image_to_tasks: `You analyze the provided image and extract concrete actionable tasks. If the image suggests timing/dates, include them. Match the language of the image.`,
+  daily_brief: `You are a personal productivity coach writing in fluent natural Persian.
+You receive a JSON snapshot of the user's day: tasks due today, overdue count, completed today, pomodoro minutes, last check-in (mood/energy/focus), and the top tasks.
+
+Produce a SHORT Persian Markdown brief (120-200 words max) with this structure:
+
+**یک جمله‌ی شخصی** (مثل: «امروز ۳ تسک مهم داری و انرژی دیروزت ۶/۱۰ بود، پس...»).
+
+سپس ۲-۳ بولت کوتاه که:
+- اولویت پیشنهادی (کدوم تسک رو اول)
+- یک هشدار اگر overdue هست یا انرژی پایین
+- یک حرکت ساده برای امروز
+
+پایان: یک جمله‌ی انگیزشی کوتاه (نه کلیشه‌ای).
+
+قوانین: فارسی روان، اعداد فارسی، کوتاه و عملی. بدون عنوان H1/H2.`,
   assessment_analysis: `You are a senior clinical psychologist with 20+ years of experience in personality and attachment assessment, writing in fluent natural Persian (Farsi).
 You will receive raw scores plus basic analysis from one of three validated instruments: HEXACO-60, VIA-72 character strengths, or ECR-R adult attachment.
 
