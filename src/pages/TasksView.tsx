@@ -209,7 +209,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     const title = (quickSub[parent.id] || "").trim();
     if (!title || !user) return;
     const { data, error } = await supabase.from("tasks").insert({
-      user_id: user.id, title, parent_id: parent.id, priority: "none" as Priority,
+      user_id: user.id, title, parent_id: parent.id, priority: "none" as const,
     }).select().single();
     if (error) return toast.error(error.message);
     if (data) {
