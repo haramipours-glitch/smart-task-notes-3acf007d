@@ -93,12 +93,30 @@
 
 @layer base {
   * { @apply border-border; }
+  html { direction: rtl; }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+    font-family: "Vazirmatn", "IRANSansX", "Tahoma", system-ui, -apple-system, sans-serif;
+  }
+  /* Mixed Persian/English digits and inline LTR fragments */
+  .ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+  .rtl { direction: rtl; unicode-bidi: isolate; }
+  /* Numbers and code stay LTR inside RTL flow */
+  code, pre, kbd, samp, .font-mono, [class*="tabular-nums"] {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  /* Make form inputs respect RTL by default but allow LTR for emails/urls */
+  input[type="email"], input[type="url"], input[type="tel"], input[type="number"] {
+    direction: ltr;
+    text-align: right;
   }
 }
+
+/* Persian font (Vazirmatn) */
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
 
 /* Markdown preview */
 .prose-note h1 { @apply text-2xl font-bold mt-4 mb-2; }
