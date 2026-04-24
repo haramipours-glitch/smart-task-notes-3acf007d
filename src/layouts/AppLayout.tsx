@@ -13,6 +13,7 @@ import RemindersRunner from "@/components/RemindersRunner";
 import BackButtonHandler from "@/components/BackButtonHandler";
 import CommandPalette from "@/components/CommandPalette";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import HeaderBackButton from "@/components/HeaderBackButton";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -30,7 +31,10 @@ export default function AppLayout() {
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-12 border-b flex items-center justify-between px-3 bg-card/50 backdrop-blur sticky top-0 z-10">
-            <SidebarTrigger />
+            <div className="flex items-center gap-1">
+              <SidebarTrigger />
+              <HeaderBackButton />
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
