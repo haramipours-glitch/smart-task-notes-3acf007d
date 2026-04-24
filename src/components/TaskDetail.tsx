@@ -8,7 +8,7 @@ import { BidiText } from "@/components/BidiText";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { Plus, Sparkles, Trash2, FileText } from "lucide-react";
+import { Plus, Sparkles, Trash2, FileText, Clock } from "lucide-react";
 import { PRIORITY_META, PRIORITY_ORDER } from "@/lib/priority";
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
@@ -141,6 +141,42 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm }: {
                 <label className="text-xs text-muted-foreground">یادآور</label>
                 <Input type="datetime-local" value={t.reminder_at ? t.reminder_at.slice(0, 16) : ""}
                   onChange={(e) => save({ reminder_at: e.target.value ? new Date(e.target.value).toISOString() : null })} />
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+              <div className="flex items-center gap-1 text-sm font-medium text-primary">
+                <Clock className="w-4 h-4" /> Time Block
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-muted-foreground">شروع</label>
+                  <Input type="datetime-local"
+                    value={t.start_at ? t.start_at.slice(0, 16) : ""}
+                    onChange={(e) => save({ start_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
+                </div>
+                <div>
+                  <label className="text-[10px] text-muted-foreground">پایان</label>
+                  <Input type="datetime-local"
+                    value={t.end_at ? t.end_at.slice(0, 16) : ""}
+                    onChange={(e) => save({ end_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-[10px] text-muted-foreground whitespace-nowrap">مدت تخمینی (دقیقه):</label>
+                <Input type="number" placeholder="—"
+                  value={t.estimated_minutes ?? ""}
+                  onChange={(e) => save({ estimated_minutes: e.target.value ? Number(e.target.value) : null } as any)}
+                  className="h-8 w-24 text-xs" />
+                <div className="flex gap-1">
+                  {[15, 30, 60].map(m => (
+                    <button key={m} type="button"
+                      onClick={() => save({ estimated_minutes: m } as any)}
+                      className={`px-2 h-7 text-[10px] rounded border ${t.estimated_minutes === m ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}>
+                      {m}د
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 

@@ -36,7 +36,8 @@ export default function CalendarView() {
     else if (view === "week") { start = startOfWeek(date); end = endOfWeek(date); }
     else if (view === "day") { start = new Date(date); start.setHours(0,0,0,0); end = new Date(date); end.setHours(23,59,59,999); }
     else { start = startOfMonth(date); end = endOfMonth(date); }
-    supabase.from("tasks").select("*").gte("due_date", start.toISOString()).lte("due_date", end.toISOString())
+    supabase.from("tasks").select("*")
+      .or(`and(due_date.gte.${start.toISOString()},due_date.lte.${end.toISOString()}),and(start_at.gte.${start.toISOString()},start_at.lte.${end.toISOString()})`)
       .then(({ data }) => setTasks(data || []));
     getHolidaysForRange(start, end, ["IR", "AU"]).then(setHolidays);
   }, [user, date, view, refreshKey]);

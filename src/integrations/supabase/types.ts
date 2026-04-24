@@ -976,6 +976,8 @@ export type Database = {
           created_at: string
           description: string | null
           due_date: string | null
+          end_at: string | null
+          estimated_minutes: number | null
           folder_id: string | null
           goal_id: string | null
           goal_level: string | null
@@ -988,6 +990,7 @@ export type Database = {
           recurrence: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule: Json | null
           reminder_at: string | null
+          start_at: string | null
           status: Database["public"]["Enums"]["task_status"]
           title: string
           updated_at: string
@@ -999,6 +1002,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           due_date?: string | null
+          end_at?: string | null
+          estimated_minutes?: number | null
           folder_id?: string | null
           goal_id?: string | null
           goal_level?: string | null
@@ -1011,6 +1016,7 @@ export type Database = {
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule?: Json | null
           reminder_at?: string | null
+          start_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           title: string
           updated_at?: string
@@ -1022,6 +1028,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           due_date?: string | null
+          end_at?: string | null
+          estimated_minutes?: number | null
           folder_id?: string | null
           goal_id?: string | null
           goal_level?: string | null
@@ -1034,6 +1042,7 @@ export type Database = {
           recurrence?: Database["public"]["Enums"]["recurrence_type"]
           recurrence_rule?: Json | null
           reminder_at?: string | null
+          start_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           title?: string
           updated_at?: string
