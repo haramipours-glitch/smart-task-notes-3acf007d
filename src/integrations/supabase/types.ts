@@ -1118,9 +1118,6 @@ export type Database = {
           font_size: string
           micro_prompt_enabled: boolean
           notifications_enabled: boolean
-          sleep_goal_hours: number
-          sleep_reminder_enabled: boolean
-          sleep_reminder_time: string
           task_card_layout: string
           theme: string
           ui_scale: number
@@ -1137,9 +1134,6 @@ export type Database = {
           font_size?: string
           micro_prompt_enabled?: boolean
           notifications_enabled?: boolean
-          sleep_goal_hours?: number
-          sleep_reminder_enabled?: boolean
-          sleep_reminder_time?: string
           task_card_layout?: string
           theme?: string
           ui_scale?: number
@@ -1156,9 +1150,6 @@ export type Database = {
           font_size?: string
           micro_prompt_enabled?: boolean
           notifications_enabled?: boolean
-          sleep_goal_hours?: number
-          sleep_reminder_enabled?: boolean
-          sleep_reminder_time?: string
           task_card_layout?: string
           theme?: string
           ui_scale?: number
