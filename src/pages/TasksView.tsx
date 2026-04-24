@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
-import { Plus, Calendar, Trash2, Sparkles, ChevronRight, ChevronDown, Flag, FileText, GripVertical, CornerDownRight, FolderInput } from "lucide-react";
+import { Plus, Calendar, Trash2, ChevronRight, ChevronDown, Flag, GripVertical, CornerDownRight, FolderInput } from "lucide-react";
 import { MoveToDialog } from "@/components/MoveToDialog";
 import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
 import { startItemDrag } from "@/lib/dragToFolder";
@@ -10,47 +10,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { AutoTextarea } from "@/components/ui/auto-textarea";
 import { BidiText } from "@/components/BidiText";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
-import { RecurrenceEditor } from "@/components/RecurrenceEditor";
-import { TaskAIPanel } from "@/components/TaskAIPanel";
-import { RichEditor } from "@/components/RichEditor";
+import { PRIORITY_META } from "@/lib/priority";
 import { FolderKanban } from "@/components/FolderKanban";
 import { EisenhowerMatrix } from "@/components/EisenhowerMatrix";
 import { Countdown } from "@/components/Countdown";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { describeRule, nextOccurrence, type RecurrenceRule } from "@/lib/recurrence";
+import { describeRule, nextOccurrence } from "@/lib/recurrence";
 import {
   DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor,
-  closestCenter, useSensor, useSensors, useDroppable,
-} from "@dnd-kit/core";
-import {
-  SortableContext, verticalListSortingStrategy, useSortable, arrayMove,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+  closestCenter, useSensor, useSensors,
+  SortableTaskRow, ChildDropZone, RootDropZone,
+} from "@/components/TaskDnDHelpers";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import CognitiveLoadCard from "@/components/CognitiveLoadCard";
-import { TaskStepLists } from "@/components/TaskStepLists";
-import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
-import { TaskAttachments } from "@/components/TaskAttachments";
+import { TaskDetail } from "@/components/TaskDetail";
+import type { Task, ConfirmState } from "@/lib/taskTypes";
 
-type Task = {
-  id: string; title: string; description: string | null; priority: Priority;
-  due_date: string | null; completed: boolean; folder_id: string | null; reminder_at: string | null;
-  recurrence: "none" | "daily" | "weekly" | "monthly";
-  recurrence_rule: RecurrenceRule | null;
-  parent_id: string | null;
-};
-type TaskNote = { id: string; title: string; content: string };
-type ConfirmState = { kind: "task" | "note" | "subtask-row"; id: string; title: string; onConfirm: () => Promise<void> } | null;
 
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
