@@ -307,26 +307,6 @@ export default function SettingsView() {
       )}
 
       {/* Sleep cards removed — feature deprecated */}
-      {false && reminders && (
-        <Card className="p-5 space-y-4">
-          <div className="rounded-lg border p-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm">یادآور خواب</Label>
-              <Switch
-                checked={reminders.sleep_reminder_enabled}
-                onCheckedChange={(v) => updateReminder({ sleep_reminder_enabled: v })}
-              />
-            </div>
-            {reminders.sleep_reminder_enabled && (
-              <Input
-                type="time"
-                value={reminders.sleep_reminder_time.slice(0, 5)}
-                onChange={(e) => updateReminder({ sleep_reminder_time: e.target.value })}
-              />
-            )}
-          </div>
-        </Card>
-      )}
 
       {reminders && (
         <Card className="p-5 space-y-4">
