@@ -400,6 +400,13 @@ serve(async (req) => {
 
     const body: any = { model, messages };
 
+    // Allow long-form deep analysis outputs
+    if (mode === "assessment_analysis") {
+      body.max_tokens = 8000;
+    } else if (mode === "decision_bias_analysis") {
+      body.max_tokens = 4000;
+    }
+
     if (TOOLS[mode]) {
       body.tools = [TOOLS[mode]];
       body.tool_choice = { type: "function", function: { name: TOOLS[mode].function.name } };
