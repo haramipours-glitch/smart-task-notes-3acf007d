@@ -19,17 +19,16 @@ export default function CognitiveLoadCard() {
       const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
       const todayDate = new Date().toISOString().slice(0, 10);
 
-      const [tasks, checkin, chrono] = await Promise.all([
+      const [tasks, checkin] = await Promise.all([
         supabase.from("tasks").select("id,title,description,priority,folder_id,quadrant,due_date,completed")
           .eq("user_id", user.id).eq("completed", false)
           .or(`due_date.gte.${todayStart.toISOString()},due_date.is.null`)
           .lte("due_date", todayEnd.toISOString()),
         supabase.from("daily_checkins").select("sleep_hours,sleep_quality,stress").eq("user_id", user.id).eq("checkin_date", todayDate).maybeSingle(),
-        supabase.from("chronotype").select("*").eq("user_id", user.id).maybeSingle(),
       ]);
 
       const todayTasks = (tasks.data || []).filter((t) => {
-        if (!t.due_date) return true; // unscheduled in inbox counts
+        if (!t.due_date) return true;
         const dt = new Date(t.due_date);
         return dt >= todayStart && dt <= todayEnd;
       });
@@ -39,7 +38,6 @@ export default function CognitiveLoadCard() {
         sleepHours: checkin.data?.sleep_hours ?? null,
         sleepQuality: checkin.data?.sleep_quality ?? null,
         stress: checkin.data?.stress ?? null,
-        chronotype: chrono.data,
       }));
     })();
   }, [user]);
@@ -79,10 +77,9 @@ export default function CognitiveLoadCard() {
           <div className="space-y-2 text-xs border-t pt-3">
             <div className="grid grid-cols-2 gap-1 text-muted-foreground">
               <div>پایه (مجموع وزن): <strong className="text-foreground">{data.breakdown.base}</strong></div>
-              <div>×Switch: <strong className="text-foreground">{data.breakdown.switchMult}</strong></div>
-              <div>×Sleep: <strong className="text-foreground">{data.breakdown.sleepMult.toFixed(2)}</strong></div>
-              <div>×Chronotype: <strong className="text-foreground">{data.breakdown.chronoMult}</strong></div>
-              <div>×Stress: <strong className="text-foreground">{data.breakdown.stressMult}</strong></div>
+              <div>×سوئیچ: <strong className="text-foreground">{data.breakdown.switchMult}</strong></div>
+              <div>×خواب: <strong className="text-foreground">{data.breakdown.sleepMult.toFixed(2)}</strong></div>
+              <div>×استرس: <strong className="text-foreground">{data.breakdown.stressMult}</strong></div>
             </div>
             {data.perTask.length > 0 && (
               <div className="border-t pt-2">

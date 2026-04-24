@@ -1,5 +1,5 @@
 // Cognitive Load Engine v2 — A1
-// Daily_Load = Σ(Task_Weight × Context_Switch_Penalty) × Sleep_Mult × Chronotype_Align × Stress_Mult
+// Daily_Load = Σ(Task_Weight × Context_Switch_Penalty) × Sleep_Mult × Stress_Mult
 //
 // Task Weight by category (heuristic):
 //   deep work = 4, creative = 3, comm = 2.5, shallow = 1.5, physical = 1, recovery = -0.5
@@ -42,11 +42,10 @@ export function computeCognitiveLoad(opts: {
   sleepHours?: number | null;
   sleepQuality?: number | null; // 1-10
   stress?: number | null; // 1-10
-  chronotype?: { peak_window_start?: number | null; peak_window_end?: number | null; trough_window_start?: number | null; trough_window_end?: number | null } | null;
   hourOfDay?: number;
 }): {
   load: number;
-  breakdown: { base: number; switchMult: number; sleepMult: number; chronoMult: number; stressMult: number };
+  breakdown: { base: number; switchMult: number; sleepMult: number; stressMult: number };
   perTask: { id: string; title: string; category: TaskCategory; weight: number }[];
 } {
   const perTask = opts.tasks.map((t) => ({
@@ -64,19 +63,9 @@ export function computeCognitiveLoad(opts: {
     if (opts.sleepHours < 5) sleepMult = 1.5;
     else if (opts.sleepHours < 6) sleepMult = 1.3;
     else if (opts.sleepHours < 7) sleepMult = 1.1;
-    else if (opts.sleepHours >= 9) sleepMult = 1.05; // oversleep slight drag
+    else if (opts.sleepHours >= 9) sleepMult = 1.05;
   }
   if (opts.sleepQuality != null && opts.sleepQuality <= 4) sleepMult *= 1.15;
-
-  // Chronotype alignment
-  let chronoMult = 1.0;
-  const h = opts.hourOfDay ?? new Date().getHours();
-  const c = opts.chronotype;
-  if (c?.peak_window_start != null && c.peak_window_end != null && h >= c.peak_window_start && h <= c.peak_window_end) {
-    chronoMult = 0.85;
-  } else if (c?.trough_window_start != null && c.trough_window_end != null && h >= c.trough_window_start && h <= c.trough_window_end) {
-    chronoMult = 1.35;
-  }
 
   // Stress multiplier
   let stressMult = 1.0;
@@ -85,10 +74,10 @@ export function computeCognitiveLoad(opts: {
     else if (opts.stress >= 6) stressMult = 1.1;
   }
 
-  const load = base * switchMult * sleepMult * chronoMult * stressMult;
+  const load = base * switchMult * sleepMult * stressMult;
   return {
     load: Math.round(load * 10) / 10,
-    breakdown: { base: Math.round(base * 10) / 10, switchMult, sleepMult, chronoMult, stressMult },
+    breakdown: { base: Math.round(base * 10) / 10, switchMult, sleepMult, stressMult },
     perTask,
   };
 }
