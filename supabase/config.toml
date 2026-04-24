@@ -1,7 +1,4 @@
 project_id = "aeyhgdlacoqsabsbrzia"
 
-[functions.fetch-holidays]
-verify_jwt = false
-
-[functions.goal-planner]
+[functions.widget-data]
 verify_jwt = false
