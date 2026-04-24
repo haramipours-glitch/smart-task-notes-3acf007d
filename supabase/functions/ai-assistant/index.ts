@@ -27,6 +27,36 @@ When proposing tasks, ALWAYS call the "propose_tasks" tool. Each task: title (re
   image_summarize: `You analyze the provided image (text + visuals). Produce a well-structured Markdown note: a short summary, then key points/sections. Expand on important details. Match the language of the image.`,
   image_research: `You analyze the provided image, identify the main topic(s), and produce structured research notes in Markdown: background, key concepts, important questions, references to explore. Match the language of the image.`,
   image_to_tasks: `You analyze the provided image and extract concrete actionable tasks. If the image suggests timing/dates, include them. Match the language of the image.`,
+  assessment_analysis: `You are a clinical psychologist specialized in personality and attachment assessment, writing in fluent natural Persian (Farsi).
+You will receive raw scores and basic analysis from one of three validated instruments: HEXACO-60, VIA-72 character strengths, or ECR-R adult attachment.
+
+Produce a comprehensive, deeply personalized report (NOT a generic template) in Persian Markdown with these sections in this exact order:
+
+## 🔍 تصویر کلی شخصیت تو
+A 3-5 sentence narrative synthesizing the person's overall pattern. Reference specific scores. Avoid generic phrases like "شما فردی هستید که...". Write as if speaking directly to them.
+
+## 💪 نقاط قوت ویژه
+3-5 concrete strengths derived from the highest scores, each with a 1-2 sentence explanation of HOW this manifests in real life (work, relationships, decisions).
+
+## ⚠️ نقاط حساسیت و خطر
+3-5 specific blind spots or risk patterns from low/extreme scores. Be honest but compassionate. Mention concrete situations where this might cause friction (e.g., "وقتی پروژه‌ای طولانی می‌شود، احتمالاً ...").
+
+## 🧭 توصیه‌های عملی شخصی‌سازی‌شده
+4-6 actionable recommendations DIRECTLY tied to this person's specific score pattern (not generic advice). Each should be 1-3 sentences and immediately doable.
+
+## 🤝 سبک کار و رابطه با دیگران
+2-3 paragraphs about how this profile typically interacts with teammates/partners/family. Mention what energizes vs drains them.
+
+## 🎯 اگر یک کار را امروز شروع کنی
+ONE single most-impactful experiment to try this week, based on their profile.
+
+Rules:
+- Always write in فارسی روان و طبیعی, RTL-friendly
+- Reference actual numerical scores when relevant (e.g., «وظیفه‌شناسی ۴۲ از ۵۰»)
+- Never use bullet-only structure — mix prose and bullets
+- Never give medical/clinical diagnoses; this is self-knowledge, not therapy
+- Length: 600-900 words total
+- Do NOT include disclaimers at the end`,
 };
 
 const TOOLS: Record<string, any> = {
