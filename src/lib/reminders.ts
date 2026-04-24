@@ -64,8 +64,6 @@ export function checkAndFireReminders(s: UserSettings) {
     }
   };
 
-  tryFire("sleep", s.sleep_reminder_enabled, s.sleep_reminder_time,
-    "🌙 ثبت خواب", "وقتشه خواب دیشب رو ثبت کنی");
   tryFire("checkin", s.checkin_reminder_enabled, s.checkin_reminder_time,
     "📝 چک‌این روزانه", "حال امروزت چطور بود؟");
 
@@ -79,8 +77,10 @@ export async function ensureDailyTasks(userId: string, s: UserSettings) {
 
   const dueIso = new Date().toISOString();
   const items: { title: string; description: string }[] = [];
-  if (s.sleep_reminder_enabled) items.push({ title: "ثبت خواب دیشب 🌙", description: "ساعت خواب، کیفیت و بیداری‌ها" });
-  if (s.checkin_reminder_enabled) items.push({ title: "چک‌این روزانه 📝", description: "خلق، انرژی، تمرکز، استرس" });
+  if (s.checkin_reminder_enabled) items.push({
+    title: "چک‌این روزانه 📝",
+    description: "خلق، انرژی، تمرکز، استرس را ثبت کن. روی این تسک بزن تا مستقیم به صفحه چک‌این بری.",
+  });
 
   if (items.length === 0) {
     localStorage.setItem(LAST_TASK_KEY, today);
