@@ -11,6 +11,7 @@ import EdgeSwipeHandler from "@/components/EdgeSwipeHandler";
 import ClinicalDisclaimer from "@/components/ClinicalDisclaimer";
 import RemindersRunner from "@/components/RemindersRunner";
 import BackButtonHandler from "@/components/BackButtonHandler";
+import CommandPalette from "@/components/CommandPalette";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -45,6 +46,7 @@ export default function AppLayout() {
         <ClinicalDisclaimer />
         <RemindersRunner />
         <BackButtonHandler />
+        <CommandPalette />
       </div>
     </SidebarProvider>
   );
