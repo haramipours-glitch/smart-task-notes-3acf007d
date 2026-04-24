@@ -62,7 +62,7 @@ export default function CalendarView() {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+    <div dir="rtl" className="p-4 md:p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
           <h1 className="text-2xl font-bold">{headerLabel}</h1>

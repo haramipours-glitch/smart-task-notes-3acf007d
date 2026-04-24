@@ -31,7 +31,7 @@ function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: 
     onChange({ provider: p, apiKey: value.apiKey, model: i.defaultModel, baseUrl: i.baseUrl });
   };
   return (
-    <div className="space-y-3">
+    <div dir="rtl" className="space-y-3">
       <div className="space-y-1.5">
         <Label className="text-xs">سرویس</Label>
         <Select value={value.provider} onValueChange={(v) => onProvider(v as Provider)}>

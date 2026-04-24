@@ -317,7 +317,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
             <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-l-4 ${pm.borderClass}`}
               style={{ marginInlineStart: depth * 16 }}>
               {/* Row 1: handle + checkbox + TITLE (wide) */}
-              <div className="flex items-start gap-2">
+              <div dir="rtl" className="flex items-start gap-2">
                 <button {...dragHandle} className="mt-0.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0" aria-label="drag">
                   <GripVertical className="w-4 h-4" />
                 </button>

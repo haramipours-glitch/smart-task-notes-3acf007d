@@ -79,7 +79,7 @@ export default function ReviewView() {
     load();
   };
 
-  if (loading) return <div className="p-8 text-center text-muted-foreground">در حال بارگذاری...</div>;
+  if (loading) return <div dir="rtl" className="p-8 text-center text-muted-foreground">در حال بارگذاری...</div>;
 
   if (!current) {
     return (

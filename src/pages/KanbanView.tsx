@@ -98,7 +98,7 @@ export default function KanbanView() {
   const activeTask = activeId ? tasks.find(t => t.id === activeId) : null;
 
   return (
-    <div className="p-4 md:p-6">
+    <div dir="rtl" className="p-4 md:p-6">
       <h1 className="text-2xl font-bold mb-4">Kanban</h1>
       <DndContext
         sensors={sensors}

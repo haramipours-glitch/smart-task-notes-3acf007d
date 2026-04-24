@@ -136,7 +136,7 @@ export default function AssessmentRunner() {
     }
   }
 
-  if (loading) return <div className="p-8 text-center text-muted-foreground">در حال بارگذاری…</div>;
+  if (loading) return <div dir="rtl" className="p-8 text-center text-muted-foreground">در حال بارگذاری…</div>;
   if (!meta || !item) return <div className="p-8">تست نامعتبر</div>;
 
   const current = responses[item.id];

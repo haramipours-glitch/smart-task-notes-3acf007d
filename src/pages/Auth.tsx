@@ -75,7 +75,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-accent/30 p-4">
+    <div dir="rtl" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-accent/30 p-4">
       <Card className="w-full max-w-md p-8 shadow-elegant">
         <div className="flex items-center justify-center mb-6 gap-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">

@@ -36,7 +36,7 @@ export default function PomodoroView() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-md mx-auto space-y-4">
+    <div dir="rtl" className="p-4 md:p-6 max-w-md mx-auto space-y-4">
       <Card className="p-6">
         <PomodoroTimer onSessionComplete={() => setRefreshTick(t => t + 1)} />
       </Card>

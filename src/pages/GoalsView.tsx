@@ -140,7 +140,7 @@ export default function GoalsView() {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto">
+    <div dir="rtl" className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Target className="w-6 h-6 text-primary" /> اهداف

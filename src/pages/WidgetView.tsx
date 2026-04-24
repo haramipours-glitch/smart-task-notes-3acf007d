@@ -112,7 +112,7 @@ export default function WidgetView() {
 
   if (widgets.length === 0) {
     return (
-      <div className="p-6 max-w-2xl mx-auto text-center space-y-4">
+      <div dir="rtl" className="p-6 max-w-2xl mx-auto text-center space-y-4">
         <h1 className="text-2xl font-bold">ویجت‌ها</h1>
         <p className="text-muted-foreground">هنوز ویجتی نساخته‌ای. اولین ویجت سفارشی خودت رو بساز.</p>
         <Button onClick={() => { setEditing(null); setEditorOpen(true); }} className="gap-2">

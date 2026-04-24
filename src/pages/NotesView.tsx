@@ -158,7 +158,7 @@ export default function NotesView() {
   return (
     <div className="flex flex-col md:flex-row h-full">
       <div className="md:w-80 border-l md:border-l border-r-0 md:border-r flex flex-col bg-card/30">
-        <div className="p-3 border-b space-y-2">
+        <div dir="rtl" className="p-3 border-b space-y-2">
           <div className="flex justify-between items-center">
             <h2 className="font-semibold">نوت‌ها</h2>
             <Button size="sm" onClick={create}><Plus className="w-4 h-4" /></Button>

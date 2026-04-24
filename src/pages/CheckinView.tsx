@@ -11,7 +11,7 @@ import ProfileMicroPrompt from "@/components/ProfileMicroPrompt";
 
 function Slider10({ label, value, onChange }: { label: string; value: number | null; onChange: (v: number) => void }) {
   return (
-    <div className="space-y-2">
+    <div dir="rtl" className="space-y-2">
       <div className="flex justify-between text-sm">
         <Label>{label}</Label>
         <span className="font-mono text-muted-foreground">{value ?? "—"}/10</span>
