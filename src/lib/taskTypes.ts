@@ -13,6 +13,9 @@ export type Task = {
   recurrence: "none" | "daily" | "weekly" | "monthly";
   recurrence_rule: RecurrenceRule | null;
   parent_id: string | null;
+  start_at: string | null;
+  end_at: string | null;
+  estimated_minutes: number | null;
 };
 
 export type TaskNote = { id: string; title: string; content: string };
