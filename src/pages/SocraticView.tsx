@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { Brain, Send, AlertCircle } from "lucide-react";
 import { detectCrisis } from "@/lib/crisisDetection";
-import { SOSDialog } from "@/components/SOSDialog";
+
 import { toast } from "sonner";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -26,7 +26,7 @@ export default function SocraticView() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [crisisOpen, setCrisisOpen] = useState(false);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
 
   async function send() {
@@ -35,9 +35,8 @@ export default function SocraticView() {
 
     if (detectCrisis(text)) {
       setMessages((m) => [...m, { role: "user", content: text },
-        { role: "assistant", content: "این چیزی که گفتی مهمه. حالا چت متوقف شده. لطفاً از دکمه SOS کمک بگیر یا با یک متخصص صحبت کن." }]);
+        { role: "assistant", content: "این چیزی که گفتی مهمه. لطفاً با یک متخصص یا خط اورژانس اجتماعی (۱۲۳) صحبت کن." }]);
       setInput("");
-      setCrisisOpen(true);
       return;
     }
 
@@ -65,13 +64,10 @@ export default function SocraticView() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-4 h-[calc(100dvh-2rem)] flex flex-col">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold mb-1 flex items-center gap-2"><Brain className="w-6 h-6 text-purple-500" /> چت سقراطی</h1>
-          <p className="text-muted-foreground text-xs">AI فقط سوال می‌پرسد — تو خودت به بینش می‌رسی.</p>
-        </div>
-        <SOSDialog autoOpenTriggerType={crisisOpen ? "panic" : undefined} trigger={<Button variant="destructive" size="sm">SOS</Button>} />
+    <div dir="rtl" className="max-w-3xl mx-auto p-4 md:p-8 space-y-4 h-[calc(100dvh-2rem)] flex flex-col">
+      <div>
+        <h1 className="text-2xl font-bold mb-1 flex items-center gap-2"><Brain className="w-6 h-6 text-purple-500" /> چت سقراطی</h1>
+        <p className="text-muted-foreground text-xs">AI فقط سوال می‌پرسد — تو خودت به بینش می‌رسی.</p>
       </div>
 
       <Card className="flex-1 flex flex-col overflow-hidden">
