@@ -157,7 +157,7 @@ export default function NotesView() {
 
   return (
     <div className="flex flex-col md:flex-row h-full">
-      <div className="md:w-80 border-l md:border-l border-r-0 md:border-r flex flex-col bg-card/30">
+      <div className="md:w-80 border-s md:border-s border-e-0 md:border-e flex flex-col bg-card/30">
         <div dir="rtl" className="p-3 border-b space-y-2">
           <div className="flex justify-between items-center">
             <h2 className="font-semibold">نوت‌ها</h2>
@@ -165,7 +165,7 @@ export default function NotesView() {
           </div>
           <div className="relative">
             <Search className="w-4 h-4 absolute left-2 top-2.5 text-muted-foreground" />
-            <Input placeholder="جستجو..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" dir="auto" />
+            <Input placeholder="جستجو..." value={search} onChange={(e) => setSearch(e.target.value)} className="ps-8" dir="auto" />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -178,7 +178,7 @@ export default function NotesView() {
               title="Drag روی فولدر سایدبار برای انتقال"
             >
               <button onClick={() => { setSelected(n); setDraft({ html: markdownToHtml(n.content || ""), md: n.content || "" }); }}
-                className={`w-full text-right p-3 hover:bg-accent/40 transition cursor-grab active:cursor-grabbing ${selected?.id === n.id ? "bg-accent/60" : ""}`}>
+                className={`w-full text-end p-3 hover:bg-accent/40 transition cursor-grab active:cursor-grabbing ${selected?.id === n.id ? "bg-accent/60" : ""}`}>
                 <div className="flex items-center gap-1">
                   {n.pinned && <Pin className="w-3 h-3 text-primary" />}
                   <BidiText as="span" text={n.title} className="font-medium text-sm truncate flex-1" />

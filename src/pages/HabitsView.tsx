@@ -75,7 +75,7 @@ export default function HabitsView() {
               <div className="flex items-center gap-2">
                 <span className="text-xl">{h.icon}</span>
                 <span className="font-medium">{h.name}</span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1 ml-2">
+                <span className="text-xs text-muted-foreground flex items-center gap-1 ms-2">
                   <Flame className="w-3 h-3 text-warning" /> {streak(h.id)}
                 </span>
               </div>

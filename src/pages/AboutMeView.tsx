@@ -152,7 +152,7 @@ export default function AboutMeView() {
           {a.strengths && a.strengths.length > 0 && (
             <Card className="p-5 space-y-2">
               <h2 className="font-semibold text-success">💪 نقاط قوت</h2>
-              <ul className="text-sm space-y-1.5 list-disc pr-5">
+              <ul className="text-sm space-y-1.5 list-disc pe-5">
                 {a.strengths.map((x, i) => <li key={i}>{x}</li>)}
               </ul>
             </Card>
@@ -160,7 +160,7 @@ export default function AboutMeView() {
           {a.risks && a.risks.length > 0 && (
             <Card className="p-5 space-y-2">
               <h2 className="font-semibold text-warning">⚠️ موانع و ریسک‌ها</h2>
-              <ul className="text-sm space-y-1.5 list-disc pr-5">
+              <ul className="text-sm space-y-1.5 list-disc pe-5">
                 {a.risks.map((x, i) => <li key={i}>{x}</li>)}
               </ul>
             </Card>

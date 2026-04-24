@@ -113,7 +113,7 @@ export default function CheckinView() {
           </div>
           {/* A2 — Dynamic evening reflection: appears in evening + when load was high */}
           {isEvening && todayLoad != null && todayLoad >= 12 && (
-            <div className="border-l-4 border-amber-500 bg-amber-500/5 rounded-md p-3 space-y-3">
+            <div className="border-s-4 border-amber-500 bg-amber-500/5 rounded-md p-3 space-y-3">
               <div className="text-sm font-semibold flex items-center gap-2">
                 🌙 تأمل شبانه — بار شناختی امروز <span className="tabular-nums">{todayLoad}</span> بود
               </div>

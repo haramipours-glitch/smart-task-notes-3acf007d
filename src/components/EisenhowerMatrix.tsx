@@ -234,7 +234,7 @@ function DraggableCard({ task, onToggle, onOpen }: {
         <button
           type="button"
           onClick={() => onOpen?.(task.id)}
-          className="flex-1 min-w-0 text-right"
+          className="flex-1 min-w-0 text-end"
         >
           <p className="text-sm truncate hover:underline">{task.title}</p>
           {task.due_date && (

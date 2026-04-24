@@ -60,7 +60,7 @@ export default function PomodoroView() {
               </div>
               {Array.from(taskTotals.entries()).map(([id, v]) => (
                 <div key={id} className="flex justify-between text-sm">
-                  <span className="truncate flex-1 ml-2">{v.title}</span>
+                  <span className="truncate flex-1 ms-2">{v.title}</span>
                   <span className="tabular-nums text-muted-foreground">{v.min}د</span>
                 </div>
               ))}

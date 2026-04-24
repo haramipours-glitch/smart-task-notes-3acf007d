@@ -83,7 +83,7 @@ export default function ThoughtRecordsView() {
           <h1 className="text-3xl font-bold mb-2">ثبت افکار (CBT)</h1>
           <p className="text-muted-foreground text-sm">شکستن چرخه فکر خودکار ← احساس ← رفتار با فرم ساختاریافته</p>
         </div>
-        {!editing && <Button onClick={() => setEditing(true)}><Plus className="w-4 h-4 ml-1" /> ثبت جدید</Button>}
+        {!editing && <Button onClick={() => setEditing(true)}><Plus className="w-4 h-4 ms-1" /> ثبت جدید</Button>}
       </div>
 
       {/* راهنمای کامل */}
@@ -92,7 +92,7 @@ export default function ThoughtRecordsView() {
           <Accordion type="single" collapsible>
             <AccordionItem value="guide" className="border-0">
               <AccordionTrigger className="px-5 py-4 hover:no-underline">
-                <div className="flex items-center gap-2 text-right">
+                <div className="flex items-center gap-2 text-end">
                   <BookOpen className="w-5 h-5 text-primary" />
                   <span className="font-medium">راهنمای کامل: Thought Record چیست؟</span>
                 </div>
@@ -116,7 +116,7 @@ export default function ThoughtRecordsView() {
                 </section>
                 <section>
                   <div className="font-semibold text-foreground mb-1">📝 چگونه پر کنم؟</div>
-                  <ol className="text-muted-foreground list-decimal pr-5 space-y-2">
+                  <ol className="text-muted-foreground list-decimal pe-5 space-y-2">
                     <li><strong className="text-foreground">موقعیت:</strong> فقط فکت بیرونی (کجا، کی، با چه کسی).</li>
                     <li><strong className="text-foreground">فکر خودکار:</strong> اولین جمله‌ی ذهنی، عیناً همان‌طور که از ذهن گذشت.</li>
                     <li><strong className="text-foreground">شدت احساس قبل (۰–۱۰۰):</strong> بنچمارک شروع.</li>
@@ -171,7 +171,7 @@ export default function ThoughtRecordsView() {
             <ListField label="۵. شواهد تاییدکننده فکر" items={form.evidence_for} onChange={(items) => setForm({ ...form, evidence_for: items })} />
             <ListField label="۶. شواهد ردکننده فکر" items={form.evidence_against} onChange={(items) => setForm({ ...form, evidence_against: items })} />
             <div className="flex gap-2">
-              <Button variant="outline" onClick={detect}><Sparkles className="w-4 h-4 ml-1" /> تشخیص خطاهای شناختی</Button>
+              <Button variant="outline" onClick={detect}><Sparkles className="w-4 h-4 ms-1" /> تشخیص خطاهای شناختی</Button>
             </div>
             {form.distortions.length > 0 && (
               <div className="bg-muted/30 rounded-lg p-4 space-y-2">
@@ -179,7 +179,7 @@ export default function ThoughtRecordsView() {
                 {form.distortions.map((d: Distortion) => (
                   <div key={d} className="text-sm">
                     <Badge variant="secondary">{DISTORTION_LABELS[d]}</Badge>
-                    <span className="text-muted-foreground mr-2">{DISTORTION_HINTS[d]}</span>
+                    <span className="text-muted-foreground me-2">{DISTORTION_HINTS[d]}</span>
                   </div>
                 ))}
               </div>
@@ -259,7 +259,7 @@ function ListField({ label, items, onChange }: { label: string; items: string[];
           <Button variant="ghost" size="icon" onClick={() => onChange(items.filter((_, j) => j !== i))}><X className="w-4 h-4" /></Button>
         </div>
       ))}
-      <Button variant="outline" size="sm" onClick={() => onChange([...items, ""])}><Plus className="w-3 h-3 ml-1" /> افزودن</Button>
+      <Button variant="outline" size="sm" onClick={() => onChange([...items, ""])}><Plus className="w-3 h-3 ms-1" /> افزودن</Button>
     </div>
   );
 }

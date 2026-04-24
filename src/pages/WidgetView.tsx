@@ -182,7 +182,7 @@ function TaskCard({ task, layout, onToggle, onOpen }: {
 }) {
   const pm = PRIORITY_META[task.priority] || PRIORITY_META.none;
   return (
-    <Card className={`hover:shadow-soft transition-shadow border-l-4 ${pm.borderClass} ${layout === "compact" ? "p-2" : "p-3"}`}>
+    <Card className={`hover:shadow-soft transition-shadow border-s-4 ${pm.borderClass} ${layout === "compact" ? "p-2" : "p-3"}`}>
       <div className="flex items-start gap-2">
         <Checkbox checked={task.completed} onCheckedChange={onToggle} className="mt-1 shrink-0" />
         <div className="flex-1 min-w-0 cursor-pointer" onClick={onOpen}>

@@ -314,7 +314,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
       <div key={t.id}>
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
-            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-l-4 ${pm.borderClass}`}
+            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass}`}
               style={{ marginInlineStart: depth * 16 }}>
               {/* Row 1: handle + checkbox + TITLE (wide) */}
               <div dir="rtl" className="flex items-start gap-2">
@@ -340,7 +340,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
               </div>
 
               {/* Row 2: badges + small action icons (below, small) */}
-              <div className="flex items-center justify-between gap-1 mt-1.5 ml-12 flex-wrap">
+              <div className="flex items-center justify-between gap-1 mt-1.5 ms-12 flex-wrap">
                 <div className="flex items-center gap-1 flex-wrap min-w-0">
                   {t.priority !== "none" && (
                     <Badge variant="outline" className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 ${pm.bgClass} ${pm.textClass}`}>
@@ -380,14 +380,14 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
               </div>
 
               {prog.total > 0 && (
-                <div className="mt-1.5 ml-12 flex items-center gap-2">
+                <div className="mt-1.5 ms-12 flex items-center gap-2">
                   <Progress value={pct} className="h-1 flex-1" />
-                  <span className="text-[10px] text-muted-foreground w-8 text-left">{pct}%</span>
+                  <span className="text-[10px] text-muted-foreground w-8 text-start">{pct}%</span>
                 </div>
               )}
 
               {/* Inline + subtask quick add */}
-              <div className="mt-1.5 flex items-center gap-2 ml-12">
+              <div className="mt-1.5 flex items-center gap-2 ms-12">
                 <CornerDownRight className="w-3 h-3 text-muted-foreground shrink-0" />
                 <Input
                   value={quickSub[t.id] || ""}
@@ -460,7 +460,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
         <BidiText as="h1" text={title} className="text-2xl font-bold" />
         {isFolder && (
           <Button size="sm" variant="outline" onClick={() => setDelFolderOpen(true)} className="text-destructive">
-            <Trash2 className="w-3.5 h-3.5 ml-1" /> حذف فولدر
+            <Trash2 className="w-3.5 h-3.5 ms-1" /> حذف فولدر
           </Button>
         )}
       </div>
@@ -721,7 +721,7 @@ function TaskDetail({ task, onClose, onChanged, setConfirm }: {
               <div className="space-y-2">
                 {taskNotes.map((n) => (
                   <Card key={n.id} className="p-2 flex items-center gap-2">
-                    <button className="flex-1 text-right text-sm truncate" onClick={() => setActiveNote(n)}>
+                    <button className="flex-1 text-end text-sm truncate" onClick={() => setActiveNote(n)}>
                       <BidiText text={n.title} />
                     </button>
                     <Button size="icon" variant="ghost" onClick={() => askDelNote(n)}>

@@ -195,7 +195,7 @@ function SortableTaskCard({ task }: { task: Task }) {
 function TaskCard({ task, dragging }: { task: Task; dragging?: boolean }) {
   const pm = PRIORITY_META[task.priority] || PRIORITY_META.none;
   return (
-    <Card className={`p-3 cursor-grab active:cursor-grabbing border-l-4 ${pm.borderClass} ${dragging ? "shadow-lg" : "hover:shadow-soft"}`}>
+    <Card className={`p-3 cursor-grab active:cursor-grabbing border-s-4 ${pm.borderClass} ${dragging ? "shadow-lg" : "hover:shadow-soft"}`}>
       <p className={`text-sm font-medium ${task.completed ? "line-through text-muted-foreground" : ""}`}>{task.title}</p>
       <div className="flex flex-wrap items-center gap-1 mt-2">
         {task.priority !== "none" && (

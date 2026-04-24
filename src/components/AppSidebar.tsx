@@ -284,7 +284,7 @@ export function AppSidebar() {
       <SidebarGroup>
         <Collapsible open={isOpen || collapsed} onOpenChange={(v) => setSection(section.id, v)}>
           {!collapsed && (
-            <SidebarGroupLabel className="flex items-center justify-between pr-1 group">
+            <SidebarGroupLabel className="flex items-center justify-between pe-1 group">
               {dragHandle && (
                 <button {...dragHandle} className="cursor-grab active:cursor-grabbing p-0.5 opacity-30 hover:opacity-80 transition" title="جابجا کن">
                   <GripVertical className="w-3 h-3" />
@@ -293,7 +293,7 @@ export function AppSidebar() {
               <CollapsibleTrigger className="flex items-center gap-2 flex-1 hover:bg-sidebar-accent/50 rounded transition">
                 <SectionIcon className="w-3.5 h-3.5 text-muted-foreground" />
                 <span>{section.title}</span>
-                <ChevronDown className={`w-3.5 h-3.5 mr-auto text-muted-foreground transition-transform ${isOpen ? "" : "-rotate-90"}`} />
+                <ChevronDown className={`w-3.5 h-3.5 me-auto text-muted-foreground transition-transform ${isOpen ? "" : "-rotate-90"}`} />
               </CollapsibleTrigger>
             </SidebarGroupLabel>
           )}
@@ -323,7 +323,7 @@ export function AppSidebar() {
     <SidebarGroup>
       <Collapsible open={(openSections["__folders"] ?? true) || collapsed} onOpenChange={(v) => setSection("__folders", v)}>
         {!collapsed && (
-          <SidebarGroupLabel className="flex justify-between items-center pr-1">
+          <SidebarGroupLabel className="flex justify-between items-center pe-1">
             {dragHandle && (
               <button {...dragHandle} className="cursor-grab active:cursor-grabbing p-0.5 opacity-30 hover:opacity-80 transition">
                 <GripVertical className="w-3 h-3" />
@@ -332,7 +332,7 @@ export function AppSidebar() {
             <CollapsibleTrigger className="flex items-center gap-2 flex-1 hover:bg-sidebar-accent/50 rounded transition">
               <FolderTree className="w-3.5 h-3.5 text-muted-foreground" />
               <span>فولدرها</span>
-              <ChevronDown className={`w-3.5 h-3.5 mr-auto text-muted-foreground transition-transform ${(openSections["__folders"] ?? true) ? "" : "-rotate-90"}`} />
+              <ChevronDown className={`w-3.5 h-3.5 me-auto text-muted-foreground transition-transform ${(openSections["__folders"] ?? true) ? "" : "-rotate-90"}`} />
             </CollapsibleTrigger>
             <Dialog open={openFolderDlg} onOpenChange={setOpenFolderDlg}>
               <DialogTrigger asChild>
@@ -360,7 +360,7 @@ export function AppSidebar() {
     <SidebarGroup>
       <Collapsible open={(openSections["__tags"] ?? false) || collapsed} onOpenChange={(v) => setSection("__tags", v)}>
         {!collapsed && (
-          <SidebarGroupLabel className="flex justify-between items-center pr-1">
+          <SidebarGroupLabel className="flex justify-between items-center pe-1">
             {dragHandle && (
               <button {...dragHandle} className="cursor-grab active:cursor-grabbing p-0.5 opacity-30 hover:opacity-80 transition">
                 <GripVertical className="w-3 h-3" />
@@ -369,7 +369,7 @@ export function AppSidebar() {
             <CollapsibleTrigger className="flex items-center gap-2 flex-1 hover:bg-sidebar-accent/50 rounded transition">
               <Tag className="w-3.5 h-3.5 text-muted-foreground" />
               <span>تگ‌ها</span>
-              <ChevronDown className={`w-3.5 h-3.5 mr-auto text-muted-foreground transition-transform ${(openSections["__tags"] ?? false) ? "" : "-rotate-90"}`} />
+              <ChevronDown className={`w-3.5 h-3.5 me-auto text-muted-foreground transition-transform ${(openSections["__tags"] ?? false) ? "" : "-rotate-90"}`} />
             </CollapsibleTrigger>
             <Dialog open={openTagDlg} onOpenChange={setOpenTagDlg}>
               <DialogTrigger asChild>
@@ -457,12 +457,12 @@ export function AppSidebar() {
         {!collapsed && (
           <Button variant="ghost" size="sm" onClick={resetOrder} className="justify-start text-xs opacity-70">
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="ml-2">بازنشانی ترتیب</span>
+            <span className="ms-2">بازنشانی ترتیب</span>
           </Button>
         )}
         <Button variant="ghost" size="sm" onClick={() => { signOut(); toast.success("خروج موفق"); }} className="justify-start">
           <LogOut className="w-4 h-4" />
-          {!collapsed && <span className="ml-2">خروج</span>}
+          {!collapsed && <span className="ms-2">خروج</span>}
         </Button>
       </SidebarFooter>
       {aiFolder && (

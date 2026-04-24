@@ -59,7 +59,7 @@ export default function WeekView({
                   <button
                     key={`${d.toISOString()}-${h}`}
                     onClick={() => onSlotClick?.(d, h)}
-                    className="bg-card border-t min-h-[36px] p-0.5 text-right hover:bg-accent/30 transition"
+                    className="bg-card border-t min-h-[36px] p-0.5 text-end hover:bg-accent/30 transition"
                   >
                     {slotTasks.map((t) => (
                       <div key={t.id} className="bg-primary/20 text-primary text-[10px] truncate rounded px-1 mb-0.5">

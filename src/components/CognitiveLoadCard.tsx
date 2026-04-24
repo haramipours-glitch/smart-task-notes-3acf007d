@@ -89,7 +89,7 @@ export default function CognitiveLoadCard() {
                     <div key={t.id} className="flex items-center justify-between gap-2">
                       <span className="truncate flex-1">{t.title}</span>
                       <Badge variant="outline" className="text-[10px] shrink-0">{CATEGORY_LABELS[t.category]}</Badge>
-                      <span className="text-muted-foreground tabular-nums w-8 text-left">{t.weight}</span>
+                      <span className="text-muted-foreground tabular-nums w-8 text-start">{t.weight}</span>
                     </div>
                   ))}
                 </div>

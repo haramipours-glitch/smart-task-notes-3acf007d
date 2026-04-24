@@ -145,7 +145,7 @@ export default function AssessmentRunner() {
     <div className="max-w-2xl mx-auto p-4 md:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={() => navigate("/app/self")}>
-          <ArrowRight className="w-4 h-4 ml-1" /> بازگشت
+          <ArrowRight className="w-4 h-4 ms-1" /> بازگشت
         </Button>
         <span className="text-sm text-muted-foreground">{index + 1} / {total}</span>
       </div>
@@ -182,13 +182,13 @@ export default function AssessmentRunner() {
 
       <div className="flex justify-between">
         <Button variant="outline" disabled={index === 0} onClick={() => setIndex(i => Math.max(0, i - 1))}>
-          <ArrowRight className="w-4 h-4 ml-1" /> قبلی
+          <ArrowRight className="w-4 h-4 ms-1" /> قبلی
         </Button>
         <Button variant="outline" onClick={() => { toast.success("ذخیره شد. هر زمان ادامه بده."); navigate("/app/self"); }}>
-          <Save className="w-4 h-4 ml-1" /> ذخیره و ادامه بعداً
+          <Save className="w-4 h-4 ms-1" /> ذخیره و ادامه بعداً
         </Button>
         <Button disabled={!current || index === total - 1} onClick={() => setIndex(i => Math.min(total - 1, i + 1))}>
-          بعدی <ArrowLeft className="w-4 h-4 mr-1" />
+          بعدی <ArrowLeft className="w-4 h-4 me-1" />
         </Button>
       </div>
 

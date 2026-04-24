@@ -147,7 +147,7 @@ export default function WidgetTokenCard() {
               className="flex-1"
               onClick={() => window.open(fullUrl, "_blank")}
             >
-              <ExternalLink className="h-3.5 w-3.5 ml-1" />
+              <ExternalLink className="h-3.5 w-3.5 ms-1" />
               تست لینک
             </Button>
             <Button
@@ -157,7 +157,7 @@ export default function WidgetTokenCard() {
               onClick={regenerate}
               disabled={working}
             >
-              <RefreshCw className="h-3.5 w-3.5 ml-1" />
+              <RefreshCw className="h-3.5 w-3.5 ms-1" />
               {working ? "..." : "بازسازی توکن"}
             </Button>
           </div>

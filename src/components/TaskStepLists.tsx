@@ -143,7 +143,7 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
             <SelectContent>
               {STYLE_OPTIONS.map((o) => (
                 <SelectItem key={o.value} value={o.value} className="text-xs">
-                  {o.label} <span className="text-muted-foreground ml-1">{o.preview}</span>
+                  {o.label} <span className="text-muted-foreground ms-1">{o.preview}</span>
                 </SelectItem>
               ))}
             </SelectContent>

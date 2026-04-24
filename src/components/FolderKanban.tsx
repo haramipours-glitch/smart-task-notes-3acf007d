@@ -310,7 +310,7 @@ function TaskCard({ task, dragging, dragHandleProps, onOpen }: {
 }) {
   const pm = PRIORITY_META[task.priority] || PRIORITY_META.none;
   return (
-    <Card className={`p-2.5 border-l-4 ${pm.borderClass} ${dragging ? "shadow-lg" : "hover:shadow-soft"}`}>
+    <Card className={`p-2.5 border-s-4 ${pm.borderClass} ${dragging ? "shadow-lg" : "hover:shadow-soft"}`}>
       <div className="flex items-start gap-1.5">
         <button
           {...(dragHandleProps || {})}
@@ -324,7 +324,7 @@ function TaskCard({ task, dragging, dragHandleProps, onOpen }: {
         <button
           type="button"
           onClick={() => onOpen?.(task.id)}
-          className="flex-1 min-w-0 text-right"
+          className="flex-1 min-w-0 text-end"
         >
           <p className={`text-xs font-medium hover:underline ${task.completed ? "line-through text-muted-foreground" : ""}`}>{task.title}</p>
           <div className="flex flex-wrap items-center gap-1 mt-1.5">

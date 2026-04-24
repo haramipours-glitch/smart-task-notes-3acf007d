@@ -38,11 +38,11 @@ export default function ClinicalDisclaimer() {
     <Dialog open={open} onOpenChange={() => { /* not dismissable */ }}>
       <DialogContent className="max-w-lg" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-right">
+          <DialogTitle className="flex items-center gap-2 text-end">
             <ShieldAlert className="w-5 h-5 text-amber-500" /> اطلاعیه مهم درباره ابزارهای سلامت روان
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 text-sm leading-7 text-right">
+        <div className="space-y-3 text-sm leading-7 text-end">
           <p>
             این اپلیکیشن یک <strong>ابزار خودیاری و خودشناسی</strong> است و <strong>جایگزین درمان حرفه‌ای، روان‌درمانی، یا تشخیص پزشکی نیست</strong>.
             ابزارهای CBT، ABC، ثبت افکار، و چت سقراطی برای آگاهی شخصی طراحی شده‌اند.
@@ -51,7 +51,7 @@ export default function ClinicalDisclaimer() {
             <div className="font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-2">
               <Phone className="w-4 h-4" /> در شرایط بحرانی فوراً تماس بگیر:
             </div>
-            <ul className="text-xs space-y-1 list-disc pr-5">
+            <ul className="text-xs space-y-1 list-disc pe-5">
               <li><strong>اورژانس اجتماعی ایران: ۱۲۳</strong></li>
               <li><strong>صدای مشاور بهزیستی: ۱۴۸۰</strong></li>
               <li><strong>Lifeline استرالیا: 13 11 14</strong></li>
