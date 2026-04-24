@@ -84,36 +84,61 @@ export default function AssessmentResult() {
       {type === "via" && <ViaReport scores={data.scores} analysis={data.analysis} />}
       {type === "ecr" && <EcrReport scores={data.scores} analysis={data.analysis} />}
 
-      <Card className="border-primary/30 bg-primary/5">
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Sparkles className="w-5 h-5 text-primary" />
             تحلیل جامع شخصی‌سازی‌شده
           </CardTitle>
-          <CardDescription>
-            یک گزارش عمیق و اختصاصی بر اساس نمره‌های دقیق تو — نقاط قوت، حساسیت‌ها، توصیه‌های عملی و سبک رابطه.
+          <CardDescription className="leading-7">
+            یک گزارش بالینی عمیق (۱۵۰۰+ کلمه) بر اساس نمره‌های دقیق تو — تحلیل بُعد به بُعد،
+            نقاط قوت و سایه‌هایشان، الگوهای ریسک، توصیه‌های شخصی و یک آزمایش هفتگی.
+            <br />
+            <span className="text-xs text-muted-foreground">⏱ زمان تولید: حدود ۳۰–۶۰ ثانیه — صبور باش.</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {!aiAnalysis && (
-            <Button onClick={generateAiAnalysis} disabled={loadingAi}>
+            <Button onClick={generateAiAnalysis} disabled={loadingAi} size="lg" className="w-full sm:w-auto">
               {loadingAi ? (
-                <><Loader2 className="w-4 h-4 ml-1 animate-spin" /> در حال تحلیل…</>
+                <><Loader2 className="w-4 h-4 ml-2 animate-spin" /> در حال تحلیل عمیق…</>
               ) : (
-                <><Sparkles className="w-4 h-4 ml-1" /> دریافت تحلیل جامع</>
+                <><Sparkles className="w-4 h-4 ml-2" /> دریافت تحلیل جامع</>
               )}
             </Button>
           )}
           {aiAnalysis && (
             <>
-              <div
-                className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
+              <article
+                dir="rtl"
+                className="prose prose-sm md:prose-base dark:prose-invert max-w-none
+                  prose-headings:font-bold prose-headings:text-foreground
+                  prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-primary/20
+                  prose-h3:text-base prose-h3:mt-5 prose-h3:mb-2 prose-h3:text-primary
+                  prose-p:leading-8 prose-p:my-3
+                  prose-li:leading-7 prose-li:my-1
+                  prose-strong:text-foreground prose-strong:font-semibold
+                  prose-hr:my-6 prose-hr:border-primary/15
+                  prose-blockquote:border-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-3 prose-blockquote:rounded
+                  text-right"
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(aiAnalysis) }}
               />
-              <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
-                {loadingAi ? <Loader2 className="w-4 h-4 ml-1 animate-spin" /> : <Sparkles className="w-4 h-4 ml-1" />}
-                تولید مجدد
-              </Button>
+              <div className="flex gap-2 pt-4 border-t">
+                <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
+                  {loadingAi ? <Loader2 className="w-4 h-4 ml-1 animate-spin" /> : <Sparkles className="w-4 h-4 ml-1" />}
+                  تولید مجدد
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(aiAnalysis);
+                    toast.success("به کلیپ‌بورد کپی شد");
+                  }}
+                >
+                  کپی متن کامل
+                </Button>
+              </div>
             </>
           )}
         </CardContent>
