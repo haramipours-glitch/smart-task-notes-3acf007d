@@ -171,8 +171,7 @@ export default function SettingsView() {
       const tables = [
         "profiles", "tasks", "subtasks", "folders", "tags", "task_tags", "notes", "note_tags",
         "habits", "habit_logs", "goals", "pomodoro_sessions", "folder_columns",
-        "daily_checkins", "thought_records", "abc_records", "predictions",
-        "user_values", "chronotype", "safe_contacts", "crisis_events",
+        "daily_checkins", "thought_records", "abc_records",
         "assessment_responses", "assessment_results", "mh_profile",
       ];
       const out: Record<string, any> = { exported_at: new Date().toISOString(), user_id: user.id };
@@ -202,8 +201,7 @@ export default function SettingsView() {
       const tables = [
         "task_tags", "note_tags", "subtasks", "habit_logs", "folder_columns",
         "tasks", "notes", "habits", "goals", "folders", "tags", "pomodoro_sessions",
-        "daily_checkins", "thought_records", "abc_records", "predictions",
-        "user_values", "chronotype", "safe_contacts", "crisis_events",
+        "daily_checkins", "thought_records", "abc_records",
         "assessment_responses", "assessment_results", "mh_profile",
       ];
       for (const t of tables) {
