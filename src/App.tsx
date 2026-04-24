@@ -16,7 +16,6 @@ import CalendarView from "./pages/CalendarView";
 import SettingsView from "./pages/SettingsView";
 import KanbanView from "./pages/KanbanView";
 import GoalsView from "./pages/GoalsView";
-import ZenView from "./pages/ZenView";
 import ReviewView from "./pages/ReviewView";
 import InsightsView from "./pages/InsightsView";
 import SelfKnowledgeView from "./pages/SelfKnowledgeView";
@@ -25,12 +24,7 @@ import AssessmentResult from "./pages/AssessmentResult";
 import CheckinView from "./pages/CheckinView";
 import ThoughtRecordsView from "./pages/ThoughtRecordsView";
 import ABCView from "./pages/ABCView";
-import PredictionView from "./pages/PredictionView";
-import ValuesView from "./pages/ValuesView";
-import MeqView from "./pages/MeqView";
-import CrisisView from "./pages/CrisisView";
 import SocraticView from "./pages/SocraticView";
-import SleepView from "./pages/SleepView";
 import DecisionJournalView from "./pages/DecisionJournalView";
 import AboutMeView from "./pages/AboutMeView";
 import WidgetView from "./pages/WidgetView";
@@ -64,19 +58,13 @@ const App = () => (
               <Route path="goals" element={<GoalsView />} />
               <Route path="review" element={<ReviewView />} />
               <Route path="insights" element={<InsightsView />} />
-              <Route path="zen" element={<ZenView />} />
               <Route path="self" element={<SelfKnowledgeView />} />
               <Route path="self/test/:type" element={<AssessmentRunner />} />
               <Route path="self/result/:type" element={<AssessmentResult />} />
               <Route path="checkin" element={<CheckinView />} />
               <Route path="thoughts" element={<ThoughtRecordsView />} />
               <Route path="abc" element={<ABCView />} />
-              <Route path="prediction" element={<PredictionView />} />
-              <Route path="values" element={<ValuesView />} />
-              <Route path="meq" element={<MeqView />} />
-              <Route path="crisis" element={<CrisisView />} />
               <Route path="socratic" element={<SocraticView />} />
-              <Route path="sleep" element={<SleepView />} />
               <Route path="decisions" element={<DecisionJournalView />} />
               <Route path="about-me" element={<AboutMeView />} />
               <Route path="widgets" element={<WidgetView />} />

@@ -45,11 +45,10 @@ export default function CheckinView() {
   useEffect(() => { if (user) load(); }, [user]);
 
   async function load() {
-    const [{ data: today_data }, { data: hist }, { data: tasks }, { data: chrono }] = await Promise.all([
+    const [{ data: today_data }, { data: hist }, { data: tasks }] = await Promise.all([
       supabase.from("daily_checkins").select("*").eq("user_id", user!.id).eq("checkin_date", today).maybeSingle(),
       supabase.from("daily_checkins").select("*").eq("user_id", user!.id).gte("checkin_date", new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)).order("checkin_date"),
       supabase.from("tasks").select("id,title,description,priority,folder_id,quadrant").eq("user_id", user!.id).eq("completed", false),
-      supabase.from("chronotype").select("*").eq("user_id", user!.id).maybeSingle(),
     ]);
     if (today_data) setForm({
       mood: today_data.mood, energy: today_data.energy, focus: today_data.focus,
@@ -57,14 +56,12 @@ export default function CheckinView() {
       sleep_hours: today_data.sleep_hours ?? "", notes: today_data.notes ?? "",
     });
     setHistory(hist || []);
-    // Compute today's load using current sleep/stress data + tasks for evening reflection
     const { computeCognitiveLoad } = await import("@/lib/cognitiveLoad");
     const r = computeCognitiveLoad({
       tasks: tasks || [],
       sleepHours: today_data?.sleep_hours ?? null,
       sleepQuality: today_data?.sleep_quality ?? null,
       stress: today_data?.stress ?? null,
-      chronotype: chrono,
     });
     setTodayLoad(r.load);
     setLoading(false);

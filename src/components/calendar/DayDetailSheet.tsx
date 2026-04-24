@@ -29,7 +29,6 @@ export default function DayDetailSheet({
   const { user } = useAuth();
   const navigate = useNavigate();
   const [checkin, setCheckin] = useState<any>(null);
-  const [prediction, setPrediction] = useState<any>(null);
   const [newTitle, setNewTitle] = useState("");
   const [newHour, setNewHour] = useState<number>(9);
 
@@ -38,8 +37,6 @@ export default function DayDetailSheet({
     const ds = format(date, "yyyy-MM-dd");
     supabase.from("daily_checkins").select("*").eq("checkin_date", ds).maybeSingle()
       .then(({ data }) => setCheckin(data));
-    supabase.from("predictions").select("*").eq("prediction_date", ds).maybeSingle()
-      .then(({ data }) => setPrediction(data));
   }, [date, user, open]);
 
   if (!date) return null;
@@ -139,17 +136,6 @@ export default function DayDetailSheet({
                 </Button>
               )}
             </div>
-
-            {/* Prediction */}
-            {prediction && (
-              <div className="border rounded-md p-3 space-y-1">
-                <h3 className="text-sm font-semibold flex items-center gap-2"><FileText className="w-4 h-4" /> پیش‌بینی روز</h3>
-                <div className="text-xs text-muted-foreground space-y-0.5">
-                  {prediction.predicted_work_hours && <div>ساعت کار پیش‌بینی: {toPersianDigits(prediction.predicted_work_hours)}</div>}
-                  {prediction.predicted_completion_pct && <div>تکمیل پیش‌بینی: {toPersianDigits(prediction.predicted_completion_pct)}%</div>}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </SheetContent>
