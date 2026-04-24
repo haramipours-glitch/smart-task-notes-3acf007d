@@ -327,7 +327,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                   </button>
                 ) : <span className="w-4 shrink-0" />}
                 <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
-                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelected(t)}>
+                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => {
+                  if (t.title.startsWith("چک‌این روزانه")) { navigate("/app/checkin"); return; }
+                  setSelected(t);
+                }}>
                   <BidiText
                     as="p"
                     text={t.title}

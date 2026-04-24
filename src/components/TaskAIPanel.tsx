@@ -7,7 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Sparkles, Loader2, Send, Check } from "lucide-react";
+import { Sparkles, Loader2, Send, Check, Timer } from "lucide-react";
+import PomodoroTimer from "@/components/PomodoroTimer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
@@ -193,12 +194,20 @@ export function TaskAIPanel({
         </div>
 
         <Tabs value={tab} onValueChange={setTab} className="mt-3">
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-5 w-full">
             <TabsTrigger value="subtasks">مراحل</TabsTrigger>
             <TabsTrigger value="meta">پیشنهاد</TabsTrigger>
             <TabsTrigger value="note">نوت</TabsTrigger>
+            <TabsTrigger value="pomodoro"><Timer className="w-3.5 h-3.5" /></TabsTrigger>
             <TabsTrigger value="chat">چت</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="pomodoro" className="mt-4">
+            <PomodoroTimer taskId={task.id} compact />
+            <p className="text-[11px] text-muted-foreground text-center mt-3">
+              زمان ثبت‌شده زیر این تسک حساب می‌شود.
+            </p>
+          </TabsContent>
 
           {/* Subtasks */}
           <TabsContent value="subtasks" className="space-y-3 mt-4">
