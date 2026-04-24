@@ -85,13 +85,82 @@ export default function ABCView() {
 
   return (
     <div dir="rtl" className="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold mb-2">مدل ABC</h1>
-          <p className="text-muted-foreground text-sm">محرک → باور → پیامد. کشف الگوهای تکراری برای پیدا کردن نقطه مداخله.</p>
+          <p className="text-muted-foreground text-sm">محرک ← باور ← پیامد. کشف الگوهای تکراری برای پیدا کردن نقطه مداخله.</p>
         </div>
         {!editing && <Button onClick={() => setEditing(true)}><Plus className="w-4 h-4 ml-1" /> ثبت جدید</Button>}
       </div>
+
+      {/* راهنمای کامل */}
+      <Card className="border-primary/20">
+        <CardContent className="p-0">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="guide" className="border-0">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline">
+                <div className="flex items-center gap-2 text-right">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                  <span className="font-medium">راهنمای کامل: مدل ABC چیست و چگونه پر کنم؟</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 space-y-4 text-sm leading-7">
+                <section>
+                  <div className="font-semibold text-foreground mb-1">🎯 این روش چیست؟</div>
+                  <p className="text-muted-foreground">
+                    مدل ABC از روان‌شناسی شناختی-رفتاری (CBT) آلبرت الیس می‌آید. ایده ساده ولی قدرتمند است:
+                    رفتار ناخواسته‌ی تو (مثل پرخوری، تعویق، خشم) فقط نتیجه «اتفاق بیرونی» نیست —
+                    بلکه نتیجه «باوری» است که در آن لحظه از ذهنت می‌گذرد. اگر فقط محرک‌ها را ببینی،
+                    گیر می‌کنی؛ اما اگر باور وسط را شناسایی کنی، می‌توانی همان‌جا مداخله کنی.
+                  </p>
+                </section>
+                <section>
+                  <div className="font-semibold text-foreground mb-1">🧩 چه زمانی استفاده کنم؟</div>
+                  <ul className="text-muted-foreground list-disc pr-5 space-y-1">
+                    <li>وقتی متوجه می‌شوی رفتار خاصی را تکرار می‌کنی و بعد پشیمان می‌شوی.</li>
+                    <li>وقتی نمی‌فهمی چرا یک محرک ساده تو را به واکنش بزرگ می‌رساند.</li>
+                    <li>برای الگوهایی مثل: گوشی‌گردی شبانه، خوردن استرسی، تعویق، انفجارهای خشم.</li>
+                  </ul>
+                </section>
+                <section>
+                  <div className="font-semibold text-foreground mb-1">📝 چگونه فرم را پر کنم؟</div>
+                  <ol className="text-muted-foreground list-decimal pr-5 space-y-2">
+                    <li>
+                      <strong className="text-foreground">A — محرک (Activating event):</strong> فقط فکت بیرونی.
+                      مثال خوب: «ساعت ۲۳ پیامی از همکار رسید». مثال بد: «همکارم دوباره مزاحم شد».
+                    </li>
+                    <li>
+                      <strong className="text-foreground">B — باور لحظه‌ای (Belief):</strong> آن جمله‌ای که
+                      دقیقاً در کسری از ثانیه از ذهنت گذشت. مثال: «اگه جواب ندم فکر می‌کنه بی‌مسئولیتم».
+                      صادق باش، حتی اگر باور غیرمنطقی به نظر می‌رسد.
+                    </li>
+                    <li>
+                      <strong className="text-foreground">C — پیامد رفتاری (Consequence):</strong> چه کاری
+                      عملاً انجام دادی؟ یک یا چند گزینه را علامت بزن.
+                    </li>
+                    <li>
+                      <strong className="text-foreground">D — مدت:</strong> چقدر طول کشید؟ این عدد به الگویابی
+                      کمک می‌کند تا ببینی کدام محرک‌ها بیشترین زمان را می‌سوزانند.
+                    </li>
+                    <li>
+                      <strong className="text-foreground">E — پشیمانی (۰ تا ۱۰):</strong> الان که نگاه می‌کنی،
+                      چقدر از این رفتار پشیمانی؟ این عدد ارزش مداخله را مشخص می‌کند.
+                    </li>
+                  </ol>
+                </section>
+                <section>
+                  <div className="font-semibold text-foreground mb-1">📊 تحلیلی که دریافت می‌کنی</div>
+                  <p className="text-muted-foreground">
+                    بعد از حدود ۷ ثبت از یک محرک، الگوریتم «الگوی قوی» را شناسایی می‌کند:
+                    «وقتی X رخ می‌دهد، در ۷۰٪ موارد به Y می‌رسی». این دقیقاً نقطه‌ای است
+                    که می‌توانی یک «جایگزین رفتاری» طراحی کنی و تست کنی.
+                  </p>
+                </section>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </CardContent>
+      </Card>
 
       {editing && (
         <Card>
