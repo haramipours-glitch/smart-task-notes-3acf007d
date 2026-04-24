@@ -31,6 +31,8 @@ import WidgetView from "./pages/WidgetView";
 import Index from "./pages/Index";
 import HomeView from "./pages/HomeView";
 import WeeklyReviewView from "./pages/WeeklyReviewView";
+import NewTaskView from "./pages/NewTaskView";
+import NewNoteView from "./pages/NewNoteView";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
@@ -75,6 +77,8 @@ const App = () => (
               <Route path="widgets" element={<WidgetView />} />
               <Route path="widget/:id" element={<WidgetView />} />
               <Route path="settings" element={<SettingsView />} />
+              <Route path="new/task" element={<NewTaskView />} />
+              <Route path="new/note" element={<NewNoteView />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
