@@ -19,7 +19,7 @@ type ViewMode = "month" | "week" | "day" | "agenda";
 
 export default function CalendarView() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const nav = useNavigate();
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState<ViewMode>("month");
   const [tasks, setTasks] = useState<any[]>([]);
