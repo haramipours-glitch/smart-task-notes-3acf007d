@@ -16,26 +16,39 @@ export function BottomTabBar() {
   if (!loc.pathname.startsWith("/app")) return null;
 
   return (
-    <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur border-t border-border"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      aria-label="نوار پایین"
-    >
-      <div className="grid grid-cols-5 h-14">
-        {items.map((it) => (
-          <TabItem key={it.label} to={it.to} label={it.label} icon={it.icon} />
-        ))}
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          aria-label="باز کردن منو"
-          className="flex flex-col items-center justify-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <Menu className="w-5 h-5" />
-          <span>منو</span>
-        </button>
-      </div>
-    </nav>
+    <>
+      <nav
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur border-t border-border"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        aria-label="نوار پایین"
+      >
+        <div className="grid grid-cols-4 h-14">
+          {items.map((it) => (
+            <TabItem key={it.label} to={it.to} label={it.label} icon={it.icon} />
+          ))}
+        </div>
+      </nav>
+
+      {/* Floating sidebar toggles — both corners for one-handed use */}
+      <button
+        type="button"
+        onClick={toggleSidebar}
+        aria-label="باز کردن منو"
+        className="md:hidden fixed z-50 left-2 h-9 w-9 rounded-full bg-card/90 backdrop-blur border border-border shadow-md flex items-center justify-center text-foreground/80 active:scale-95 transition"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 60px)" }}
+      >
+        <Menu className="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        onClick={toggleSidebar}
+        aria-label="باز کردن منو"
+        className="md:hidden fixed z-50 right-2 h-9 w-9 rounded-full bg-card/90 backdrop-blur border border-border shadow-md flex items-center justify-center text-foreground/80 active:scale-95 transition"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 60px)" }}
+      >
+        <Menu className="w-4 h-4" />
+      </button>
+    </>
   );
 }
 
