@@ -14,15 +14,15 @@ const Index = () => {
       try {
         const s = await loadSettings(user.id);
         const lastPath = localStorage.getItem("last_route");
-        if (s?.default_landing === "widget" && (s as any).default_widget_id) {
-          setTarget(`/app/widget/${(s as any).default_widget_id}`);
+        if (s?.default_landing === "home") {
+          setTarget("/app/home");
         } else if (s?.default_landing === "last" && lastPath && lastPath.startsWith("/app/")) {
           setTarget(lastPath);
         } else {
-          setTarget("/app/today");
+          setTarget("/app/home");
         }
       } catch {
-        setTarget("/app/today");
+        setTarget("/app/home");
       }
     })();
   }, [user, loading]);

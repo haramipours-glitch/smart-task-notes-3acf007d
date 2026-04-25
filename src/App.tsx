@@ -27,12 +27,13 @@ import ABCView from "./pages/ABCView";
 import SocraticView from "./pages/SocraticView";
 import DecisionJournalView from "./pages/DecisionJournalView";
 import AboutMeView from "./pages/AboutMeView";
-import WidgetView from "./pages/WidgetView";
+
 import Index from "./pages/Index";
 import HomeView from "./pages/HomeView";
 import WeeklyReviewView from "./pages/WeeklyReviewView";
 import NewTaskView from "./pages/NewTaskView";
 import NewNoteView from "./pages/NewNoteView";
+import TaskDetailView from "./pages/TaskDetailView";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
@@ -74,11 +75,12 @@ const App = () => (
               <Route path="socratic" element={<SocraticView />} />
               <Route path="decisions" element={<DecisionJournalView />} />
               <Route path="about-me" element={<AboutMeView />} />
-              <Route path="widgets" element={<WidgetView />} />
-              <Route path="widget/:id" element={<WidgetView />} />
               <Route path="settings" element={<SettingsView />} />
               <Route path="new/task" element={<NewTaskView />} />
               <Route path="new/note" element={<NewNoteView />} />
+              <Route path="tasks/:id" element={<TaskDetailView />} />
+              <Route path="widgets" element={<Navigate to="/app/home" replace />} />
+              <Route path="widget/:id" element={<Navigate to="/app/home" replace />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

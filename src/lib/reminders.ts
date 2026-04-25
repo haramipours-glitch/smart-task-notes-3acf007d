@@ -11,9 +11,8 @@ export type UserSettings = {
   auto_create_daily_tasks: boolean;
   font_size: "small" | "medium" | "large" | "xlarge";
   ui_scale: number;
-  default_widget_id: string | null;
   task_card_layout: "compact" | "comfortable";
-  default_landing: "today" | "widget" | "last";
+  default_landing: "today" | "home" | "last";
 };
 
 const LAST_NOTIFY_KEY = "reminder_last_fired_v1"; // {sleep:"YYYY-MM-DD", checkin:"YYYY-MM-DD"}

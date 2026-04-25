@@ -918,57 +918,6 @@ export type Database = {
           },
         ]
       }
-      task_widgets: {
-        Row: {
-          color: string | null
-          created_at: string
-          date_filter: string
-          folder_id: string | null
-          icon: string | null
-          id: string
-          name: string
-          position: number
-          scope: string
-          show_completed: boolean
-          sort_by: string
-          tag_id: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string
-          date_filter?: string
-          folder_id?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-          position?: number
-          scope?: string
-          show_completed?: boolean
-          sort_by?: string
-          tag_id?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          color?: string | null
-          created_at?: string
-          date_filter?: string
-          folder_id?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-          position?: number
-          scope?: string
-          show_completed?: boolean
-          sort_by?: string
-          tag_id?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       tasks: {
         Row: {
           completed: boolean
@@ -1123,7 +1072,6 @@ export type Database = {
           checkin_reminder_time: string
           created_at: string
           default_landing: string
-          default_widget_id: string | null
           font_size: string
           micro_prompt_enabled: boolean
           notifications_enabled: boolean
@@ -1139,7 +1087,6 @@ export type Database = {
           checkin_reminder_time?: string
           created_at?: string
           default_landing?: string
-          default_widget_id?: string | null
           font_size?: string
           micro_prompt_enabled?: boolean
           notifications_enabled?: boolean
@@ -1155,7 +1102,6 @@ export type Database = {
           checkin_reminder_time?: string
           created_at?: string
           default_landing?: string
-          default_widget_id?: string | null
           font_size?: string
           micro_prompt_enabled?: boolean
           notifications_enabled?: boolean
@@ -1163,30 +1109,6 @@ export type Database = {
           theme?: string
           ui_scale?: number
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      widget_tokens: {
-        Row: {
-          created_at: string
-          id: string
-          last_used_at: string | null
-          token: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          last_used_at?: string | null
-          token?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          last_used_at?: string | null
-          token?: string
           user_id?: string
         }
         Relationships: []
