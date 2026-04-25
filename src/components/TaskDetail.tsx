@@ -18,11 +18,12 @@ import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
 import type { Task, TaskNote, ConfirmState } from "@/lib/taskTypes";
 
-export function TaskDetail({ task, onClose, onChanged, setConfirm }: {
+export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet" }: {
   task: Task;
   onClose: () => void;
   onChanged: () => void;
   setConfirm: (c: ConfirmState) => void;
+  mode?: "sheet" | "page";
 }) {
   const { user } = useAuth();
   const [t, setT] = useState(task);
