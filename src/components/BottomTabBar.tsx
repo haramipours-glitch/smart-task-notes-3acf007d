@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, ListTodo, FileText, Calendar } from "lucide-react";
+import { Home, ListTodo, FileText, Calendar, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const items = [
   { to: "/app/home", label: "خانه", icon: Home },
@@ -11,6 +12,7 @@ const items = [
 
 export function BottomTabBar() {
   const loc = useLocation();
+  const { toggleSidebar } = useSidebar();
   if (!loc.pathname.startsWith("/app")) return null;
 
   return (
@@ -19,10 +21,19 @@ export function BottomTabBar() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="نوار پایین"
     >
-      <div className="grid grid-cols-4 h-14">
+      <div className="grid grid-cols-5 h-14">
         {items.map((it) => (
           <TabItem key={it.label} to={it.to} label={it.label} icon={it.icon} />
         ))}
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label="باز کردن منو"
+          className="flex flex-col items-center justify-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+          <span>منو</span>
+        </button>
       </div>
     </nav>
   );
