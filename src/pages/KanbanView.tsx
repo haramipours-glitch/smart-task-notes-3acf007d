@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
@@ -180,35 +181,54 @@ function KanbanColumn({
 
 function SortableTaskCard({ task }: { task: Task }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
+  const navigate = useNavigate();
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
   };
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TaskCard task={task} />
+    <div ref={setNodeRef} style={style}>
+      <TaskCard
+        task={task}
+        dragHandleProps={{ ...attributes, ...listeners }}
+        onOpen={() => navigate(`/app/tasks/${task.id}`)}
+      />
     </div>
   );
 }
 
-function TaskCard({ task, dragging }: { task: Task; dragging?: boolean }) {
+function TaskCard({ task, dragging, dragHandleProps, onOpen }: {
+  task: Task; dragging?: boolean; dragHandleProps?: any; onOpen?: () => void;
+}) {
   const pm = PRIORITY_META[task.priority] || PRIORITY_META.none;
   return (
-    <Card className={`p-3 cursor-grab active:cursor-grabbing border-s-4 ${pm.borderClass} ${dragging ? "shadow-lg" : "hover:shadow-soft"}`}>
-      <p className={`text-sm font-medium ${task.completed ? "line-through text-muted-foreground" : ""}`}>{task.title}</p>
-      <div className="flex flex-wrap items-center gap-1 mt-2">
-        {task.priority !== "none" && (
-          <Badge variant="outline" className={`text-[10px] gap-1 ${pm.bgClass} ${pm.textClass}`}>
-            <Flag className="w-2.5 h-2.5" /> {pm.label}
-          </Badge>
-        )}
-        {task.due_date && (
-          <Badge variant="secondary" className="text-[10px] gap-1">
-            <Calendar className="w-2.5 h-2.5" />
-            {format(new Date(task.due_date), "MMM d")}
-          </Badge>
-        )}
+    <Card className={`p-3 border-s-4 ${pm.borderClass} ${dragging ? "shadow-lg" : "hover:shadow-soft"}`}>
+      <div className="flex items-start gap-1.5">
+        <button
+          {...(dragHandleProps || {})}
+          className="cursor-grab active:cursor-grabbing px-0.5 text-muted-foreground/60 hover:text-foreground touch-none shrink-0"
+          aria-label="drag"
+          onClick={(e) => e.stopPropagation()}
+        >
+          ⋮⋮
+        </button>
+        <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-end">
+          <p className={`text-sm font-medium hover:underline ${task.completed ? "line-through text-muted-foreground" : ""}`}>{task.title}</p>
+          <div className="flex flex-wrap items-center gap-1 mt-2">
+            {task.priority !== "none" && (
+              <Badge variant="outline" className={`text-[10px] gap-1 ${pm.bgClass} ${pm.textClass}`}>
+                <Flag className="w-2.5 h-2.5" /> {pm.label}
+              </Badge>
+            )}
+            {task.due_date && (
+              <Badge variant="secondary" className="text-[10px] gap-1">
+                <Calendar className="w-2.5 h-2.5" />
+                {format(new Date(task.due_date), "MMM d")}
+              </Badge>
+            )}
+          </div>
+        </button>
       </div>
     </Card>
   );
