@@ -1,7 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home } from "lucide-react";
-import { Link } from "react-router-dom";
-import { listWidgets, type TaskWidget } from "@/lib/widgets";
 import { Slider } from "@/components/ui/slider";
 import { applyFontSize, applyUIScale, type FontSize } from "@/lib/uiScale";
 import { Card } from "@/components/ui/card";
@@ -22,7 +20,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { loadSettings, saveSettings, ensureNotificationPermission, type UserSettings } from "@/lib/reminders";
-import WidgetTokenCard from "@/components/WidgetTokenCard";
 
 function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: (c: ProviderConfig) => void }) {
   const info = PROVIDER_INFO[value.provider];
