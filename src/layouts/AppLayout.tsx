@@ -32,7 +32,7 @@ export default function AppLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-12 border-b flex items-center justify-between px-3 bg-card/50 backdrop-blur sticky top-0 z-10">
             <div className="flex items-center gap-1">
-              <SidebarTrigger />
+              <SidebarTrigger className="hidden md:inline-flex" />
               <HeaderBackButton />
             </div>
             <div className="flex items-center gap-2">
