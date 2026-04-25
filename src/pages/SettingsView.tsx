@@ -86,14 +86,12 @@ export default function SettingsView() {
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [reminders, setReminders] = useState<UserSettings | null>(null);
-  const [widgets, setWidgets] = useState<TaskWidget[]>([]);
 
   useEffect(() => {
     setSettings(loadAISettings());
     setLang(getAILanguage());
     if (user) {
       loadSettings(user.id).then(setReminders);
-      listWidgets().then(setWidgets);
     }
   }, [user]);
 
