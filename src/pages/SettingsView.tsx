@@ -501,7 +501,7 @@ export default function SettingsView() {
         </div>
       </Card>
 
-      <WidgetTokenCard />
+      
 
       <Card className="p-5 space-y-2">
         <h2 className="font-semibold">درباره</h2>

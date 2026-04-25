@@ -27,7 +27,7 @@ import ABCView from "./pages/ABCView";
 import SocraticView from "./pages/SocraticView";
 import DecisionJournalView from "./pages/DecisionJournalView";
 import AboutMeView from "./pages/AboutMeView";
-import WidgetView from "./pages/WidgetView";
+
 import Index from "./pages/Index";
 import HomeView from "./pages/HomeView";
 import WeeklyReviewView from "./pages/WeeklyReviewView";
