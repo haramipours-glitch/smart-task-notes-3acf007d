@@ -80,43 +80,8 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
     });
   };
 
-  const body = (
-    <div className="space-y-4 mt-4">
-      <Input value={t.title} onChange={(e) => setT({ ...t, title: e.target.value })}
-        onBlur={() => save({ title: t.title })} className="text-lg font-semibold" dir="auto" />
-      {/* rest rendered below */}
-    </div>
-  );
-
   if (mode === "page") {
-    return (
-      <div dir="rtl" className="p-4 md:p-6 max-w-2xl mx-auto pb-24">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lg font-bold">جزئیات تسک</h1>
-          <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">
-            <Sparkles className="w-4 h-4" /> AI
-          </Button>
-        </div>
-        <DetailBody t={t} setT={setT} save={save} taskNotes={taskNotes} addNote={addNote} askDelNote={askDelNote} setActiveNote={setActiveNote} onChanged={onChanged} />
-        {activeNote && (
-          <Sheet open={true} onOpenChange={(v) => !v && setActiveNote(null)}>
-            <SheetContent side="left" className="w-full sm:max-w-2xl overflow-y-auto">
-              <SheetHeader>
-                <SheetTitle>
-                  <Input value={activeNote.title} onChange={(e) => saveNote(activeNote.id, { title: e.target.value })}
-                    className="border-none focus-visible:ring-0 px-0 text-lg font-semibold" dir="auto" />
-                </SheetTitle>
-              </SheetHeader>
-              <div className="mt-4">
-                <RichEditor key={activeNote.id} initialMarkdown={activeNote.content || ""}
-                  onChange={(_html, md) => saveNote(activeNote.id, { content: md })} />
-              </div>
-            </SheetContent>
-          </Sheet>
-        )}
-        <TaskAIPanel task={t as any} open={aiOpen} onOpenChange={setAiOpen} onMetaApplied={refreshTask} />
-      </div>
-    );
+    // page mode handled by wrapping div; same body below
   }
 
   return (
