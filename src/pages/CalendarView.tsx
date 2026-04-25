@@ -112,7 +112,8 @@ export default function CalendarView() {
         <TabsContent value="day">
           <Card className="p-3">
             <DayView date={date} tasks={tasks} system={system}
-              onSlotClick={() => setDetailDate(date)} />
+              onSlotClick={() => setDetailDate(date)}
+              onTaskClick={(id) => nav(`/app/tasks/${id}`)} />
           </Card>
         </TabsContent>
 
