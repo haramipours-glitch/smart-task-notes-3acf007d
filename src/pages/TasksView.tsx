@@ -458,16 +458,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           </TabsList>
           <TabsContent value="list" className="mt-4">{listView}</TabsContent>
           <TabsContent value="kanban" className="mt-4">
-            <FolderKanban folderId={params.id!} onOpenTask={(id) => {
-              const t = allTasks.find(x => x.id === id);
-              if (t) setSelected(t);
-            }} />
+            <FolderKanban folderId={params.id!} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
           </TabsContent>
           <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} onOpenTask={(id) => {
-              const t = allTasks.find(x => x.id === id);
-              if (t) setSelected(t);
-            }} />
+            <EisenhowerMatrix scope={scope} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
           </TabsContent>
         </Tabs>
       ) : (
@@ -478,15 +472,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           </TabsList>
           <TabsContent value="list" className="mt-4">{listView}</TabsContent>
           <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} onOpenTask={(id) => {
-              const t = allTasks.find(x => x.id === id);
-              if (t) setSelected(t);
-            }} />
+            <EisenhowerMatrix scope={scope} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
           </TabsContent>
         </Tabs>
       )}
-
-      {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} onChanged={load} setConfirm={setConfirm} />}
 
       <AlertDialog open={!!confirm} onOpenChange={(v) => !v && setConfirm(null)}>
         <AlertDialogContent>
