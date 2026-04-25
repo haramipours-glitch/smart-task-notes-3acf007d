@@ -1,4 +1,5 @@
 import { isSameDay, format, compareAsc } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import { formatDate, toPersianDigits, type CalendarSystem } from "@/lib/jalali";
 import { isHoliday, type Holiday } from "@/lib/holidays";
 
@@ -13,6 +14,7 @@ export default function AgendaView({
   holidays: Holiday[];
   system: CalendarSystem;
 }) {
+  const navigate = useNavigate();
   const items = tasks
     .filter((t) => t.due_date)
     .map((t) => ({ ...t, _d: new Date(t.due_date!) }))
@@ -47,12 +49,16 @@ export default function AgendaView({
             </div>
             <div className="divide-y">
               {groups[k].map((t) => (
-                <div key={t.id} className="px-3 py-2 flex items-center gap-3 text-sm">
+                <button
+                  key={t.id}
+                  onClick={() => navigate(`/app/tasks/${t.id}`)}
+                  className="w-full px-3 py-2 flex items-center gap-3 text-sm text-end hover:bg-accent/40 transition"
+                >
                   <span className="text-xs text-muted-foreground tabular-nums w-12">
                     {toPersianDigits(format(t._d, "HH:mm"))}
                   </span>
                   <span className="flex-1 truncate">{t.title}</span>
-                </div>
+                </button>
               ))}
             </div>
           </div>

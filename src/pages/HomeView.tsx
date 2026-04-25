@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ const BRIEF_KEY = "daily_brief_v1"; // {date:"YYYY-MM-DD", text}
 
 export default function HomeView() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [snap, setSnap] = useState<Snapshot | null>(null);
   const [brief, setBrief] = useState<string | null>(null);
   const [loadingBrief, setLoadingBrief] = useState(false);
@@ -212,14 +213,18 @@ export default function HomeView() {
           </CardHeader>
           <CardContent className="space-y-2">
             {snap.topTasks.map((t) => (
-              <div key={t.id} className="flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm">
+              <button
+                key={t.id}
+                onClick={() => navigate(`/app/tasks/${t.id}`)}
+                className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
+              >
                 <span className="flex-1 truncate">{t.title}</span>
                 <span className={`text-xs px-2 py-0.5 rounded-full ms-2 ${
                   t.priority === "high" ? "bg-destructive/15 text-destructive" :
                   t.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
                   t.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
                 }`}>{labelPriority(t.priority)}</span>
-              </div>
+              </button>
             ))}
             <Button asChild variant="ghost" size="sm" className="w-full mt-2">
               <Link to="/app/today">مشاهده‌ی همه</Link>

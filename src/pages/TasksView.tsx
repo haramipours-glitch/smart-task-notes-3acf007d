@@ -30,7 +30,6 @@ import {
 } from "@/components/TaskDnDHelpers";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import CognitiveLoadCard from "@/components/CognitiveLoadCard";
-import { TaskDetail } from "@/components/TaskDetail";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
 
 
@@ -46,7 +45,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [newTitle, setNewTitle] = useState("");
-  const [selected, setSelected] = useState<Task | null>(null);
+  // selected task removed — clicks navigate to /app/tasks/:id
   const [folderName, setFolderName] = useState("");
   const [tagName, setTagName] = useState("");
   const [confirm, setConfirm] = useState<ConfirmState>(null);
@@ -311,7 +310,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                 <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => {
                   if (t.title.startsWith("چک‌این روزانه")) { navigate("/app/checkin"); return; }
-                  setSelected(t);
+                  navigate(`/app/tasks/${t.id}`);
                 }}>
                   <BidiText
                     as="p"
@@ -458,16 +457,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           </TabsList>
           <TabsContent value="list" className="mt-4">{listView}</TabsContent>
           <TabsContent value="kanban" className="mt-4">
-            <FolderKanban folderId={params.id!} onOpenTask={(id) => {
-              const t = allTasks.find(x => x.id === id);
-              if (t) setSelected(t);
-            }} />
+            <FolderKanban folderId={params.id!} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
           </TabsContent>
           <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} onOpenTask={(id) => {
-              const t = allTasks.find(x => x.id === id);
-              if (t) setSelected(t);
-            }} />
+            <EisenhowerMatrix scope={scope} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
           </TabsContent>
         </Tabs>
       ) : (
@@ -478,15 +471,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
           </TabsList>
           <TabsContent value="list" className="mt-4">{listView}</TabsContent>
           <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} onOpenTask={(id) => {
-              const t = allTasks.find(x => x.id === id);
-              if (t) setSelected(t);
-            }} />
+            <EisenhowerMatrix scope={scope} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
           </TabsContent>
         </Tabs>
       )}
-
-      {selected && <TaskDetail task={selected} onClose={() => setSelected(null)} onChanged={load} setConfirm={setConfirm} />}
 
       <AlertDialog open={!!confirm} onOpenChange={(v) => !v && setConfirm(null)}>
         <AlertDialogContent>

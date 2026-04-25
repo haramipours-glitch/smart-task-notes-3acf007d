@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, subDays } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +19,7 @@ type ViewMode = "month" | "week" | "day" | "agenda";
 
 export default function CalendarView() {
   const { user } = useAuth();
+  const nav = useNavigate();
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState<ViewMode>("month");
   const [tasks, setTasks] = useState<any[]>([]);
@@ -110,7 +112,8 @@ export default function CalendarView() {
         <TabsContent value="day">
           <Card className="p-3">
             <DayView date={date} tasks={tasks} system={system}
-              onSlotClick={() => setDetailDate(date)} />
+              onSlotClick={() => setDetailDate(date)}
+              onTaskClick={(id) => nav(`/app/tasks/${id}`)} />
           </Card>
         </TabsContent>
 

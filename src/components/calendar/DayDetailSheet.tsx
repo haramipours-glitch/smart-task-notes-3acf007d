@@ -91,7 +91,13 @@ export default function DayDetailSheet({
                     <div className="text-muted-foreground tabular-nums">{toPersianDigits(String(h).padStart(2, "0"))}</div>
                     <div className="space-y-0.5">
                       {slot.map((t) => (
-                        <div key={t.id} className="bg-primary/20 text-primary rounded px-1.5 py-0.5 truncate">{t.title}</div>
+                        <button
+                          key={t.id}
+                          onClick={() => { onOpenChange(false); navigate(`/app/tasks/${t.id}`); }}
+                          className="block w-full text-end bg-primary/20 text-primary rounded px-1.5 py-0.5 truncate hover:bg-primary/30"
+                        >
+                          {t.title}
+                        </button>
                       ))}
                     </div>
                   </div>
