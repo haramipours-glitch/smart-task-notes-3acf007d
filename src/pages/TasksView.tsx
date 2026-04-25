@@ -30,7 +30,6 @@ import {
 } from "@/components/TaskDnDHelpers";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import CognitiveLoadCard from "@/components/CognitiveLoadCard";
-import { TaskDetail } from "@/components/TaskDetail";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
 
 
@@ -46,7 +45,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [newTitle, setNewTitle] = useState("");
-  const [selected, setSelected] = useState<Task | null>(null);
+  // selected task removed — clicks navigate to /app/tasks/:id
   const [folderName, setFolderName] = useState("");
   const [tagName, setTagName] = useState("");
   const [confirm, setConfirm] = useState<ConfirmState>(null);
