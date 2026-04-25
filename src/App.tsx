@@ -74,11 +74,12 @@ const App = () => (
               <Route path="socratic" element={<SocraticView />} />
               <Route path="decisions" element={<DecisionJournalView />} />
               <Route path="about-me" element={<AboutMeView />} />
-              <Route path="widgets" element={<WidgetView />} />
-              <Route path="widget/:id" element={<WidgetView />} />
               <Route path="settings" element={<SettingsView />} />
               <Route path="new/task" element={<NewTaskView />} />
               <Route path="new/note" element={<NewNoteView />} />
+              <Route path="tasks/:id" element={<TasksView scope="today" />} />
+              <Route path="widgets" element={<Navigate to="/app/home" replace />} />
+              <Route path="widget/:id" element={<Navigate to="/app/home" replace />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
