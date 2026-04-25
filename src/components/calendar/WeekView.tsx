@@ -1,4 +1,5 @@
 import { eachDayOfInterval, startOfWeek, endOfWeek, isSameDay, format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import { formatDate, toPersianDigits, type CalendarSystem } from "@/lib/jalali";
 import { isHoliday, type Holiday } from "@/lib/holidays";
 
@@ -16,6 +17,7 @@ export default function WeekView({
   onDayClick: (d: Date) => void;
   onSlotClick?: (d: Date, hour: number) => void;
 }) {
+  const navigate = useNavigate();
   const days = eachDayOfInterval({ start: startOfWeek(date), end: endOfWeek(date) });
 
   return (
@@ -62,7 +64,11 @@ export default function WeekView({
                     className="bg-card border-t min-h-[36px] p-0.5 text-end hover:bg-accent/30 transition"
                   >
                     {slotTasks.map((t) => (
-                      <div key={t.id} className="bg-primary/20 text-primary text-[10px] truncate rounded px-1 mb-0.5">
+                      <div
+                        key={t.id}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/app/tasks/${t.id}`); }}
+                        className="bg-primary/20 text-primary text-[10px] truncate rounded px-1 mb-0.5 cursor-pointer hover:bg-primary/30"
+                      >
                         {t.title}
                       </div>
                     ))}
