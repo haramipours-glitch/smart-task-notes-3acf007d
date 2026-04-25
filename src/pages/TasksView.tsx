@@ -311,7 +311,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
                 <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => {
                   if (t.title.startsWith("چک‌این روزانه")) { navigate("/app/checkin"); return; }
-                  setSelected(t);
+                  navigate(`/app/tasks/${t.id}`);
                 }}>
                   <BidiText
                     as="p"
