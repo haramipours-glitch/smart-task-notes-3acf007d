@@ -17,11 +17,11 @@ export default function NewTaskView() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(params.get("title") || "");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("none");
   const [folderId, setFolderId] = useState<string | null>(params.get("folder_id"));
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState(params.get("due_date") ? params.get("due_date")!.slice(0, 16) : "");
   const [reminderAt, setReminderAt] = useState("");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
