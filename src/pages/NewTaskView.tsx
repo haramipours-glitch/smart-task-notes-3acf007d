@@ -50,20 +50,26 @@ export default function NewTaskView() {
     }
     setBusy(true);
     try {
+      const parentId = params.get("parent_id");
+      const tagId = params.get("tag_id");
       const payload: any = {
         user_id: user.id,
         title: title.trim(),
         description: description.trim() || null,
         priority,
-        folder_id: folderId,
+        folder_id: parentId ? null : folderId,
+        parent_id: parentId,
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
         reminder_at: reminderAt ? new Date(reminderAt).toISOString() : null,
         start_at: startAt ? new Date(startAt).toISOString() : null,
         end_at: endAt ? new Date(endAt).toISOString() : null,
         estimated_minutes: estimated ? Number(estimated) : null,
       };
-      const { error } = await supabase.from("tasks").insert(payload);
+      const { data, error } = await supabase.from("tasks").insert(payload).select().single();
       if (error) throw error;
+      if (data && tagId) {
+        await supabase.from("task_tags").insert({ task_id: data.id, tag_id: tagId, user_id: user.id });
+      }
       toast.success("تسک ساخته شد");
       navigate(-1);
     } catch (e: any) {
