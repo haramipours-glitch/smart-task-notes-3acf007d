@@ -5,21 +5,25 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, ListTodo, Heart, Timer, Sparkles, Loader2, RefreshCw, Brain, Target } from "lucide-react";
+import {
+  CheckCircle2, ListTodo, Heart, Timer, Sparkles, Loader2, RefreshCw,
+  Brain, Target, Calendar, FileText, Trello, Repeat, BookOpen, BarChart3,
+  Settings, Compass, Lightbulb, Quote, Inbox, CalendarDays
+} from "lucide-react";
 import { toast } from "sonner";
 import { markdownToHtml } from "@/lib/markdown";
 import { toPersianDigits } from "@/lib/persianDigits";
+import { getQuoteForHour } from "@/lib/hourlyQuotes";
 
 type Snapshot = {
   todayDue: number;
-  overdue: number;
   completedToday: number;
   pomodoroMinutes: number;
   lastCheckin?: { mood: number | null; energy: number | null; focus: number | null; date: string };
-  topTasks: { id: string; title: string; priority: string; due_date: string | null }[];
+  topTask: { id: string; title: string; priority: string; due_date: string | null } | null;
 };
 
-const BRIEF_KEY = "daily_brief_v1"; // {date:"YYYY-MM-DD", text}
+const BRIEF_KEY = "daily_brief_v1";
 
 export default function HomeView() {
   const { user } = useAuth();
@@ -27,11 +31,27 @@ export default function HomeView() {
   const [snap, setSnap] = useState<Snapshot | null>(null);
   const [brief, setBrief] = useState<string | null>(null);
   const [loadingBrief, setLoadingBrief] = useState(false);
+  const [quote, setQuote] = useState(getQuoteForHour());
+
+  // Refresh quote every hour
+  useEffect(() => {
+    const tick = () => setQuote(getQuoteForHour());
+    const now = new Date();
+    const msToNextHour = (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000;
+    const t1 = setTimeout(() => {
+      tick();
+      const intv = setInterval(tick, 60 * 60 * 1000);
+      (window as any).__quoteIntv = intv;
+    }, msToNextHour);
+    return () => {
+      clearTimeout(t1);
+      if ((window as any).__quoteIntv) clearInterval((window as any).__quoteIntv);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) return;
     load();
-    // restore brief
     try {
       const cached = JSON.parse(localStorage.getItem(BRIEF_KEY) || "null");
       const today = new Date().toISOString().slice(0, 10);
@@ -45,13 +65,12 @@ export default function HomeView() {
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
     const todayISO = today.toISOString();
     const tomorrowISO = tomorrow.toISOString();
-    const todayDate = today.toISOString().slice(0, 10);
 
     const [tasks, completed, pomos, checkin] = await Promise.all([
       supabase.from("tasks").select("id,title,priority,due_date,completed")
         .eq("user_id", user.id).eq("completed", false)
-        .or(`due_date.lt.${tomorrowISO},priority.eq.high`)
-        .order("due_date", { ascending: true, nullsFirst: false }).limit(50),
+        .gte("due_date", todayISO).lt("due_date", tomorrowISO)
+        .order("due_date", { ascending: true }).limit(50),
       supabase.from("tasks").select("id", { count: "exact", head: true })
         .eq("user_id", user.id).eq("completed", true)
         .gte("completed_at", todayISO),
@@ -62,19 +81,29 @@ export default function HomeView() {
         .eq("user_id", user.id).order("checkin_date", { ascending: false }).limit(1).maybeSingle(),
     ]);
 
-    const all = tasks.data || [];
-    const overdue = all.filter((t) => t.due_date && new Date(t.due_date) < today).length;
-    const todayDue = all.filter((t) => t.due_date && new Date(t.due_date) >= today && new Date(t.due_date) < tomorrow).length;
-    const top = all.slice(0, 5).map((t) => ({ id: t.id, title: t.title, priority: t.priority as string, due_date: t.due_date as string | null }));
+    const todayList = tasks.data || [];
+    const todayDue = todayList.length;
+
+    // Find single most-important task: highest priority then earliest due
+    const sorted = [...todayList].sort((a, b) => {
+      const rank = (p: string) => p === "high" ? 0 : p === "medium" ? 1 : p === "low" ? 2 : 3;
+      const r = rank(a.priority as string) - rank(b.priority as string);
+      if (r !== 0) return r;
+      const at = a.due_date ? new Date(a.due_date).getTime() : Infinity;
+      const bt = b.due_date ? new Date(b.due_date).getTime() : Infinity;
+      return at - bt;
+    });
+    const top = sorted[0]
+      ? { id: sorted[0].id, title: sorted[0].title, priority: sorted[0].priority as string, due_date: sorted[0].due_date as string | null }
+      : null;
     const minutes = (pomos.data || []).reduce((s, p) => s + (p.duration_minutes || 0), 0);
 
     setSnap({
       todayDue,
-      overdue,
       completedToday: completed.count || 0,
       pomodoroMinutes: minutes,
       lastCheckin: checkin.data ? { mood: checkin.data.mood, energy: checkin.data.energy, focus: checkin.data.focus, date: checkin.data.checkin_date } : undefined,
-      topTasks: top,
+      topTask: top,
     });
   }
 
@@ -94,11 +123,10 @@ export default function HomeView() {
       const payload = {
         date: today,
         todayDue: snap.todayDue,
-        overdue: snap.overdue,
         completedToday: snap.completedToday,
         pomodoroMinutes: snap.pomodoroMinutes,
         lastCheckin: snap.lastCheckin,
-        topTasks: snap.topTasks.map((t) => ({ title: t.title, priority: t.priority, due: t.due_date })),
+        topTask: snap.topTask ? { title: snap.topTask.title, priority: snap.topTask.priority, due: snap.topTask.due_date } : null,
       };
       const { data, error } = await supabase.functions.invoke("ai-assistant", {
         body: { mode: "daily_brief", input: JSON.stringify(payload), language: "fa" },
@@ -118,7 +146,7 @@ export default function HomeView() {
     return (
       <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-4">
         <Skeleton className="h-32 w-full" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-2">
           {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -135,62 +163,72 @@ export default function HomeView() {
   })();
 
   return (
-    <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
+    <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-5 pb-20">
       <header>
-        <h1 className="text-3xl font-bold">{greeting} 👋</h1>
-        <p className="text-muted-foreground text-sm mt-1">
+        <h1 className="text-2xl md:text-3xl font-bold">{greeting} 👋</h1>
+        <p className="text-muted-foreground text-xs md:text-sm mt-1">
           {new Date().toLocaleDateString("fa-IR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </p>
       </header>
 
-      {/* خلاصه کارت‌ها */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard icon={ListTodo} color="text-blue-500" label="امروز" value={toPersianDigits(snap.todayDue)} sub="تسک سررسید" to="/app/today" />
-        <StatCard icon={CheckCircle2} color="text-emerald-500" label="انجام‌شده" value={toPersianDigits(snap.completedToday)} sub="امروز" to="/app/today" />
-        <StatCard icon={Timer} color="text-amber-500" label="تمرکز" value={toPersianDigits(snap.pomodoroMinutes)} sub="دقیقه Pomodoro" to="/app/pomodoro" />
-        <StatCard icon={Heart} color="text-rose-500"
-          label={snap.lastCheckin ? "حال" : "چک‌این"}
+      {/* Hourly inspiration quote */}
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
+        <CardContent className="p-4 flex items-start gap-3">
+          <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
+          <div>
+            <p className="text-sm md:text-base leading-7">{quote.text}</p>
+            {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 4-column row: check-in, today due, pomodoro, completed */}
+      <div className="grid grid-cols-4 gap-2">
+        <StatCard
+          icon={Heart} color="text-rose-500"
+          label="چک‌این"
           value={snap.lastCheckin?.mood != null ? `${toPersianDigits(snap.lastCheckin.mood)}/۱۰` : "—"}
-          sub={snap.lastCheckin ? "آخرین mood" : "ثبت نشده"}
-          to="/app/checkin" />
+          to="/app/checkin"
+        />
+        <StatCard
+          icon={ListTodo} color="text-blue-500"
+          label="امروز"
+          value={toPersianDigits(snap.todayDue)}
+          to="/app/today"
+        />
+        <StatCard
+          icon={Timer} color="text-amber-500"
+          label="Pomodoro"
+          value={toPersianDigits(snap.pomodoroMinutes)}
+          to="/app/pomodoro"
+        />
+        <StatCard
+          icon={CheckCircle2} color="text-emerald-500"
+          label="انجام‌شده"
+          value={toPersianDigits(snap.completedToday)}
+          to="/app/today"
+        />
       </div>
 
-      {snap.overdue > 0 && (
-        <Card className="border-destructive/30 bg-destructive/5">
-          <CardContent className="p-4 flex items-center justify-between">
-            <span className="text-sm">
-              <strong className="text-destructive">{toPersianDigits(snap.overdue)} تسک</strong> از تاریخ گذشته
-            </span>
-            <Button asChild size="sm" variant="outline"><Link to="/app/today">مشاهده</Link></Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Daily Brief */}
+      {/* Daily Brief — button only, no description */}
       <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
+        <CardContent className="p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            خلاصه‌ی هوشمند روز
-          </CardTitle>
-          {brief && (
-            <Button variant="ghost" size="sm" onClick={() => generateBrief(true)} disabled={loadingBrief}>
-              {loadingBrief ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            <span className="text-sm font-medium">خلاصه‌ی هوشمند روز</span>
+          </div>
+          <div className="flex gap-1">
+            <Button size="sm" onClick={() => generateBrief(!!brief)} disabled={loadingBrief}>
+              {loadingBrief
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : brief
+                  ? <><RefreshCw className="w-3.5 h-3.5 ms-1" /> به‌روزرسانی</>
+                  : <><Sparkles className="w-3.5 h-3.5 ms-1" /> دریافت Brief</>}
             </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {!brief && (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground leading-7">
-                براساس تسک‌ها، چک‌این و فعالیت امروزت یک خلاصه‌ی شخصی‌سازی‌شده دریافت کن — توصیه‌ی AI برای اولویت‌دادن.
-              </p>
-              <Button onClick={() => generateBrief(false)} disabled={loadingBrief}>
-                {loadingBrief ? <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> در حال تولید…</> : <><Sparkles className="w-4 h-4 ms-2" /> دریافت Brief امروز</>}
-              </Button>
-            </div>
-          )}
-          {brief && (
+          </div>
+        </CardContent>
+        {brief && (
+          <CardContent className="pt-0">
             <article
               dir="rtl"
               className="prose prose-sm dark:prose-invert max-w-none leading-7
@@ -198,77 +236,85 @@ export default function HomeView() {
                 prose-p:my-2 prose-strong:text-foreground text-end"
               dangerouslySetInnerHTML={{ __html: markdownToHtml(brief) }}
             />
-          )}
-        </CardContent>
+          </CardContent>
+        )}
       </Card>
 
-      {/* Top tasks */}
-      {snap.topTasks.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" />
-              مهم‌ترین تسک‌های امروز
+      {/* Today's single most-important task */}
+      {snap.topTask && (
+        <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Target className="w-4 h-4 text-amber-500" />
+              مهم‌ترین تسک امروز
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            {snap.topTasks.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => navigate(`/app/tasks/${t.id}`)}
-                className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
-              >
-                <span className="flex-1 truncate">{t.title}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full ms-2 ${
-                  t.priority === "high" ? "bg-destructive/15 text-destructive" :
-                  t.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
-                  t.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
-                }`}>{labelPriority(t.priority)}</span>
-              </button>
-            ))}
-            <Button asChild variant="ghost" size="sm" className="w-full mt-2">
-              <Link to="/app/today">مشاهده‌ی همه</Link>
-            </Button>
+          <CardContent>
+            <button
+              onClick={() => navigate(`/app/tasks/${snap.topTask!.id}`)}
+              className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
+            >
+              <span className="flex-1 truncate font-medium">{snap.topTask.title}</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full ms-2 ${
+                snap.topTask.priority === "high" ? "bg-destructive/15 text-destructive" :
+                snap.topTask.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
+                snap.topTask.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
+              }`}>{labelPriority(snap.topTask.priority)}</span>
+            </button>
           </CardContent>
         </Card>
       )}
 
-      {/* Quick links */}
-      <Card>
-        <CardHeader><CardTitle className="text-base">دسترسی سریع</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <QuickLink icon={Heart} to="/app/checkin" label="چک‌این روزانه" />
-          <QuickLink icon={Brain} to="/app/thoughts" label="ثبت افکار" />
-          <QuickLink icon={Sparkles} to="/app/decisions" label="ژورنال تصمیم" />
-          <QuickLink icon={Timer} to="/app/pomodoro" label="Pomodoro" />
-        </CardContent>
-      </Card>
+      {/* Quick access — all main pages as cards */}
+      <section>
+        <h2 className="text-sm font-semibold text-muted-foreground mb-2 px-1">دسترسی سریع</h2>
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+          <QuickCard icon={Inbox} to="/app/inbox" label="Inbox" color="text-slate-500" />
+          <QuickCard icon={ListTodo} to="/app/today" label="تسک‌ها" color="text-blue-500" />
+          <QuickCard icon={CalendarDays} to="/app/next7" label="۷ روز" color="text-indigo-500" />
+          <QuickCard icon={FileText} to="/app/notes" label="نوت‌ها" color="text-violet-500" />
+          <QuickCard icon={Calendar} to="/app/calendar" label="تقویم" color="text-emerald-500" />
+          <QuickCard icon={Trello} to="/app/kanban" label="کانبان" color="text-cyan-500" />
+          <QuickCard icon={Timer} to="/app/pomodoro" label="Pomodoro" color="text-amber-500" />
+          <QuickCard icon={Repeat} to="/app/habits" label="عادت‌ها" color="text-pink-500" />
+          <QuickCard icon={Target} to="/app/goals" label="اهداف" color="text-orange-500" />
+          <QuickCard icon={Heart} to="/app/checkin" label="چک‌این" color="text-rose-500" />
+          <QuickCard icon={Brain} to="/app/thoughts" label="ثبت افکار" color="text-purple-500" />
+          <QuickCard icon={Lightbulb} to="/app/abc" label="ABC" color="text-yellow-500" />
+          <QuickCard icon={Compass} to="/app/decisions" label="ژورنال تصمیم" color="text-teal-500" />
+          <QuickCard icon={BookOpen} to="/app/self" label="خودشناسی" color="text-fuchsia-500" />
+          <QuickCard icon={BarChart3} to="/app/insights" label="بینش‌ها" color="text-green-500" />
+          <QuickCard icon={Settings} to="/app/settings" label="تنظیمات" color="text-muted-foreground" />
+        </div>
+      </section>
     </div>
   );
 }
 
-function StatCard({ icon: Icon, color, label, value, sub, to }: any) {
+function StatCard({ icon: Icon, color, label, value, to }: any) {
   return (
     <Link to={to}>
       <Card className="hover:bg-accent/30 transition-colors h-full">
-        <CardContent className="p-4">
-          <Icon className={`w-5 h-5 ${color} mb-2`} />
-          <div className="text-2xl font-bold">{value}</div>
-          <div className="text-xs text-muted-foreground">{label} · {sub}</div>
+        <CardContent className="p-2.5 md:p-3 text-center">
+          <Icon className={`w-4 h-4 ${color} mx-auto mb-1`} />
+          <div className="text-base md:text-lg font-bold leading-none">{value}</div>
+          <div className="text-[10px] text-muted-foreground mt-1 truncate">{label}</div>
         </CardContent>
       </Card>
     </Link>
   );
 }
 
-function QuickLink({ icon: Icon, to, label }: any) {
+function QuickCard({ icon: Icon, to, label, color }: any) {
   return (
-    <Button asChild variant="outline" className="h-auto py-3 flex-col gap-1.5">
-      <Link to={to}>
-        <Icon className="w-4 h-4 text-primary" />
-        <span className="text-xs">{label}</span>
-      </Link>
-    </Button>
+    <Link to={to}>
+      <Card className="hover:bg-accent/30 hover:border-primary/40 transition-all h-full">
+        <CardContent className="p-3 flex flex-col items-center justify-center gap-1.5 text-center">
+          <Icon className={`w-5 h-5 ${color}`} />
+          <span className="text-[11px] font-medium leading-tight">{label}</span>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
