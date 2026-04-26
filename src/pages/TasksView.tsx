@@ -57,6 +57,20 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [delFolderOpen, setDelFolderOpen] = useState(false);
   const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS);
+  const [taskTagsMap, setTaskTagsMap] = useState<Record<string, string[]>>({});
+
+  // Load task->tags mapping for tag filtering
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("task_tags").select("task_id,tag_id").then(({ data }) => {
+      const m: Record<string, string[]> = {};
+      (data || []).forEach((row: any) => {
+        (m[row.task_id] ||= []).push(row.tag_id);
+      });
+      setTaskTagsMap(m);
+    });
+  }, [user, allTasks.length]);
 
   const title = {
     inbox: "Inbox", today: "امروز", next7: "۷ روز آینده",
