@@ -504,7 +504,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
         )}
       </div>
 
-      {scope === "today" && <div className="mb-4"><CognitiveLoadCard /></div>}
+      
 
       {isFolder ? (
         <Tabs defaultValue="list">
