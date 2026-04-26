@@ -29,7 +29,9 @@ import {
   SortableTaskRow, ChildDropZone, RootDropZone,
 } from "@/components/TaskDnDHelpers";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
-import CognitiveLoadCard from "@/components/CognitiveLoadCard";
+
+import { TaskFilterSheet, DEFAULT_FILTERS, type TaskFilters } from "@/components/TaskFilterSheet";
+import { QuickAddTask } from "@/components/QuickAddTask";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
 
 
@@ -55,6 +57,20 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   const [delFolderOpen, setDelFolderOpen] = useState(false);
   const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS);
+  const [taskTagsMap, setTaskTagsMap] = useState<Record<string, string[]>>({});
+
+  // Load task->tags mapping for tag filtering
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("task_tags").select("task_id,tag_id").then(({ data }) => {
+      const m: Record<string, string[]> = {};
+      (data || []).forEach((row: any) => {
+        (m[row.task_id] ||= []).push(row.tag_id);
+      });
+      setTaskTagsMap(m);
+    });
+  }, [user, allTasks.length]);
 
   const title = {
     inbox: "Inbox", today: "امروز", next7: "۷ روز آینده",
@@ -112,9 +128,39 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     } else if (scope === "folder") {
       list = list.filter(t => t.folder_id === params.id);
     }
-    list.sort((a, b) => (PRIORITY_META[a.priority]?.rank ?? 3) - (PRIORITY_META[b.priority]?.rank ?? 3));
+
+    // Apply advanced filters
+    if (!filters.show_completed) list = list.filter(t => !t.completed);
+    if (filters.folder_ids.length) list = list.filter(t => t.folder_id && filters.folder_ids.includes(t.folder_id));
+    if (filters.priorities.length) list = list.filter(t => filters.priorities.includes(t.priority as string));
+    if (filters.tag_ids.length) {
+      list = list.filter(t => {
+        const tgs = taskTagsMap[t.id] || [];
+        return filters.tag_ids.some(id => tgs.includes(id));
+      });
+    }
+
+    // Apply sort
+    list = [...list];
+    switch (filters.sort) {
+      case "due_asc":
+        list.sort((a, b) => (a.due_date ? new Date(a.due_date).getTime() : Infinity) - (b.due_date ? new Date(b.due_date).getTime() : Infinity));
+        break;
+      case "due_desc":
+        list.sort((a, b) => (b.due_date ? new Date(b.due_date).getTime() : -Infinity) - (a.due_date ? new Date(a.due_date).getTime() : -Infinity));
+        break;
+      case "created_desc":
+        list.sort((a, b) => new Date((b as any).created_at).getTime() - new Date((a as any).created_at).getTime());
+        break;
+      case "alpha":
+        list.sort((a, b) => a.title.localeCompare(b.title, "fa"));
+        break;
+      case "priority":
+      default:
+        list.sort((a, b) => (PRIORITY_META[a.priority]?.rank ?? 3) - (PRIORITY_META[b.priority]?.rank ?? 3));
+    }
     return list;
-  }, [allTasks, scope, params.id]);
+  }, [allTasks, scope, params.id, filters, taskTagsMap]);
 
   const addTask = async (parent_id: string | null = null) => {
     if (!newTitle.trim() || !user) return;
@@ -400,10 +446,22 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
 
   const listView = (
     <>
-      <div className="flex gap-2 mb-4">
-        <Input placeholder="+ تسک جدید..." value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" dir="auto" />
-        <Button onClick={() => addTask()}><Plus className="w-4 h-4" /></Button>
+      <div className="flex gap-2 mb-4 items-center">
+        <div className="flex-1">
+          <QuickAddTask
+            defaults={{
+              folder_id: scope === "folder" ? params.id || null : null,
+              due_date: scope === "today"
+                ? new Date().toISOString()
+                : scope === "next7"
+                  ? addDays(new Date(), 1).toISOString()
+                  : null,
+              tag_id: scope === "tag" ? params.id || null : null,
+            }}
+            onCreated={() => load()}
+          />
+        </div>
+        <TaskFilterSheet filters={filters} onChange={setFilters} />
       </div>
 
       <DndContext
@@ -446,7 +504,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
         )}
       </div>
 
-      {scope === "today" && <div className="mb-4"><CognitiveLoadCard /></div>}
+      
 
       {isFolder ? (
         <Tabs defaultValue="list">
