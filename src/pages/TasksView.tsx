@@ -29,7 +29,7 @@ import {
   SortableTaskRow, ChildDropZone, RootDropZone,
 } from "@/components/TaskDnDHelpers";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
-import CognitiveLoadCard from "@/components/CognitiveLoadCard";
+
 import { TaskFilterSheet, DEFAULT_FILTERS, type TaskFilters } from "@/components/TaskFilterSheet";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
