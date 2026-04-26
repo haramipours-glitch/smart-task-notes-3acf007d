@@ -39,6 +39,7 @@ export default function TaskDetailView() {
         onClose={() => navigate(-1)}
         onChanged={load}
         setConfirm={setConfirm}
+        mode="page"
       />
       <AlertDialog open={!!confirm} onOpenChange={(v) => !v && setConfirm(null)}>
         <AlertDialogContent>
