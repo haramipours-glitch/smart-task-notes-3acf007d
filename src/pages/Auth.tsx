@@ -154,6 +154,6 @@ export default function Auth() {
           ادامه با گوگل
         </Button>
       </Card>
-    </div>
+    </main>
   );
 }
