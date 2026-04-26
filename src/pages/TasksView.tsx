@@ -128,9 +128,39 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     } else if (scope === "folder") {
       list = list.filter(t => t.folder_id === params.id);
     }
-    list.sort((a, b) => (PRIORITY_META[a.priority]?.rank ?? 3) - (PRIORITY_META[b.priority]?.rank ?? 3));
+
+    // Apply advanced filters
+    if (!filters.show_completed) list = list.filter(t => !t.completed);
+    if (filters.folder_ids.length) list = list.filter(t => t.folder_id && filters.folder_ids.includes(t.folder_id));
+    if (filters.priorities.length) list = list.filter(t => filters.priorities.includes(t.priority as string));
+    if (filters.tag_ids.length) {
+      list = list.filter(t => {
+        const tgs = taskTagsMap[t.id] || [];
+        return filters.tag_ids.some(id => tgs.includes(id));
+      });
+    }
+
+    // Apply sort
+    list = [...list];
+    switch (filters.sort) {
+      case "due_asc":
+        list.sort((a, b) => (a.due_date ? new Date(a.due_date).getTime() : Infinity) - (b.due_date ? new Date(b.due_date).getTime() : Infinity));
+        break;
+      case "due_desc":
+        list.sort((a, b) => (b.due_date ? new Date(b.due_date).getTime() : -Infinity) - (a.due_date ? new Date(a.due_date).getTime() : -Infinity));
+        break;
+      case "created_desc":
+        list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+      case "alpha":
+        list.sort((a, b) => a.title.localeCompare(b.title, "fa"));
+        break;
+      case "priority":
+      default:
+        list.sort((a, b) => (PRIORITY_META[a.priority]?.rank ?? 3) - (PRIORITY_META[b.priority]?.rank ?? 3));
+    }
     return list;
-  }, [allTasks, scope, params.id]);
+  }, [allTasks, scope, params.id, filters, taskTagsMap]);
 
   const addTask = async (parent_id: string | null = null) => {
     if (!newTitle.trim() || !user) return;
