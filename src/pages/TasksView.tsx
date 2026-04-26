@@ -150,7 +150,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
         list.sort((a, b) => (b.due_date ? new Date(b.due_date).getTime() : -Infinity) - (a.due_date ? new Date(a.due_date).getTime() : -Infinity));
         break;
       case "created_desc":
-        list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        list.sort((a, b) => new Date((b as any).created_at).getTime() - new Date((a as any).created_at).getTime());
         break;
       case "alpha":
         list.sort((a, b) => a.title.localeCompare(b.title, "fa"));
