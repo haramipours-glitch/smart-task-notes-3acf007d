@@ -446,10 +446,22 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
 
   const listView = (
     <>
-      <div className="flex gap-2 mb-4">
-        <Input placeholder="+ تسک جدید..." value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addTask()} className="flex-1" dir="auto" />
-        <Button onClick={() => addTask()}><Plus className="w-4 h-4" /></Button>
+      <div className="flex gap-2 mb-4 items-center">
+        <div className="flex-1">
+          <QuickAddTask
+            defaults={{
+              folder_id: scope === "folder" ? params.id || null : null,
+              due_date: scope === "today"
+                ? new Date().toISOString()
+                : scope === "next7"
+                  ? addDays(new Date(), 1).toISOString()
+                  : null,
+              tag_id: scope === "tag" ? params.id || null : null,
+            }}
+            onCreated={() => load()}
+          />
+        </div>
+        <TaskFilterSheet filters={filters} onChange={setFilters} />
       </div>
 
       <DndContext
