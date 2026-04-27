@@ -154,13 +154,8 @@ export default function NewTaskView() {
           </select>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> سررسید
-            </label>
-            <Input type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <DueDatePicker value={dueIso} onChange={setDueIso} label="سررسید" compact />
           <div>
             <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
               <Bell className="w-3 h-3" /> یادآور
