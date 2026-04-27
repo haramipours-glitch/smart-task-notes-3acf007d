@@ -35,7 +35,7 @@ import { QuickAddTask } from "@/components/QuickAddTask";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
 
 
-export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7" | "smart" | "folder" | "tag" }) {
+export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
   const params = useParams();
   const [layout, setLayout] = useState<"compact" | "comfortable">("comfortable");
