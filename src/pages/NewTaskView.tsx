@@ -63,7 +63,7 @@ export default function NewTaskView() {
         priority,
         folder_id: parentId ? null : folderId,
         parent_id: parentId,
-        due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        due_date: dueIso,
         reminder_at: reminderAt ? new Date(reminderAt).toISOString() : null,
         start_at: startAt ? new Date(startAt).toISOString() : null,
         end_at: endAt ? new Date(endAt).toISOString() : null,
