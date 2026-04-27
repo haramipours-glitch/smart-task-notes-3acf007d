@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,15 +8,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   CheckCircle2, ListTodo, Heart, Timer, Sparkles, Loader2, RefreshCw,
   Brain, Target, Calendar, FileText, Trello, Repeat, BookOpen, BarChart3,
-  Settings, Compass, Lightbulb, Quote, Inbox, CalendarDays
+  Settings, Compass, Lightbulb, Quote, Inbox, CalendarDays, SlidersHorizontal, Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { markdownToHtml } from "@/lib/markdown";
 import { toPersianDigits } from "@/lib/persianDigits";
 import { getQuoteForHour } from "@/lib/hourlyQuotes";
+import { HourlyStoryCard } from "@/components/HourlyStoryCard";
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
+} from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
 
 type Snapshot = {
   todayDue: number;
+  tomorrowDue: number;
   completedToday: number;
   pomodoroMinutes: number;
   lastCheckin?: { mood: number | null; energy: number | null; focus: number | null; date: string };
@@ -25,6 +31,41 @@ type Snapshot = {
 
 const BRIEF_KEY = "daily_brief_v1";
 
+// All quick-access widgets — user can toggle which to show
+const ALL_QUICK: { key: string; icon: any; to: string; label: string; color: string }[] = [
+  { key: "inbox", icon: Inbox, to: "/app/inbox", label: "Inbox", color: "text-slate-500" },
+  { key: "today", icon: ListTodo, to: "/app/today", label: "تسک‌ها", color: "text-blue-500" },
+  { key: "tomorrow", icon: CalendarDays, to: "/app/tomorrow", label: "فردا", color: "text-sky-500" },
+  { key: "next7", icon: CalendarDays, to: "/app/next7", label: "۷ روز", color: "text-indigo-500" },
+  { key: "notes", icon: FileText, to: "/app/notes", label: "نوت‌ها", color: "text-violet-500" },
+  { key: "calendar", icon: Calendar, to: "/app/calendar", label: "تقویم", color: "text-emerald-500" },
+  { key: "kanban", icon: Trello, to: "/app/kanban", label: "کانبان", color: "text-cyan-500" },
+  { key: "pomodoro", icon: Timer, to: "/app/pomodoro", label: "Pomodoro", color: "text-amber-500" },
+  { key: "habits", icon: Repeat, to: "/app/habits", label: "عادت‌ها", color: "text-pink-500" },
+  { key: "goals", icon: Target, to: "/app/goals", label: "اهداف", color: "text-orange-500" },
+  { key: "checkin", icon: Heart, to: "/app/checkin", label: "چک‌این", color: "text-rose-500" },
+  { key: "thoughts", icon: Brain, to: "/app/thoughts", label: "ثبت افکار", color: "text-purple-500" },
+  { key: "abc", icon: Lightbulb, to: "/app/abc", label: "ABC", color: "text-yellow-500" },
+  { key: "decisions", icon: Compass, to: "/app/decisions", label: "ژورنال تصمیم", color: "text-teal-500" },
+  { key: "self", icon: BookOpen, to: "/app/self", label: "خودشناسی", color: "text-fuchsia-500" },
+  { key: "insights", icon: BarChart3, to: "/app/insights", label: "بینش‌ها", color: "text-green-500" },
+  { key: "settings", icon: Settings, to: "/app/settings", label: "تنظیمات", color: "text-muted-foreground" },
+];
+
+const QUICK_KEY = "home_quick_widgets_v1";
+const DEFAULT_QUICK = ALL_QUICK.map((q) => q.key);
+
+function loadEnabledQuick(): string[] {
+  try {
+    const raw = localStorage.getItem(QUICK_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return arr.filter((k: string) => ALL_QUICK.some((q) => q.key === k));
+    }
+  } catch {}
+  return DEFAULT_QUICK;
+}
+
 export default function HomeView() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -32,6 +73,8 @@ export default function HomeView() {
   const [brief, setBrief] = useState<string | null>(null);
   const [loadingBrief, setLoadingBrief] = useState(false);
   const [quote, setQuote] = useState(getQuoteForHour());
+  const [enabledQuick, setEnabledQuick] = useState<string[]>(loadEnabledQuick);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
 
   // Refresh quote every hour
   useEffect(() => {
@@ -63,14 +106,19 @@ export default function HomeView() {
     if (!user) return;
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayAfter = new Date(tomorrow); dayAfter.setDate(dayAfter.getDate() + 1);
     const todayISO = today.toISOString();
     const tomorrowISO = tomorrow.toISOString();
+    const dayAfterISO = dayAfter.toISOString();
 
-    const [tasks, completed, pomos, checkin] = await Promise.all([
+    const [tasks, tomorrowTasks, completed, pomos, checkin] = await Promise.all([
       supabase.from("tasks").select("id,title,priority,due_date,completed")
         .eq("user_id", user.id).eq("completed", false)
         .gte("due_date", todayISO).lt("due_date", tomorrowISO)
         .order("due_date", { ascending: true }).limit(50),
+      supabase.from("tasks").select("id", { count: "exact", head: true })
+        .eq("user_id", user.id).eq("completed", false)
+        .gte("due_date", tomorrowISO).lt("due_date", dayAfterISO),
       supabase.from("tasks").select("id", { count: "exact", head: true })
         .eq("user_id", user.id).eq("completed", true)
         .gte("completed_at", todayISO),
@@ -84,7 +132,6 @@ export default function HomeView() {
     const todayList = tasks.data || [];
     const todayDue = todayList.length;
 
-    // Find single most-important task: highest priority then earliest due
     const sorted = [...todayList].sort((a, b) => {
       const rank = (p: string) => p === "high" ? 0 : p === "medium" ? 1 : p === "low" ? 2 : 3;
       const r = rank(a.priority as string) - rank(b.priority as string);
@@ -100,6 +147,7 @@ export default function HomeView() {
 
     setSnap({
       todayDue,
+      tomorrowDue: tomorrowTasks.count || 0,
       completedToday: completed.count || 0,
       pomodoroMinutes: minutes,
       lastCheckin: checkin.data ? { mood: checkin.data.mood, energy: checkin.data.energy, focus: checkin.data.focus, date: checkin.data.checkin_date } : undefined,
@@ -142,6 +190,19 @@ export default function HomeView() {
     }
   }
 
+  const toggleQuick = (key: string) => {
+    setEnabledQuick((prev) => {
+      const next = prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key];
+      try { localStorage.setItem(QUICK_KEY, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  const visibleQuick = useMemo(
+    () => ALL_QUICK.filter((q) => enabledQuick.includes(q.key)),
+    [enabledQuick]
+  );
+
   if (!snap) {
     return (
       <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-4">
@@ -171,46 +232,35 @@ export default function HomeView() {
         </p>
       </header>
 
-      {/* Hourly inspiration quote */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
-        <CardContent className="p-4 flex items-start gap-3">
-          <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
-          <div>
-            <p className="text-sm md:text-base leading-7">{quote.text}</p>
-            {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 4-column row: check-in, today due, pomodoro, completed */}
-      <div className="grid grid-cols-4 gap-2">
-        <StatCard
-          icon={Heart} color="text-rose-500"
-          label="چک‌این"
-          value={snap.lastCheckin?.mood != null ? `${toPersianDigits(snap.lastCheckin.mood)}/۱۰` : "—"}
-          to="/app/checkin"
-        />
-        <StatCard
-          icon={ListTodo} color="text-blue-500"
-          label="امروز"
-          value={toPersianDigits(snap.todayDue)}
-          to="/app/today"
-        />
-        <StatCard
-          icon={Timer} color="text-amber-500"
-          label="Pomodoro"
-          value={toPersianDigits(snap.pomodoroMinutes)}
-          to="/app/pomodoro"
-        />
-        <StatCard
-          icon={CheckCircle2} color="text-emerald-500"
-          label="انجام‌شده"
-          value={toPersianDigits(snap.completedToday)}
-          to="/app/today"
-        />
+      {/* Hourly inspiration: quote + story side-by-side on desktop, stacked on mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
+          <CardContent className="p-4 flex items-start gap-3 h-full">
+            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
+            <div>
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
+              <p className="text-sm md:text-base leading-7">{quote.text}</p>
+              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
+            </div>
+          </CardContent>
+        </Card>
+        <HourlyStoryCard />
       </div>
 
-      {/* Daily Brief — button only, no description */}
+      {/* 4-column row */}
+      <div className="grid grid-cols-4 gap-2">
+        <StatCard icon={Heart} color="text-rose-500" label="چک‌این"
+          value={snap.lastCheckin?.mood != null ? `${toPersianDigits(snap.lastCheckin.mood)}/۱۰` : "—"}
+          to="/app/checkin" />
+        <StatCard icon={ListTodo} color="text-blue-500" label="امروز"
+          value={toPersianDigits(snap.todayDue)} to="/app/today" />
+        <StatCard icon={CalendarDays} color="text-sky-500" label="فردا"
+          value={toPersianDigits(snap.tomorrowDue)} to="/app/tomorrow" />
+        <StatCard icon={CheckCircle2} color="text-emerald-500" label="انجام‌شده"
+          value={toPersianDigits(snap.completedToday)} to="/app/today" />
+      </div>
+
+      {/* Daily Brief */}
       <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
         <CardContent className="p-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -229,18 +279,16 @@ export default function HomeView() {
         </CardContent>
         {brief && (
           <CardContent className="pt-0">
-            <article
-              dir="rtl"
+            <article dir="rtl"
               className="prose prose-sm dark:prose-invert max-w-none leading-7
                 prose-headings:text-foreground prose-headings:font-semibold
                 prose-p:my-2 prose-strong:text-foreground text-end"
-              dangerouslySetInnerHTML={{ __html: markdownToHtml(brief) }}
-            />
+              dangerouslySetInnerHTML={{ __html: markdownToHtml(brief) }} />
           </CardContent>
         )}
       </Card>
 
-      {/* Today's single most-important task */}
+      {/* Top task */}
       {snap.topTask && (
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
           <CardHeader className="pb-2">
@@ -265,27 +313,53 @@ export default function HomeView() {
         </Card>
       )}
 
-      {/* Quick access — all main pages as cards */}
+      {/* Quick access — customizable */}
       <section>
-        <h2 className="text-sm font-semibold text-muted-foreground mb-2 px-1">دسترسی سریع</h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-          <QuickCard icon={Inbox} to="/app/inbox" label="Inbox" color="text-slate-500" />
-          <QuickCard icon={ListTodo} to="/app/today" label="تسک‌ها" color="text-blue-500" />
-          <QuickCard icon={CalendarDays} to="/app/next7" label="۷ روز" color="text-indigo-500" />
-          <QuickCard icon={FileText} to="/app/notes" label="نوت‌ها" color="text-violet-500" />
-          <QuickCard icon={Calendar} to="/app/calendar" label="تقویم" color="text-emerald-500" />
-          <QuickCard icon={Trello} to="/app/kanban" label="کانبان" color="text-cyan-500" />
-          <QuickCard icon={Timer} to="/app/pomodoro" label="Pomodoro" color="text-amber-500" />
-          <QuickCard icon={Repeat} to="/app/habits" label="عادت‌ها" color="text-pink-500" />
-          <QuickCard icon={Target} to="/app/goals" label="اهداف" color="text-orange-500" />
-          <QuickCard icon={Heart} to="/app/checkin" label="چک‌این" color="text-rose-500" />
-          <QuickCard icon={Brain} to="/app/thoughts" label="ثبت افکار" color="text-purple-500" />
-          <QuickCard icon={Lightbulb} to="/app/abc" label="ABC" color="text-yellow-500" />
-          <QuickCard icon={Compass} to="/app/decisions" label="ژورنال تصمیم" color="text-teal-500" />
-          <QuickCard icon={BookOpen} to="/app/self" label="خودشناسی" color="text-fuchsia-500" />
-          <QuickCard icon={BarChart3} to="/app/insights" label="بینش‌ها" color="text-green-500" />
-          <QuickCard icon={Settings} to="/app/settings" label="تنظیمات" color="text-muted-foreground" />
+        <div className="flex items-center justify-between mb-2 px-1">
+          <h2 className="text-sm font-semibold text-muted-foreground">دسترسی سریع</h2>
+          <Sheet open={customizeOpen} onOpenChange={setCustomizeOpen}>
+            <SheetTrigger asChild>
+              <Button size="sm" variant="ghost" className="h-7 text-xs gap-1">
+                <SlidersHorizontal className="w-3.5 h-3.5" /> سفارشی‌سازی
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-full sm:max-w-md overflow-y-auto" dir="rtl">
+              <SheetHeader>
+                <SheetTitle>سفارشی‌سازی دسترسی سریع</SheetTitle>
+              </SheetHeader>
+              <p className="text-xs text-muted-foreground mt-2">
+                ویجت‌هایی که می‌خواهی روی صفحه‌ی اصلی نمایش داده شوند را انتخاب کن.
+              </p>
+              <div className="space-y-2 mt-4">
+                {ALL_QUICK.map((q) => {
+                  const Icon = q.icon;
+                  const on = enabledQuick.includes(q.key);
+                  return (
+                    <div key={q.key}
+                      className="flex items-center justify-between p-2 rounded-lg border hover:bg-accent/40 transition">
+                      <div className="flex items-center gap-2">
+                        <Icon className={`w-4 h-4 ${q.color}`} />
+                        <span className="text-sm">{q.label}</span>
+                      </div>
+                      <Switch checked={on} onCheckedChange={() => toggleQuick(q.key)} />
+                    </div>
+                  );
+                })}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
+        {visibleQuick.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-6 border border-dashed rounded-lg">
+            هیچ ویجتی فعال نیست. با دکمه‌ی «سفارشی‌سازی» یکی را روشن کن.
+          </p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+            {visibleQuick.map((q) => (
+              <QuickCard key={q.key} icon={q.icon} to={q.to} label={q.label} color={q.color} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
