@@ -193,7 +193,7 @@ export default function NotesView() {
 
       <div className="flex-1 min-w-0 overflow-y-auto">
         {selected ? (
-          <div className="p-4 max-w-4xl mx-auto">
+          <div className="p-4 max-w-6xl mx-auto">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Input value={selected.title} onChange={(e) => save({ title: e.target.value })}
                 className="text-xl font-bold border-none focus-visible:ring-0 px-0 flex-1 min-w-[120px]" dir="auto" />

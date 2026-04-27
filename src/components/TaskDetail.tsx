@@ -224,7 +224,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   return (
     <>
       {mode === "page" ? (
-        <div className="max-w-2xl mx-auto p-4 md:p-6">
+        <div className="max-w-5xl mx-auto p-4 md:p-6">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-xl font-bold">جزئیات تسک</h1>
             <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">
@@ -235,7 +235,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
         </div>
       ) : (
         <Sheet open={true} onOpenChange={(v) => !v && onClose()}>
-          <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="flex items-center justify-between">
                 <span>جزئیات تسک</span>
@@ -251,7 +251,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
       {activeNote && (
         <Sheet open={true} onOpenChange={(v) => !v && setActiveNote(null)}>
-          <SheetContent side="left" className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetContent side="left" className="w-full sm:max-w-4xl overflow-y-auto">
             <SheetHeader>
               <SheetTitle>
                 <Input value={activeNote.title} onChange={(e) => saveNote(activeNote.id, { title: e.target.value })}
