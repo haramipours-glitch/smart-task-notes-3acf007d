@@ -42,6 +42,7 @@ const SECTIONS: Section[] = [
     items: [
       { url: "/app/inbox", icon: Inbox, label: "Inbox" },
       { url: "/app/today", icon: CalIcon, label: "امروز" },
+      { url: "/app/tomorrow", icon: Sun, label: "فردا" },
       { url: "/app/next7", icon: CalendarDays, label: "۷ روز آینده" },
       { url: "/app/smart", icon: Filter, label: "Smart Lists" },
       { url: "/app/calendar", icon: Calendar, label: "تقویم" },

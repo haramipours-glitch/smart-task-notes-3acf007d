@@ -24,7 +24,7 @@ type Task = {
 };
 
 export function EisenhowerMatrix({ scope, onOpenTask }: {
-  scope: "inbox" | "today" | "next7" | "smart" | "folder" | "tag";
+  scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag";
   onOpenTask?: (taskId: string) => void;
 }) {
   const { user } = useAuth();

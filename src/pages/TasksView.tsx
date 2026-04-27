@@ -35,7 +35,7 @@ import { QuickAddTask } from "@/components/QuickAddTask";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
 
 
-export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7" | "smart" | "folder" | "tag" }) {
+export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
   const params = useParams();
   const [layout, setLayout] = useState<"compact" | "comfortable">("comfortable");
@@ -73,7 +73,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
   }, [user, allTasks.length]);
 
   const title = {
-    inbox: "Inbox", today: "امروز", next7: "۷ روز آینده",
+    inbox: "Inbox", today: "امروز", tomorrow: "فردا", next7: "۷ روز آینده",
     smart: "Smart Lists", folder: folderName || "فولدر", tag: `#${tagName || "تگ"}`,
   }[scope];
 
@@ -119,6 +119,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     if (scope === "inbox") list = list.filter(t => !t.folder_id);
     else if (scope === "today") {
       const s = startOfDay(new Date()).getTime(); const e = endOfDay(new Date()).getTime();
+      list = list.filter(t => t.due_date && new Date(t.due_date).getTime() >= s && new Date(t.due_date).getTime() <= e);
+    } else if (scope === "tomorrow") {
+      const s = startOfDay(addDays(new Date(), 1)).getTime();
+      const e = endOfDay(addDays(new Date(), 1)).getTime();
       list = list.filter(t => t.due_date && new Date(t.due_date).getTime() >= s && new Date(t.due_date).getTime() <= e);
     } else if (scope === "next7") {
       const s = startOfDay(new Date()).getTime(); const e = endOfDay(addDays(new Date(), 7)).getTime();
@@ -166,6 +170,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "next7
     if (!newTitle.trim() || !user) return;
     const folder_id = scope === "folder" ? params.id || null : null;
     const due = scope === "today" ? new Date().toISOString()
+      : scope === "tomorrow" ? addDays(new Date(), 1).toISOString()
       : scope === "next7" ? addDays(new Date(), 1).toISOString() : null;
     const { data, error } = await supabase.from("tasks").insert({
       user_id: user.id, title: newTitle, folder_id: parent_id ? null : folder_id,

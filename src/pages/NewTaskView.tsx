@@ -6,9 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AutoTextarea } from "@/components/ui/auto-textarea";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Loader2, Calendar, Bell, Clock, FolderInput, Sparkles } from "lucide-react";
+import { ArrowRight, Loader2, Bell, Clock, FolderInput, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
+import { DueDatePicker } from "@/components/DueDatePicker";
+import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
+import { TaskStepLists } from "@/components/TaskStepLists";
+import { TaskAttachments } from "@/components/TaskAttachments";
 
 type Folder = { id: string; name: string; color: string | null };
 
@@ -21,7 +25,7 @@ export default function NewTaskView() {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("none");
   const [folderId, setFolderId] = useState<string | null>(params.get("folder_id"));
-  const [dueDate, setDueDate] = useState(params.get("due_date") ? params.get("due_date")!.slice(0, 16) : "");
+  const [dueIso, setDueIso] = useState<string | null>(params.get("due_date") || null);
   const [reminderAt, setReminderAt] = useState("");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
@@ -59,7 +63,7 @@ export default function NewTaskView() {
         priority,
         folder_id: parentId ? null : folderId,
         parent_id: parentId,
-        due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        due_date: dueIso,
         reminder_at: reminderAt ? new Date(reminderAt).toISOString() : null,
         start_at: startAt ? new Date(startAt).toISOString() : null,
         end_at: endAt ? new Date(endAt).toISOString() : null,
@@ -150,13 +154,8 @@ export default function NewTaskView() {
           </select>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> سررسید
-            </label>
-            <Input type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <DueDatePicker value={dueIso} onChange={setDueIso} label="سررسید" compact />
           <div>
             <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
               <Bell className="w-3 h-3" /> یادآور
