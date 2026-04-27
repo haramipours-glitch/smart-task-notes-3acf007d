@@ -47,7 +47,7 @@ export default function NewTaskView() {
     }
   }, [startAt, estimated]);
 
-  const submit = async () => {
+  const submit = async (opts?: { openDetail?: boolean }) => {
     if (!user || !title.trim()) {
       toast.error("عنوان الزامی است");
       return;
@@ -75,7 +75,11 @@ export default function NewTaskView() {
         await supabase.from("task_tags").insert({ task_id: data.id, tag_id: tagId, user_id: user.id });
       }
       toast.success("تسک ساخته شد");
-      navigate(-1);
+      if (opts?.openDetail && data) {
+        navigate(`/app/tasks/${data.id}`, { replace: true });
+      } else {
+        navigate(-1);
+      }
     } catch (e: any) {
       toast.error(e.message || "خطا");
     } finally {
@@ -85,15 +89,24 @@ export default function NewTaskView() {
 
   return (
     <div dir="rtl" className="p-4 md:p-6 max-w-2xl mx-auto pb-24">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-1">
           <ArrowRight className="w-4 h-4" /> برگشت
         </Button>
-        <h1 className="text-lg font-bold">تسک جدید</h1>
-        <Button onClick={submit} disabled={busy || !title.trim()} size="sm">
-          {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : "ذخیره"}
-        </Button>
+        <h1 className="text-lg font-bold flex-1 text-center">تسک جدید</h1>
+        <div className="flex gap-1">
+          <Button onClick={() => submit({ openDetail: true })} disabled={busy || !title.trim()} size="sm" variant="outline" className="gap-1">
+            <Sparkles className="w-3.5 h-3.5" /> ذخیره و ادامه
+          </Button>
+          <Button onClick={() => submit()} disabled={busy || !title.trim()} size="sm">
+            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : "ذخیره"}
+          </Button>
+        </div>
       </div>
+
+      <p className="text-[11px] text-muted-foreground mb-3 text-center">
+        💡 برای افزودن زیرتسک، مراحل، پیوست و نوت روی «ذخیره و ادامه» بزنید.
+      </p>
 
       <Card className="p-4 space-y-4">
         <div>
