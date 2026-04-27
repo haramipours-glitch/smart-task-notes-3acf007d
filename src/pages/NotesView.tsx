@@ -183,7 +183,7 @@ export default function NotesView() {
                   {n.pinned && <Pin className="w-3 h-3 text-primary" />}
                   <BidiText as="span" text={n.title} className="font-medium text-sm truncate flex-1" />
                 </div>
-                <BidiText as="p" text={stripMd(n.content)} className="text-xs text-muted-foreground truncate mt-1" />
+                <BidiText as="p" text={stripMd(n.content)} className="text-xs text-muted-foreground mt-1 line-clamp-3 whitespace-pre-wrap break-words" />
               </button>
             </div>
           ))}
