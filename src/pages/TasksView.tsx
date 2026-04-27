@@ -120,6 +120,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     else if (scope === "today") {
       const s = startOfDay(new Date()).getTime(); const e = endOfDay(new Date()).getTime();
       list = list.filter(t => t.due_date && new Date(t.due_date).getTime() >= s && new Date(t.due_date).getTime() <= e);
+    } else if (scope === "tomorrow") {
+      const s = startOfDay(addDays(new Date(), 1)).getTime();
+      const e = endOfDay(addDays(new Date(), 1)).getTime();
+      list = list.filter(t => t.due_date && new Date(t.due_date).getTime() >= s && new Date(t.due_date).getTime() <= e);
     } else if (scope === "next7") {
       const s = startOfDay(new Date()).getTime(); const e = endOfDay(addDays(new Date(), 7)).getTime();
       list = list.filter(t => t.due_date && new Date(t.due_date).getTime() >= s && new Date(t.due_date).getTime() <= e);
