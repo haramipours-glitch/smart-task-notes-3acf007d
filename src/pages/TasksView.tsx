@@ -73,7 +73,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   }, [user, allTasks.length]);
 
   const title = {
-    inbox: "Inbox", today: "امروز", next7: "۷ روز آینده",
+    inbox: "Inbox", today: "امروز", tomorrow: "فردا", next7: "۷ روز آینده",
     smart: "Smart Lists", folder: folderName || "فولدر", tag: `#${tagName || "تگ"}`,
   }[scope];
 
