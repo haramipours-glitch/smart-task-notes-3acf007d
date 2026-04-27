@@ -6,9 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AutoTextarea } from "@/components/ui/auto-textarea";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Loader2, Calendar, Bell, Clock, FolderInput, Sparkles } from "lucide-react";
+import { ArrowRight, Loader2, Bell, Clock, FolderInput, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
+import { DueDatePicker } from "@/components/DueDatePicker";
+import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
+import { TaskStepLists } from "@/components/TaskStepLists";
+import { TaskAttachments } from "@/components/TaskAttachments";
 
 type Folder = { id: string; name: string; color: string | null };
 
