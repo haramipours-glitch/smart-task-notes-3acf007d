@@ -10,9 +10,6 @@ import { ArrowRight, Loader2, Bell, Clock, FolderInput, Sparkles } from "lucide-
 import { toast } from "sonner";
 import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
 import { DueDatePicker } from "@/components/DueDatePicker";
-import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
-import { TaskStepLists } from "@/components/TaskStepLists";
-import { TaskAttachments } from "@/components/TaskAttachments";
 
 type Folder = { id: string; name: string; color: string | null };
 
