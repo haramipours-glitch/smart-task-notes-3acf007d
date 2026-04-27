@@ -170,6 +170,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     if (!newTitle.trim() || !user) return;
     const folder_id = scope === "folder" ? params.id || null : null;
     const due = scope === "today" ? new Date().toISOString()
+      : scope === "tomorrow" ? addDays(new Date(), 1).toISOString()
       : scope === "next7" ? addDays(new Date(), 1).toISOString() : null;
     const { data, error } = await supabase.from("tasks").insert({
       user_id: user.id, title: newTitle, folder_id: parent_id ? null : folder_id,
