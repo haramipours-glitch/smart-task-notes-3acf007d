@@ -63,6 +63,7 @@ const App = () => (
                 <Route path="weekly-review" element={<WeeklyReviewView />} />
                 <Route path="inbox" element={<TasksView scope="inbox" />} />
                 <Route path="today" element={<TasksView scope="today" />} />
+                <Route path="tomorrow" element={<TasksView scope="tomorrow" />} />
                 <Route path="next7" element={<TasksView scope="next7" />} />
                 <Route path="smart" element={<TasksView scope="smart" />} />
                 <Route path="folder/:id" element={<TasksView scope="folder" />} />
