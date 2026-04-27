@@ -25,7 +25,7 @@ export default function NewTaskView() {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("none");
   const [folderId, setFolderId] = useState<string | null>(params.get("folder_id"));
-  const [dueDate, setDueDate] = useState(params.get("due_date") ? params.get("due_date")!.slice(0, 16) : "");
+  const [dueIso, setDueIso] = useState<string | null>(params.get("due_date") || null);
   const [reminderAt, setReminderAt] = useState("");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
