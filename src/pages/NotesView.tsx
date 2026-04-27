@@ -183,7 +183,7 @@ export default function NotesView() {
                   {n.pinned && <Pin className="w-3 h-3 text-primary" />}
                   <BidiText as="span" text={n.title} className="font-medium text-sm truncate flex-1" />
                 </div>
-                <BidiText as="p" text={stripMd(n.content)} className="text-xs text-muted-foreground truncate mt-1" />
+                <BidiText as="p" text={stripMd(n.content)} className="text-xs text-muted-foreground mt-1 line-clamp-3 whitespace-pre-wrap break-words" />
               </button>
             </div>
           ))}
@@ -193,7 +193,7 @@ export default function NotesView() {
 
       <div className="flex-1 min-w-0 overflow-y-auto">
         {selected ? (
-          <div className="p-4 max-w-4xl mx-auto">
+          <div className="p-4 max-w-6xl mx-auto">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Input value={selected.title} onChange={(e) => save({ title: e.target.value })}
                 className="text-xl font-bold border-none focus-visible:ring-0 px-0 flex-1 min-w-[120px]" dir="auto" />

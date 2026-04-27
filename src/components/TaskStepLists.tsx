@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { AutoTextarea } from "@/components/ui/auto-textarea";
 import { Plus, Trash2, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { BidiText } from "@/components/BidiText";
@@ -197,12 +198,14 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
                 <li key={s.id} className="flex items-start gap-2 group">
                   <StepBullet style={list.style} index={idx} completed={s.completed}
                     onToggle={() => updateStep(s.id, { completed: !s.completed })} />
-                  <Input
+                  <AutoTextarea
                     value={s.text}
                     onChange={(e) => updateStep(s.id, { text: e.target.value })}
-                    className={`h-7 text-sm flex-1 border-none bg-transparent focus-visible:ring-1 px-1 ${
+                    className={`text-sm flex-1 border-none bg-transparent focus-visible:ring-1 px-1 py-1 leading-relaxed ${
                       s.completed ? "line-through text-muted-foreground" : ""
                     }`}
+                    minHeight={28}
+                    maxHeight={400}
                     dir="auto"
                   />
                   <Button
