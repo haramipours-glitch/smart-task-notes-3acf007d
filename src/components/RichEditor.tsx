@@ -319,6 +319,19 @@ export function RichEditor({
       <div className="p-3">
         <EditorContent editor={editor} />
       </div>
+
+      {/* Floating "show toolbar" FAB when toolbar is scrolled out */}
+      {!toolbarOnScreen && (
+        <button
+          type="button"
+          onClick={scrollToToolbar}
+          className="fixed bottom-20 left-4 z-40 h-11 w-11 rounded-full shadow-elegant bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 transition"
+          title="نمایش نوار ابزار"
+          aria-label="نمایش نوار ابزار"
+        >
+          <Wrench className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
