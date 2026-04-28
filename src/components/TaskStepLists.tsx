@@ -222,35 +222,39 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
               </Button>
             </div>
 
-            <ul className="space-y-1">
-              {listSteps.map((s, idx) => (
-                <li key={s.id} className="flex items-start gap-2 group">
-                  <StepBullet style={list.style} index={idx} completed={s.completed}
-                    onToggle={() => updateStep(s.id, { completed: !s.completed })} />
-                  <AutoTextarea
-                    value={s.text}
-                    onChange={(e) => updateStep(s.id, { text: e.target.value })}
-                    className={`text-sm flex-1 border-none bg-transparent focus-visible:ring-1 px-1 py-1 leading-relaxed ${
-                      s.completed ? "line-through text-muted-foreground" : ""
-                    }`}
-                    minHeight={28}
-                    maxHeight={400}
-                    dir="auto"
-                  />
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => deleteStep(s.id)}
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </li>
-              ))}
-              {listSteps.length === 0 && (
-                <li className="text-xs text-muted-foreground/60 px-1">— هیچ مرحله‌ای نیست —</li>
-              )}
-            </ul>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(e: DragEndEvent) => {
+                const { active, over } = e;
+                if (!over || active.id === over.id) return;
+                reorderSteps(list.id, String(active.id), String(over.id));
+              }}
+            >
+              <SortableContext
+                items={listSteps.map((s) => s.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <ul className="space-y-1">
+                  {listSteps.map((s, idx) => (
+                    <SortableStepItem
+                      key={s.id}
+                      id={s.id}
+                      style={list.style}
+                      index={idx}
+                      completed={s.completed}
+                      text={s.text}
+                      onToggle={() => updateStep(s.id, { completed: !s.completed })}
+                      onChange={(text) => updateStep(s.id, { text })}
+                      onDelete={() => deleteStep(s.id)}
+                    />
+                  ))}
+                  {listSteps.length === 0 && (
+                    <li className="text-xs text-muted-foreground/60 px-1">— هیچ مرحله‌ای نیست —</li>
+                  )}
+                </ul>
+              </SortableContext>
+            </DndContext>
 
             <div className="flex items-center gap-2">
               <Input
