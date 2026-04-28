@@ -19,8 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { PRIORITY_META } from "@/lib/priority";
 import { FolderKanban } from "@/components/FolderKanban";
-import { EisenhowerMatrix } from "@/components/EisenhowerMatrix";
 import { Countdown } from "@/components/Countdown";
+import { pushUndo } from "@/lib/undoStack";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { describeRule, nextOccurrence } from "@/lib/recurrence";
 import {
@@ -516,27 +516,14 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
           <TabsList>
             <TabsTrigger value="list">📋 لیست</TabsTrigger>
             <TabsTrigger value="kanban">🗂 Kanban</TabsTrigger>
-            <TabsTrigger value="matrix">🎯 ماتریس</TabsTrigger>
           </TabsList>
           <TabsContent value="list" className="mt-4">{listView}</TabsContent>
           <TabsContent value="kanban" className="mt-4">
             <FolderKanban folderId={params.id!} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
           </TabsContent>
-          <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
-          </TabsContent>
         </Tabs>
       ) : (
-        <Tabs defaultValue="list">
-          <TabsList>
-            <TabsTrigger value="list">📋 لیست</TabsTrigger>
-            <TabsTrigger value="matrix">🎯 ماتریس</TabsTrigger>
-          </TabsList>
-          <TabsContent value="list" className="mt-4">{listView}</TabsContent>
-          <TabsContent value="matrix" className="mt-4">
-            <EisenhowerMatrix scope={scope} onOpenTask={(id) => navigate(`/app/tasks/${id}`)} />
-          </TabsContent>
-        </Tabs>
+        listView
       )}
 
       <AlertDialog open={!!confirm} onOpenChange={(v) => !v && setConfirm(null)}>

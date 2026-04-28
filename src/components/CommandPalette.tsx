@@ -22,7 +22,6 @@ const NAV = [
   { label: "اهداف", to: "/app/goals", icon: Target, keywords: "goals اهداف" },
   { label: "عادات", to: "/app/habits", icon: Heart, keywords: "habits عادت" },
   { label: "Pomodoro", to: "/app/pomodoro", icon: Timer, keywords: "pomodoro تمرکز" },
-  { label: "Kanban", to: "/app/kanban", icon: BarChart3, keywords: "kanban" },
   { label: "بازنگری", to: "/app/review", icon: BookOpen, keywords: "review بازنگری" },
   { label: "بینش‌ها", to: "/app/insights", icon: BarChart3, keywords: "insights الگو" },
   { label: "خودشناسی", to: "/app/self", icon: Brain, keywords: "self شخصیت" },
