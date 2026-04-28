@@ -384,17 +384,13 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
           {(dragHandle) => (
             <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass}`}
               style={{ marginInlineStart: depth * 16 }}>
-              {/* Row 1: handle + checkbox + TITLE (wide) */}
+              {/* Row 1: chevron + TITLE (wide) + checkbox (right) */}
               <div dir="rtl" className="flex items-start gap-2">
-                <button {...dragHandle} className="mt-0.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0" aria-label="drag">
-                  <GripVertical className="w-4 h-4" />
-                </button>
                 {subs.length > 0 ? (
                   <button onClick={() => setExpanded((s) => ({ ...s, [t.id]: !open }))} className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
                     {open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </button>
                 ) : <span className="w-4 shrink-0" />}
-                <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => {
                   if (t.title.startsWith("چک‌این روزانه")) { navigate("/app/checkin"); return; }
                   navigate(`/app/tasks/${t.id}`);
@@ -405,11 +401,15 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                     className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}
                   />
                 </div>
+                <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
               </div>
 
-              {/* Row 2: badges + small action icons (below, small) */}
-              <div className="flex items-center justify-between gap-1 mt-1.5 ms-12 flex-wrap">
+              {/* Row 2: drag handle + badges + actions */}
+              <div className="flex items-center justify-between gap-1 mt-1.5 ms-6 flex-wrap">
                 <div className="flex items-center gap-1 flex-wrap min-w-0">
+                  <button {...dragHandle} className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0" aria-label="drag">
+                    <GripVertical className="w-3.5 h-3.5" />
+                  </button>
                   {t.priority !== "none" && (
                     <Badge variant="outline" className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 ${pm.bgClass} ${pm.textClass}`}>
                       <Flag className="w-2.5 h-2.5" /> {pm.label}
