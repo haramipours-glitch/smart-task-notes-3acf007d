@@ -9,9 +9,17 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { AutoTextarea } from "@/components/ui/auto-textarea";
-import { Plus, Trash2, ListChecks } from "lucide-react";
+import { Plus, Trash2, ListChecks, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { BidiText } from "@/components/BidiText";
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext, verticalListSortingStrategy, arrayMove, useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export type StepStyle = "numbered" | "checkbox" | "bullet" | "arrow";
 
@@ -119,6 +127,27 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
     await supabase.from("task_steps" as any).delete().eq("id", id);
   };
 
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  const reorderSteps = async (listId: string, fromId: string, toId: string) => {
+    const listSteps = steps
+      .filter((s) => s.list_id === listId)
+      .sort((a, b) => a.position - b.position);
+    const fromIdx = listSteps.findIndex((s) => s.id === fromId);
+    const toIdx = listSteps.findIndex((s) => s.id === toId);
+    if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+    const reordered = arrayMove(listSteps, fromIdx, toIdx);
+    setSteps((prev) => {
+      const map = new Map(reordered.map((s, i) => [s.id, i]));
+      return prev.map((s) => (map.has(s.id) ? { ...s, position: map.get(s.id)! } : s));
+    });
+    await Promise.all(
+      reordered.map((s, i) =>
+        supabase.from("task_steps" as any).update({ position: i }).eq("id", s.id)
+      )
+    );
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -193,35 +222,39 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
               </Button>
             </div>
 
-            <ul className="space-y-1">
-              {listSteps.map((s, idx) => (
-                <li key={s.id} className="flex items-start gap-2 group">
-                  <StepBullet style={list.style} index={idx} completed={s.completed}
-                    onToggle={() => updateStep(s.id, { completed: !s.completed })} />
-                  <AutoTextarea
-                    value={s.text}
-                    onChange={(e) => updateStep(s.id, { text: e.target.value })}
-                    className={`text-sm flex-1 border-none bg-transparent focus-visible:ring-1 px-1 py-1 leading-relaxed ${
-                      s.completed ? "line-through text-muted-foreground" : ""
-                    }`}
-                    minHeight={28}
-                    maxHeight={400}
-                    dir="auto"
-                  />
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => deleteStep(s.id)}
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </li>
-              ))}
-              {listSteps.length === 0 && (
-                <li className="text-xs text-muted-foreground/60 px-1">— هیچ مرحله‌ای نیست —</li>
-              )}
-            </ul>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(e: DragEndEvent) => {
+                const { active, over } = e;
+                if (!over || active.id === over.id) return;
+                reorderSteps(list.id, String(active.id), String(over.id));
+              }}
+            >
+              <SortableContext
+                items={listSteps.map((s) => s.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <ul className="space-y-1">
+                  {listSteps.map((s, idx) => (
+                    <SortableStepItem
+                      key={s.id}
+                      id={s.id}
+                      style={list.style}
+                      index={idx}
+                      completed={s.completed}
+                      text={s.text}
+                      onToggle={() => updateStep(s.id, { completed: !s.completed })}
+                      onChange={(text) => updateStep(s.id, { text })}
+                      onDelete={() => deleteStep(s.id)}
+                    />
+                  ))}
+                  {listSteps.length === 0 && (
+                    <li className="text-xs text-muted-foreground/60 px-1">— هیچ مرحله‌ای نیست —</li>
+                  )}
+                </ul>
+              </SortableContext>
+            </DndContext>
 
             <div className="flex items-center gap-2">
               <Input
@@ -277,5 +310,58 @@ function StepBullet({
     >
       {glyph}
     </button>
+  );
+}
+
+function SortableStepItem({
+  id, style, index, completed, text, onToggle, onChange, onDelete,
+}: {
+  id: string;
+  style: StepStyle;
+  index: number;
+  completed: boolean;
+  text: string;
+  onToggle: () => void;
+  onChange: (text: string) => void;
+  onDelete: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const sty = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  return (
+    <li ref={setNodeRef} style={sty} className="flex items-start gap-1 group">
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="pt-1.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0"
+        aria-label="جابجایی"
+        title="جابجایی"
+      >
+        <GripVertical className="w-3.5 h-3.5" />
+      </button>
+      <StepBullet style={style} index={index} completed={completed} onToggle={onToggle} />
+      <AutoTextarea
+        value={text}
+        onChange={(e) => onChange(e.target.value)}
+        className={`text-sm flex-1 border-none bg-transparent focus-visible:ring-1 px-1 py-1 leading-relaxed ${
+          completed ? "line-through text-muted-foreground" : ""
+        }`}
+        minHeight={28}
+        maxHeight={400}
+        dir="auto"
+      />
+      <Button
+        size="icon"
+        variant="ghost"
+        onClick={onDelete}
+        className="h-6 w-6 opacity-60 group-hover:opacity-100"
+      >
+        <Trash2 className="w-3 h-3" />
+      </Button>
+    </li>
   );
 }
