@@ -130,6 +130,7 @@
 
 
 /* Markdown preview */
+.prose-note { max-width: none !important; width: 100%; }
 .prose-note h1 { @apply text-2xl font-bold mt-4 mb-2; }
 .prose-note h2 { @apply text-xl font-semibold mt-3 mb-2; }
 .prose-note h3 { @apply text-lg font-semibold mt-2 mb-1; }
