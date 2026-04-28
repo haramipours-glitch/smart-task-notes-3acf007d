@@ -9,9 +9,17 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { AutoTextarea } from "@/components/ui/auto-textarea";
-import { Plus, Trash2, ListChecks } from "lucide-react";
+import { Plus, Trash2, ListChecks, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { BidiText } from "@/components/BidiText";
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext, verticalListSortingStrategy, arrayMove, useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export type StepStyle = "numbered" | "checkbox" | "bullet" | "arrow";
 

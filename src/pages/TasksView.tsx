@@ -535,7 +535,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   );
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+    <div className="p-3 sm:p-4 md:p-6 w-full">
       <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <BidiText as="h1" text={title} className="text-2xl font-bold" />
         {isFolder && (
