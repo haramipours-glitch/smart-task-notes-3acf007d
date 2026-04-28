@@ -312,3 +312,56 @@ function StepBullet({
     </button>
   );
 }
+
+function SortableStepItem({
+  id, style, index, completed, text, onToggle, onChange, onDelete,
+}: {
+  id: string;
+  style: StepStyle;
+  index: number;
+  completed: boolean;
+  text: string;
+  onToggle: () => void;
+  onChange: (text: string) => void;
+  onDelete: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const sty = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  return (
+    <li ref={setNodeRef} style={sty} className="flex items-start gap-1 group">
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="pt-1.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0"
+        aria-label="جابجایی"
+        title="جابجایی"
+      >
+        <GripVertical className="w-3.5 h-3.5" />
+      </button>
+      <StepBullet style={style} index={index} completed={completed} onToggle={onToggle} />
+      <AutoTextarea
+        value={text}
+        onChange={(e) => onChange(e.target.value)}
+        className={`text-sm flex-1 border-none bg-transparent focus-visible:ring-1 px-1 py-1 leading-relaxed ${
+          completed ? "line-through text-muted-foreground" : ""
+        }`}
+        minHeight={28}
+        maxHeight={400}
+        dir="auto"
+      />
+      <Button
+        size="icon"
+        variant="ghost"
+        onClick={onDelete}
+        className="h-6 w-6 opacity-60 group-hover:opacity-100"
+      >
+        <Trash2 className="w-3 h-3" />
+      </Button>
+    </li>
+  );
+}
