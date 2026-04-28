@@ -201,7 +201,7 @@ export default function NotesView() {
 
       <div className="flex-1 min-w-0 overflow-y-auto">
         {selected ? (
-          <div className="p-4 max-w-6xl mx-auto">
+          <div className="p-2 sm:p-4 w-full">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Input value={selected.title} onChange={(e) => save({ title: e.target.value })}
                 className="text-xl font-bold border-none focus-visible:ring-0 px-0 flex-1 min-w-[120px]" dir="auto" />
@@ -238,45 +238,11 @@ export default function NotesView() {
               </Button>
             </div>
 
-            <Tabs defaultValue="visual">
-              <TabsList>
-                <TabsTrigger value="visual">📖 نمایش/ویرایش</TabsTrigger>
-                <TabsTrigger value="markdown">📝 Markdown خام</TabsTrigger>
-                <TabsTrigger value="preview">👁 پیش‌نمایش</TabsTrigger>
-              </TabsList>
-              <TabsContent value="visual" className="mt-3">
-                <RichEditor
-                  key={selected.id}
-                  initialMarkdown={selected.content}
-                  onChange={(html, md) => setDraft({ html, md })}
-                />
-              </TabsContent>
-              <TabsContent value="markdown" className="mt-3 space-y-3">
-                <Textarea
-                  value={draft?.md ?? selected.content}
-                  onChange={(e) => setDraft({ md: e.target.value, html: markdownToHtml(e.target.value) })}
-                  className="min-h-[40vh] font-mono text-sm"
-                  dir="ltr"
-                />
-                <div className="border rounded-lg p-4 bg-card/40">
-                  <p className="text-xs text-muted-foreground mb-2">پیش‌نمایش زنده:</p>
-                  <div className="prose-note">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {draft?.md ?? selected.content ?? ""}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              </TabsContent>
-              <TabsContent value="preview" className="mt-3">
-                <div className="border rounded-lg p-5 bg-card/40 min-h-[50vh]">
-                  <div className="prose-note">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {draft?.md ?? selected.content ?? ""}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <NoteEditorTabs
+              noteId={selected.id}
+              markdown={draft?.md ?? selected.content ?? ""}
+              onChange={(md, html) => setDraft({ html, md })}
+            />
           </div>
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">
