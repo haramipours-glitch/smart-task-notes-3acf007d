@@ -127,6 +127,27 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
     await supabase.from("task_steps" as any).delete().eq("id", id);
   };
 
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  const reorderSteps = async (listId: string, fromId: string, toId: string) => {
+    const listSteps = steps
+      .filter((s) => s.list_id === listId)
+      .sort((a, b) => a.position - b.position);
+    const fromIdx = listSteps.findIndex((s) => s.id === fromId);
+    const toIdx = listSteps.findIndex((s) => s.id === toId);
+    if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+    const reordered = arrayMove(listSteps, fromIdx, toIdx);
+    setSteps((prev) => {
+      const map = new Map(reordered.map((s, i) => [s.id, i]));
+      return prev.map((s) => (map.has(s.id) ? { ...s, position: map.get(s.id)! } : s));
+    });
+    await Promise.all(
+      reordered.map((s, i) =>
+        supabase.from("task_steps" as any).update({ position: i }).eq("id", s.id)
+      )
+    );
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
