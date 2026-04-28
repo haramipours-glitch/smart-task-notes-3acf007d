@@ -7,15 +7,17 @@ import { AutoTextarea } from "@/components/ui/auto-textarea";
 import { BidiText } from "@/components/BidiText";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Plus, Sparkles, Trash2, FileText, Clock } from "lucide-react";
+import { Plus, Sparkles, Trash2, FileText, Clock, ChevronDown } from "lucide-react";
 import { PRIORITY_META, PRIORITY_ORDER } from "@/lib/priority";
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
-import { RichEditor } from "@/components/RichEditor";
+import { NoteEditorTabs } from "@/components/NoteEditorTabs";
 import { TaskStepLists } from "@/components/TaskStepLists";
 import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
+import { pushUndo } from "@/lib/undoStack";
 import type { Task, TaskNote, ConfirmState } from "@/lib/taskTypes";
 
 export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet" }: {
@@ -30,6 +32,8 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const [taskNotes, setTaskNotes] = useState<TaskNote[]>([]);
   const [activeNote, setActiveNote] = useState<TaskNote | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
+  const hasTimeBlock = !!(t.start_at || t.end_at || t.estimated_minutes);
+  const [timeBlockOpen, setTimeBlockOpen] = useState<boolean>(hasTimeBlock);
 
   useEffect(() => { setT(task); }, [task.id]);
 
@@ -73,9 +77,21 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
     setConfirm({
       kind: "note", id: n.id, title: n.title || "بدون عنوان",
       onConfirm: async () => {
+        const { data: snap } = await supabase.from("notes").select("*").eq("id", n.id).maybeSingle();
         await supabase.from("notes").delete().eq("id", n.id);
         setTaskNotes(prev => prev.filter(x => x.id !== n.id));
         if (activeNote?.id === n.id) setActiveNote(null);
+        if (snap) {
+          pushUndo({
+            label: `نوت «${snap.title || "بدون عنوان"}» حذف شد`,
+            undo: async () => {
+              await supabase.from("notes").insert(snap as any);
+              const { data } = await supabase.from("notes").select("id,title,content").eq("task_id", task.id)
+                .order("updated_at", { ascending: false });
+              setTaskNotes((data || []) as any);
+            },
+          });
+        }
       },
     });
   };
