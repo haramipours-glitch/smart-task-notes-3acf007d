@@ -6,18 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { RichEditor } from "@/components/RichEditor";
+import { NoteEditorTabs } from "@/components/NoteEditorTabs";
 import { markdownToHtml } from "@/lib/markdown";
 import { BidiText } from "@/components/BidiText";
 import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
 import { AILangToggle } from "@/components/AILangToggle";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { pushUndo } from "@/lib/undoStack";
 
 type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null; folder_id?: string | null };
 
@@ -122,10 +119,19 @@ export default function NotesView() {
   }, [draft?.md]);
 
   const del = async (id: string) => {
+    const note = notes.find(n => n.id === id);
     setNotes(prev => prev.filter(n => n.id !== id));
     await supabase.from("notes").delete().eq("id", id);
     if (selected?.id === id) { setSelected(null); setDraft(null); }
-    toast.success("حذف شد");
+    if (note) {
+      pushUndo({
+        label: `نوت «${note.title || "بدون عنوان"}» حذف شد`,
+        undo: async () => {
+          await supabase.from("notes").insert(note as any);
+          load();
+        },
+      });
+    }
   };
 
   const runNoteAI = async (action: string) => {
@@ -193,7 +199,7 @@ export default function NotesView() {
 
       <div className="flex-1 min-w-0 overflow-y-auto">
         {selected ? (
-          <div className="p-4 max-w-6xl mx-auto">
+          <div className="p-2 sm:p-4 w-full">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Input value={selected.title} onChange={(e) => save({ title: e.target.value })}
                 className="text-xl font-bold border-none focus-visible:ring-0 px-0 flex-1 min-w-[120px]" dir="auto" />
@@ -230,45 +236,11 @@ export default function NotesView() {
               </Button>
             </div>
 
-            <Tabs defaultValue="visual">
-              <TabsList>
-                <TabsTrigger value="visual">📖 نمایش/ویرایش</TabsTrigger>
-                <TabsTrigger value="markdown">📝 Markdown خام</TabsTrigger>
-                <TabsTrigger value="preview">👁 پیش‌نمایش</TabsTrigger>
-              </TabsList>
-              <TabsContent value="visual" className="mt-3">
-                <RichEditor
-                  key={selected.id}
-                  initialMarkdown={selected.content}
-                  onChange={(html, md) => setDraft({ html, md })}
-                />
-              </TabsContent>
-              <TabsContent value="markdown" className="mt-3 space-y-3">
-                <Textarea
-                  value={draft?.md ?? selected.content}
-                  onChange={(e) => setDraft({ md: e.target.value, html: markdownToHtml(e.target.value) })}
-                  className="min-h-[40vh] font-mono text-sm"
-                  dir="ltr"
-                />
-                <div className="border rounded-lg p-4 bg-card/40">
-                  <p className="text-xs text-muted-foreground mb-2">پیش‌نمایش زنده:</p>
-                  <div className="prose-note">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {draft?.md ?? selected.content ?? ""}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              </TabsContent>
-              <TabsContent value="preview" className="mt-3">
-                <div className="border rounded-lg p-5 bg-card/40 min-h-[50vh]">
-                  <div className="prose-note">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {draft?.md ?? selected.content ?? ""}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <NoteEditorTabs
+              noteId={selected.id}
+              markdown={draft?.md ?? selected.content ?? ""}
+              onChange={(md, html) => setDraft({ html, md })}
+            />
           </div>
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">

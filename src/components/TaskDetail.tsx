@@ -7,15 +7,17 @@ import { AutoTextarea } from "@/components/ui/auto-textarea";
 import { BidiText } from "@/components/BidiText";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Plus, Sparkles, Trash2, FileText, Clock } from "lucide-react";
+import { Plus, Sparkles, Trash2, FileText, Clock, ChevronDown } from "lucide-react";
 import { PRIORITY_META, PRIORITY_ORDER } from "@/lib/priority";
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
-import { RichEditor } from "@/components/RichEditor";
+import { NoteEditorTabs } from "@/components/NoteEditorTabs";
 import { TaskStepLists } from "@/components/TaskStepLists";
 import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
+import { pushUndo } from "@/lib/undoStack";
 import type { Task, TaskNote, ConfirmState } from "@/lib/taskTypes";
 
 export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet" }: {
@@ -30,6 +32,8 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const [taskNotes, setTaskNotes] = useState<TaskNote[]>([]);
   const [activeNote, setActiveNote] = useState<TaskNote | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
+  const hasTimeBlock = !!(t.start_at || t.end_at || t.estimated_minutes);
+  const [timeBlockOpen, setTimeBlockOpen] = useState<boolean>(hasTimeBlock);
 
   useEffect(() => { setT(task); }, [task.id]);
 
@@ -73,9 +77,21 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
     setConfirm({
       kind: "note", id: n.id, title: n.title || "بدون عنوان",
       onConfirm: async () => {
+        const { data: snap } = await supabase.from("notes").select("*").eq("id", n.id).maybeSingle();
         await supabase.from("notes").delete().eq("id", n.id);
         setTaskNotes(prev => prev.filter(x => x.id !== n.id));
         if (activeNote?.id === n.id) setActiveNote(null);
+        if (snap) {
+          pushUndo({
+            label: `نوت «${snap.title || "بدون عنوان"}» حذف شد`,
+            undo: async () => {
+              await supabase.from("notes").insert(snap as any);
+              const { data } = await supabase.from("notes").select("id,title,content").eq("task_id", task.id)
+                .order("updated_at", { ascending: false });
+              setTaskNotes((data || []) as any);
+            },
+          });
+        }
       },
     });
   };
@@ -134,41 +150,51 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               </div>
             </div>
 
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
-              <div className="flex items-center gap-1 text-sm font-medium text-primary">
-                <Clock className="w-4 h-4" /> Time Block
+            <Collapsible open={timeBlockOpen} onOpenChange={setTimeBlockOpen}>
+              <div className="rounded-lg border border-primary/30 bg-primary/5">
+                <CollapsibleTrigger className="w-full flex items-center justify-between p-3 text-sm font-medium text-primary">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" /> Time Block
+                    {hasTimeBlock && <span className="text-[10px] text-muted-foreground ms-1">(فعال)</span>}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${timeBlockOpen ? "" : "-rotate-90"}`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="px-3 pb-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-muted-foreground">شروع</label>
+                        <Input type="datetime-local"
+                          value={t.start_at ? t.start_at.slice(0, 16) : ""}
+                          onChange={(e) => save({ start_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground">پایان</label>
+                        <Input type="datetime-local"
+                          value={t.end_at ? t.end_at.slice(0, 16) : ""}
+                          onChange={(e) => save({ end_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <label className="text-[10px] text-muted-foreground whitespace-nowrap">مدت تخمینی (دقیقه):</label>
+                      <Input type="number" placeholder="—"
+                        value={t.estimated_minutes ?? ""}
+                        onChange={(e) => save({ estimated_minutes: e.target.value ? Number(e.target.value) : null } as any)}
+                        className="h-8 w-24 text-xs" />
+                      <div className="flex gap-1">
+                        {[15, 30, 60].map(m => (
+                          <button key={m} type="button"
+                            onClick={() => save({ estimated_minutes: m } as any)}
+                            className={`px-2 h-7 text-[10px] rounded border ${t.estimated_minutes === m ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}>
+                            {m}د
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleContent>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-[10px] text-muted-foreground">شروع</label>
-                  <Input type="datetime-local"
-                    value={t.start_at ? t.start_at.slice(0, 16) : ""}
-                    onChange={(e) => save({ start_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
-                </div>
-                <div>
-                  <label className="text-[10px] text-muted-foreground">پایان</label>
-                  <Input type="datetime-local"
-                    value={t.end_at ? t.end_at.slice(0, 16) : ""}
-                    onChange={(e) => save({ end_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="text-[10px] text-muted-foreground whitespace-nowrap">مدت تخمینی (دقیقه):</label>
-                <Input type="number" placeholder="—"
-                  value={t.estimated_minutes ?? ""}
-                  onChange={(e) => save({ estimated_minutes: e.target.value ? Number(e.target.value) : null } as any)}
-                  className="h-8 w-24 text-xs" />
-                <div className="flex gap-1">
-                  {[15, 30, 60].map(m => (
-                    <button key={m} type="button"
-                      onClick={() => save({ estimated_minutes: m } as any)}
-                      className={`px-2 h-7 text-[10px] rounded border ${t.estimated_minutes === m ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}>
-                      {m}د
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            </Collapsible>
 
             <RecurrenceEditor
               value={t.recurrence_rule}
@@ -224,7 +250,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   return (
     <>
       {mode === "page" ? (
-        <div className="max-w-5xl mx-auto p-4 md:p-6">
+        <div className="w-full px-2 sm:px-4 md:px-6 py-4">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-xl font-bold">جزئیات تسک</h1>
             <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">
@@ -235,7 +261,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
         </div>
       ) : (
         <Sheet open={true} onOpenChange={(v) => !v && onClose()}>
-          <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
+          <SheetContent className="w-full sm:max-w-full overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="flex items-center justify-between">
                 <span>جزئیات تسک</span>
@@ -251,7 +277,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
       {activeNote && (
         <Sheet open={true} onOpenChange={(v) => !v && setActiveNote(null)}>
-          <SheetContent side="left" className="w-full sm:max-w-4xl overflow-y-auto">
+          <SheetContent side="left" className="w-full sm:max-w-full overflow-y-auto">
             <SheetHeader>
               <SheetTitle>
                 <Input value={activeNote.title} onChange={(e) => saveNote(activeNote.id, { title: e.target.value })}
@@ -259,10 +285,10 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               </SheetTitle>
             </SheetHeader>
             <div className="mt-4">
-              <RichEditor
-                key={activeNote.id}
-                initialMarkdown={activeNote.content || ""}
-                onChange={(_html, md) => saveNote(activeNote.id, { content: md })}
+              <NoteEditorTabs
+                noteId={activeNote.id}
+                markdown={activeNote.content || ""}
+                onChange={(md) => saveNote(activeNote.id, { content: md })}
               />
             </div>
           </SheetContent>

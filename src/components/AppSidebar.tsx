@@ -46,7 +46,6 @@ const SECTIONS: Section[] = [
       { url: "/app/next7", icon: CalendarDays, label: "۷ روز آینده" },
       { url: "/app/smart", icon: Filter, label: "Smart Lists" },
       { url: "/app/calendar", icon: Calendar, label: "تقویم" },
-      { url: "/app/kanban", icon: LayoutGrid, label: "Kanban" },
       { url: "/app/goals", icon: Target, label: "اهداف" },
       { url: "/app/habits", icon: Target, label: "عادت‌ها" },
       { url: "/app/pomodoro", icon: Timer, label: "Pomodoro" },

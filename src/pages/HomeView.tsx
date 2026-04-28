@@ -39,7 +39,6 @@ const ALL_QUICK: { key: string; icon: any; to: string; label: string; color: str
   { key: "next7", icon: CalendarDays, to: "/app/next7", label: "۷ روز", color: "text-indigo-500" },
   { key: "notes", icon: FileText, to: "/app/notes", label: "نوت‌ها", color: "text-violet-500" },
   { key: "calendar", icon: Calendar, to: "/app/calendar", label: "تقویم", color: "text-emerald-500" },
-  { key: "kanban", icon: Trello, to: "/app/kanban", label: "کانبان", color: "text-cyan-500" },
   { key: "pomodoro", icon: Timer, to: "/app/pomodoro", label: "Pomodoro", color: "text-amber-500" },
   { key: "habits", icon: Repeat, to: "/app/habits", label: "عادت‌ها", color: "text-pink-500" },
   { key: "goals", icon: Target, to: "/app/goals", label: "اهداف", color: "text-orange-500" },

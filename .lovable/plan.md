@@ -1,121 +1,78 @@
+# پلن تغییرات
 
+## ۱) نوت‌های داخل تسک (`TaskDetail.tsx`)
+نوت‌هایی که داخل یک Task باز می‌شوند فقط RichEditor دارند. سه‌حالته می‌کنیم مثل صفحه‌ی Notes:
+- اضافه کردن `Tabs` با سه حالت: **نمایش/ویرایش (Visual)**، **Markdown خام**، **پیش‌نمایش**.
+- کامپوننت یکسان با `NotesView` (بازنویسی به صورت یک کامپوننت کوچک قابل‌استفاده‌ی مجدد به نام `NoteEditorTabs` در `src/components/NoteEditorTabs.tsx` تا بین `NotesView` و `TaskDetail` مشترک باشد).
 
-# پلن: سایدبار قابل‌جابجایی + تقویم پیشرفته + ماژول‌های سلامت روان
+## ۲) عرض کامل نوت‌ها
+- `TaskDetail.tsx` در حالت `page`: حذف `max-w-5xl` در صفحه و سهم نوت = تمام عرض. Sheet نوت داخل تسک: `sm:max-w-full`.
+- `NotesView.tsx`: حذف `max-w-6xl mx-auto`، استفاده از `w-full px-2 sm:px-4`.
+- `prose-note` در `index.css`: حذف هر `max-width` (یا اضافه‌ی `max-w-none`).
 
-سه بخش اصلی + پیشنهادهای انتخابی از فایل معماری.
+## ۳) دکمه‌ی شناور برای نمایش مجدد Toolbar در RichEditor
+- توولبار فعلی `sticky top-0` است ولی داخل scroll-container جداست؛ گاهی هنگام اسکرول داخل صفحه‌ی والد محو می‌شود.
+- اضافه می‌کنیم: state `toolbarVisible`، یک IntersectionObserver روی sentinel بالای editor. اگر toolbar از view خارج شد، یک FAB کوچک `Floating ⋯` در گوشه‌ی پایین‌چپِ editor نشان داده می‌شود. کلیک = `scrollIntoView` روی toolbar یا توگل یک نسخه‌ی floating mini-toolbar (بولد/ایتالیک/لیست/H2/AI).
+- مکان: `src/components/RichEditor.tsx`.
 
----
+## ۴) Undo/Redo سراسری برای حذف‌ها و ویرایش‌ها
+ایجاد یک سیستم سبک:
+- `src/lib/undoStack.ts`: stack در حافظه (نه دیتابیس) با ظرفیت ۲۰، API:
+  - `pushUndo({ label, undo: async () => void, redo?: async () => void })`
+  - `undoLast()`, `redoLast()`
+- بعد از هر حذف (task/subtask/note/step/list/folder/tag) قبل از `delete`، snapshot ردیف(ها) را برمی‌داریم؛ سپس `pushUndo` با `undo` که insert مجدد می‌کند.
+- یک toast با دکمه‌ی «↶ بازگردانی» (sonner action) بعد از هر حذف.
+- میانبر کیبورد: `Ctrl/Cmd+Z` و `Ctrl/Cmd+Shift+Z` در `src/App.tsx` (listener سراسری).
+- نقاط ادغام: `TasksView.delTask`, `TaskDetail.askDelNote`, `TaskStepLists.deleteStep/deleteList`, `NotesView.del`, `AppSidebar` folder/tag delete.
+- توضیح: متن داخل ادیتورها (RichEditor/AutoTextarea) از undo/redo بومی مرورگر/Tiptap استفاده می‌کند (Tiptap StarterKit شامل History است) — در توولبار دو دکمه‌ی Undo/Redo اضافه می‌کنیم.
 
-## بخش ۱ — سایدبار قابل‌جابجایی (Drag & Reorder)
+## ۵) Time Block به صورت کشویی (Collapsible)
+- در `TaskDetail.tsx` بخش Time Block را داخل `Collapsible` با عنوان «⏱ Time Block» قرار می‌دهیم. پیش‌فرض **بسته**؛ باز شدن وقتی `start_at` یا `end_at` یا `estimated_minutes` ست شده.
 
-**هدف:** ترتیب ۵ گروه + بلاک فولدرها + بلاک تگ‌ها قابل جابجایی توسط کاربر باشد، با ترتیب پیش‌فرض جدید:
-**فولدرها → تگ‌ها → کارها → نوت‌ها → خودشناسی → سلامت ذهن → ابزار**
+## ۶) جابجایی مراحل (Steps) بالا/پایین
+در `TaskStepLists.tsx`:
+- اضافه‌ی `dnd-kit` (`SortableContext` + `useSortable`) برای هر `list`.
+- یا ساده‌تر: دو دکمه‌ی `▲` `▼` کنار هر step که `position` را با همسایه‌ی بالا/پایین swap می‌کند و در DB آپدیت می‌کند. (پیشنهاد: هر دو — drag handle + دکمه‌های آپ/داون برای موبایل).
+- روش انتخابی: drag handle (GripVertical) + dnd-kit، چون قبلاً در پروژه استفاده می‌شود.
 
-**اجرا:**
-- استفاده از کتابخانه `@dnd-kit/core` + `@dnd-kit/sortable` (سبک، accessible، RTL-friendly).
-- یک handle کوچک (آیکون `GripVertical`) در سمت چپ هر عنوان گروه (در حالت دسکتاپ + موبایل با long-press).
-- ترتیب در `localStorage` با کلید `sidebar_order_v1` ذخیره می‌شود.
-- دکمه «بازنشانی ترتیب» در پایین سایدبار.
+## ۷) Sort اولویت‌بندی پایدار در Task Manager
+الان `filters.sort` فقط در state بود و در سشن بعد به `priority` ریست می‌شد.
+- ذخیره‌ی کل `filters` در `localStorage` با کلید `task_filters_v1` (در `TasksView.tsx` mount/effect).
+- یا بهتر: ذخیره فقط `sort` به‌صورت per-scope: `task_sort_v1` = `{ inbox: "due_asc", today: "priority", ... }`.
+- روش انتخابی: ذخیره‌ی per-scope در localStorage و خواندن در init `useState`.
 
----
+## ۸) حذف کامل ماتریس آیزن‌هاور
+- در `TasksView.tsx`: حذف `import EisenhowerMatrix`، حذف هر دو `<Tabs>`، فقط `listView` نمایش داده شود برای حالت غیر-folder. برای حالت folder فقط دو تب: `لیست` و `Kanban`.
+- حذف فایل‌ها: `src/components/EisenhowerMatrix.tsx` و `src/lib/eisenhower.ts`.
+- حذف ستون `quadrant` از کوئری‌ها (در صورت ارجاع — ستون DB دست‌نخورده می‌ماند، فقط استفاده‌ی فرانت حذف می‌شود).
 
-## بخش ۲ — تقویم پیشرفته (CalendarView بازنویسی)
+## ۹) حذف تب Kanban از سایدبار
+- در `src/components/AppSidebar.tsx` آیتم `{ url: "/app/kanban", icon: LayoutGrid, label: "Kanban" }` حذف می‌شود.
+- در `src/pages/HomeView.tsx` چیپ «کانبان» از quick widgets پیش‌فرض حذف می‌شود.
+- در `src/components/CommandPalette.tsx` ورودی Kanban حذف می‌شود.
+- مسیر `/app/kanban` در `App.tsx` نگه داشته می‌شود (در صورت bookmark) ولی از سایدبار حذف. (در صورت تمایل کامل، می‌توانیم route را هم حذف کنیم — لطفاً تأیید کن یا همین رفتار را نگه می‌داریم.)
+- پلن انتخابی: route را نگه می‌داریم تا Kanban درون فولدر کار کند، فقط لینک سایدبار حذف.
 
-**Tabbed Views:**
-- **ماهانه (Month)** — همان نمای فعلی، بهبودیافته
-- **هفتگی (Week)** — ۷ ستون روز × ۲۴ ردیف ساعت (نمای ساعتی)
-- **روزانه (Day)** — یک ستون با time-slot ساعتی (۰۰:۰۰ تا ۲۳:۰۰)
-- **Agenda** — لیست عمودی رویدادها
+## ۱۰) چیدمان جدید کارت تسک (در `TasksView.tsx` `renderTask`)
+الان: `[handle][chevron][checkbox][title]`
+هدف:
+- ردیف اول کاملاً عریض برای title، چک‌باکس در **گوشه‌ی راست** (RTL = end).
+  - چون `dir="rtl"`، در DOM چک‌باکس باید **آخرین** آیتم در flex باشد تا در راست قرار بگیرد.
+  - ساختار جدید ردیف ۱: `[chevron][title flex-1][checkbox]`.
+- Drag handle می‌رود به یک ردیف کوچک زیر (همراه دکمه‌های FolderInput / Trash) تا روی Title فشاری وارد نشود. عملاً ردیف ۲ فعلی (badges + actions) را نگه می‌داریم و GripVertical را به ابتدای آن منتقل می‌کنیم.
+- یعنی: ردیف ۱ = chevron + title + checkbox (راست). ردیف ۲ = grip + badges + dropzone + move + delete.
 
-**کلیک روی روز → DayDetailSheet:**
-- در نمای ماهانه با کلیک روی هر سلول، یک Sheet/Dialog باز شود شامل:
-  - **هدر:** تاریخ شمسی + میلادی + روز هفته
-  - **مناسبت‌ها:** تعطیلی ایران/استرالیا (از جدول `holidays`) + روز خاص شمسی
-  - **خط‌زمان ساعتی:** نمایش تسک‌ها روی محور ساعت (با `due_date` و `reminder_at`)
-  - **چک‌این آن روز:** mood/energy/sleep از `daily_checkins` اگر ثبت شده
-  - **پیش‌بینی روز:** از `predictions` اگر موجود باشد
-  - **دکمه‌ها:** «+ تسک جدید برای این روز»، «+ نوت روزانه»، «+ Check-in»
+## نکات فنی (برای توسعه)
+- **Tiptap History**: قبلاً در StarterKit فعال است؛ صرفاً دکمه‌های Undo/Redo در toolbar اضافه می‌کنیم با `editor.chain().focus().undo().run()` و `redo()`.
+- **dnd-kit برای Steps**: نیاز به `SortableContext items={steps.map(s=>s.id)}` و `useSortable` در آیتم. آپدیت `position` در DB پس از `arrayMove` (مشابه TasksView).
+- **NoteEditorTabs مشترک**: props = `{ markdown, onChange, aiLang, onAILang, busy, onAI }`. در `TaskDetail` AI و Lang toggle اختیاری/ساده می‌شود.
+- **persisted filters**: `useEffect(() => { localStorage.setItem("task_sort_v1", JSON.stringify({ ...prev, [scope]: filters.sort })); }, [filters.sort, scope])`.
+- **Floating toolbar btn**: sentinel `<div ref={sentinelRef} />` بالای editor، Observer با `threshold: 0` → اگر `!isIntersecting` → FAB.
+- **Undo for deletes (تسک با زیرتسک)**: snapshot شامل والد + همه‌ی `descendants` + روابط `task_tags`؛ insert مجدد با حفظ `id`ها.
 
-**زیر هر سلول روز در نمای ماهانه:**
-- خط اول: مناسبت روز (اگر بود)
-- خط دوم: تعداد تسک‌ها + نقطه‌های رنگی (تا ۳ تا) براساس priority
+## فایل‌های تأثیرپذیر
+- ویرایش: `src/components/TaskDetail.tsx`, `src/components/RichEditor.tsx`, `src/components/TaskStepLists.tsx`, `src/pages/TasksView.tsx`, `src/pages/NotesView.tsx`, `src/components/AppSidebar.tsx`, `src/components/CommandPalette.tsx`, `src/pages/HomeView.tsx`, `src/index.css`, `src/App.tsx`
+- ایجاد: `src/components/NoteEditorTabs.tsx`, `src/lib/undoStack.ts`
+- حذف: `src/components/EisenhowerMatrix.tsx`, `src/lib/eisenhower.ts`
 
-**ساختار فایل:**
-```
-src/pages/CalendarView.tsx          ← shell با Tabs
-src/components/calendar/
-  ├─ MonthGrid.tsx
-  ├─ WeekView.tsx                   ← grid 7×24
-  ├─ DayView.tsx                    ← single column 24 slots
-  ├─ AgendaView.tsx
-  └─ DayDetailSheet.tsx             ← popup روز
-```
-
-**درگ تسک روی time-slot (هفتگی/روزانه):** کشیدن تسک به ساعت دیگر → آپدیت `due_date`. (با `@dnd-kit` که برای بخش ۱ اضافه می‌شود.)
-
----
-
-## بخش ۳ — پیشنهادها از فایل معماری (انتخابی)
-
-از فایل ۴۹۲ خطی، این موارد **با زیرساخت فعلی قابل پیاده‌سازی‌اند** (DB ها از قبل آماده):
-
-### A. آماده برای پیاده‌سازی فوری (MVP پیشنهادی)
-
-| # | ماژول | چرا الان؟ | وضعیت DB |
-|---|---|---|---|
-| A1 | **Cognitive Load v2** (فرمول کامل با Chronotype + Sleep Multiplier) | فقط منطق محاسباتی + UI | داده‌ها در `tasks`, `daily_checkins`, `chronotype` موجود |
-| A2 | **Dynamic Evening Check-in** (سوالات پویا براساس بار شناختی روز) | فقط شرط روی فرم فعلی | جدول `daily_checkins` آماده |
-| A3 | **Calibration Curve** (نمودار پیش‌بینی vs واقعی برای Prediction) | فقط چارت + محاسبه | جدول `predictions` آماده |
-| A4 | **Cognitive Distortion Detector پیشرفته** (۱۰ خطا با کلمات کلیدی فارسی) | فقط ارتقاء `src/lib/distortions.ts` | جدول `thought_records` آماده |
-| A5 | **Disclaimer بالینی + Onboarding تایید** | یک صفحه + flag در profile | نیاز به ستون `clinical_consent` |
-
-### B. نیاز به ساختار جدید (متوسط)
-
-| # | ماژول | چه چیز جدید نیاز است |
-|---|---|---|
-| B1 | **Sleep Layer** | جدول `sleep_logs` (hours, quality, awakenings, caffeine_cutoff) + Sleep Debt chart |
-| B2 | **Cross-Correlation Radar** (با زبان آماری: «اعتماد متوسط، نمونه ۱۴ روز») | الگوریتم همبستگی + UI |
-| B3 | **Progressive Profiling** (Mini-IPIP ۲۰ سوال + توزیع تدریجی HEXACO/VIA در طول ۶ هفته) | جدول `profile_questions_queue` + تزریق در ۳ نقطه (Idle/شب/Pomodoro) |
-| B4 | **Pattern Detection ABC پیشرفته** (آستانه ≥۷ نمونه + frequency ≥0.6) | فقط ارتقاء UI (DB موجود) |
-| B5 | **Decision Journal** | جدول `decision_journal` |
-
-### C. پیچیده / فاز بعدی
-
-| # | ماژول | پیچیدگی |
-|---|---|---|
-| C1 | **Duo Mode** (اشتراک‌گذاری granular با partner) | نیاز به sharing system + invite flow + ECR-R conflict logic |
-| C2 | **A/B Testing شخصی** (هفته آینده Deep Work را ۹-۱۱ صبح امتحان کن) | نیاز به experiment tracker |
-| C3 | **End-to-End Encryption** برای Thought Records | نیاز به key management در client |
-
----
-
-## نکات فنی مختصر
-
-- **DnD library:** `@dnd-kit/core@6` + `@dnd-kit/sortable@8` (~30KB، RTL-OK)
-- **Calendar Week/Day view:** بدون کتابخانه سنگین — grid CSS ساده با `date-fns`
-- **DayDetailSheet:** از `Sheet` shadcn استفاده می‌کنیم (mobile-friendly، از پایین باز می‌شود در موبایل)
-- **هیچ migration خطرناکی** نیاز نیست؛ فقط برای موارد B/C اگر تایید کنی جدول جدید می‌سازم
-
----
-
-## انتخاب‌های لازم
-
-سه گروه سوال — لطفاً برای هر کدام انتخاب کن:
-
-### ۱) از پیشنهادهای فایل معماری چه چیز اضافه شود؟
-- **(الف)** فقط بخش ۱ + ۲ همین حالا، ماژول‌های فایل بعداً
-- **(ب)** بخش ۱ + ۲ + همه موارد گروه **A** (A1..A5) — سریع و ارزشمند
-- **(ج)** بخش ۱ + ۲ + گروه **A** + گروه **B** کامل — جامع
-- **(د)** فقط آیتم‌های منتخب — اسم بگو (مثلاً «A1 + A4 + B1»)
-
-### ۲) ترتیب پیش‌فرض سایدبار:
-- **(الف)** فولدرها → تگ‌ها → کارها → نوت‌ها → خودشناسی → سلامت ذهن → ابزار  ← (پیشنهاد تو)
-- **(ب)** فولدرها → کارها → تگ‌ها → بقیه
-- **(ج)** ترتیب فعلی بماند، فقط قابلیت drag اضافه شود
-
-### ۳) DayDetailSheet موبایل:
-- **(الف)** Sheet از پایین (مدرن، swipe-down برای بستن)
-- **(ب)** Dialog کامل (full-screen در موبایل)
-
-پس از پاسخ، شروع به اجرا می‌کنم.
-
+پس از تأیید، همه‌ی موارد بالا یکجا اعمال می‌شود.

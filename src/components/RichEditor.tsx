@@ -15,6 +15,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, Heading1, Heading2, Heading3,
   List, ListOrdered, ListChecks, Quote, Code, Image as ImgIcon, Music, Video, Paperclip,
   Link as LinkIcon, Highlighter, AlignLeft, AlignCenter, AlignRight, Minus, Sparkles, Loader2,
+  Undo2, Redo2, Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -58,6 +59,9 @@ export function RichEditor({
   const fileRef = useRef<HTMLInputElement>(null);
   const [pendingKind, setPendingKind] = useState<"image" | "audio" | "video" | "file">("file");
   const [aiBusy, setAiBusy] = useState(false);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [toolbarOnScreen, setToolbarOnScreen] = useState(true);
 
   const editor = useEditor({
     extensions: [
@@ -108,6 +112,22 @@ export function RichEditor({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
+
+  // Detect when toolbar scrolls out of view → show floating "show toolbar" FAB
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setToolbarOnScreen(entry.isIntersecting),
+      { rootMargin: "-1px 0px 0px 0px", threshold: 0 }
+    );
+    obs.observe(sentinel);
+    return () => obs.disconnect();
+  }, []);
+
+  const scrollToToolbar = () => {
+    toolbarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const insertFile = async (file: File) => {
     if (!user) return toast.error("ابتدا وارد شوید");
@@ -174,7 +194,7 @@ export function RichEditor({
   if (!editor) return <div className="min-h-[50vh] animate-pulse bg-muted/30 rounded" />;
 
   return (
-    <div className="border rounded-lg bg-background overflow-hidden">
+    <div className="border rounded-lg bg-background overflow-hidden relative">
       <input
         ref={fileRef} type="file" className="hidden"
         onChange={(e) => {
@@ -183,8 +203,17 @@ export function RichEditor({
         }}
       />
 
+      <div ref={sentinelRef} aria-hidden className="h-px" />
+
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 border-b p-1.5 sticky top-0 bg-background/95 backdrop-blur z-10">
+      <div ref={toolbarRef} className="flex flex-wrap items-center gap-0.5 border-b p-1.5 sticky top-0 bg-background/95 backdrop-blur z-10">
+        <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => editor.chain().focus().undo().run()} title="Undo">
+          <Undo2 className="w-4 h-4" />
+        </Button>
+        <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => editor.chain().focus().redo().run()} title="Redo">
+          <Redo2 className="w-4 h-4" />
+        </Button>
+        <Separator orientation="vertical" className="h-6 mx-1" />
         <Toggle size="sm" pressed={editor.isActive("heading", { level: 1 })}
           onPressedChange={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>
           <Heading1 className="w-4 h-4" />
@@ -290,6 +319,19 @@ export function RichEditor({
       <div className="p-3">
         <EditorContent editor={editor} />
       </div>
+
+      {/* Floating "show toolbar" FAB when toolbar is scrolled out */}
+      {!toolbarOnScreen && (
+        <button
+          type="button"
+          onClick={scrollToToolbar}
+          className="fixed bottom-20 left-4 z-40 h-11 w-11 rounded-full shadow-elegant bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 transition"
+          title="نمایش نوار ابزار"
+          aria-label="نمایش نوار ابزار"
+        >
+          <Wrench className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
