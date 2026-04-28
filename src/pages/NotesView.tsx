@@ -11,13 +11,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { RichEditor } from "@/components/RichEditor";
+import { NoteEditorTabs } from "@/components/NoteEditorTabs";
 import { markdownToHtml } from "@/lib/markdown";
 import { BidiText } from "@/components/BidiText";
 import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
 import { AILangToggle } from "@/components/AILangToggle";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { pushUndo } from "@/lib/undoStack";
 
 type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null; folder_id?: string | null };
 
@@ -122,10 +121,19 @@ export default function NotesView() {
   }, [draft?.md]);
 
   const del = async (id: string) => {
+    const note = notes.find(n => n.id === id);
     setNotes(prev => prev.filter(n => n.id !== id));
     await supabase.from("notes").delete().eq("id", id);
     if (selected?.id === id) { setSelected(null); setDraft(null); }
-    toast.success("حذف شد");
+    if (note) {
+      pushUndo({
+        label: `نوت «${note.title || "بدون عنوان"}» حذف شد`,
+        undo: async () => {
+          await supabase.from("notes").insert(note as any);
+          load();
+        },
+      });
+    }
   };
 
   const runNoteAI = async (action: string) => {
