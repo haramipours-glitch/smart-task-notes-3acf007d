@@ -57,7 +57,26 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const [delFolderOpen, setDelFolderOpen] = useState(false);
   const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-  const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS);
+  const SORT_KEY = "task_sort_v1";
+  const loadSavedSort = (): TaskFilters["sort"] => {
+    try {
+      const raw = localStorage.getItem(SORT_KEY);
+      if (raw) {
+        const obj = JSON.parse(raw);
+        if (obj && obj[scope]) return obj[scope];
+      }
+    } catch {}
+    return "priority";
+  };
+  const [filters, setFilters] = useState<TaskFilters>({ ...DEFAULT_FILTERS, sort: loadSavedSort() });
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SORT_KEY);
+      const obj = raw ? JSON.parse(raw) : {};
+      obj[scope] = filters.sort;
+      localStorage.setItem(SORT_KEY, JSON.stringify(obj));
+    } catch {}
+  }, [filters.sort, scope]);
   const [taskTagsMap, setTaskTagsMap] = useState<Record<string, string[]>>({});
 
   // Load task->tags mapping for tag filtering
@@ -223,9 +242,26 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   };
 
   const delTask = async (id: string) => {
-    setAllTasks(prev => prev.filter(t => t.id !== id && t.parent_id !== id));
+    // snapshot task + descendants + tag links for undo
+    const collectIds = (rid: string): string[] => {
+      const out = [rid];
+      const kids = allTasks.filter(t => t.parent_id === rid);
+      kids.forEach(k => out.push(...collectIds(k.id)));
+      return out;
+    };
+    const ids = collectIds(id);
+    const snaps = allTasks.filter(t => ids.includes(t.id));
+    const { data: tagLinks } = await supabase.from("task_tags").select("*").in("task_id", ids);
+    setAllTasks(prev => prev.filter(t => !ids.includes(t.id)));
     await supabase.from("tasks").delete().eq("id", id);
-    toast.success("حذف شد");
+    pushUndo({
+      label: `تسک «${snaps.find(s => s.id === id)?.title || ""}» حذف شد`,
+      undo: async () => {
+        await supabase.from("tasks").insert(snaps as any);
+        if (tagLinks?.length) await supabase.from("task_tags").insert(tagLinks as any);
+        load();
+      },
+    });
   };
 
   const askDeleteTask = (t: Task) => {
