@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor,
+  DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor,
   closestCenter, useSensor, useSensors, useDroppable,
 } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
@@ -48,6 +48,6 @@ export function RootDropZone() {
 
 // Re-export DnD primitives so TasksView only imports from one place
 export {
-  DndContext, DragOverlay, PointerSensor, closestCenter, useSensor, useSensors,
+  DndContext, DragOverlay, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors,
 };
 export type { DragEndEvent, DragStartEvent };

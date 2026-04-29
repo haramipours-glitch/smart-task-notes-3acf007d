@@ -250,7 +250,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   return (
     <>
       {mode === "page" ? (
-        <div className="w-full px-2 sm:px-4 md:px-6 py-4">
+        <div className="w-full px-1 sm:px-2 md:px-4 py-4">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-xl font-bold">جزئیات تسک</h1>
             <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">

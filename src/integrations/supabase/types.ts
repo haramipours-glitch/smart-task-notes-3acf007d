@@ -1122,7 +1122,7 @@ export type Database = {
     }
     Enums: {
       recurrence_type: "none" | "daily" | "weekly" | "monthly"
-      task_priority: "none" | "low" | "medium" | "high"
+      task_priority: "none" | "low" | "medium" | "urgent" | "high"
       task_status: "todo" | "in_progress" | "done"
     }
     CompositeTypes: {
@@ -1252,7 +1252,7 @@ export const Constants = {
   public: {
     Enums: {
       recurrence_type: ["none", "daily", "weekly", "monthly"],
-      task_priority: ["none", "low", "medium", "high"],
+      task_priority: ["none", "low", "medium", "urgent", "high"],
       task_status: ["todo", "in_progress", "done"],
     },
   },

@@ -1,4 +1,4 @@
-export type Priority = "none" | "low" | "medium" | "high";
+export type Priority = "none" | "low" | "medium" | "high" | "urgent";
 
 export const PRIORITY_META: Record<Priority, {
   label: string;
@@ -8,6 +8,14 @@ export const PRIORITY_META: Record<Priority, {
   borderClass: string;
   rank: number;
 }> = {
+  urgent: {
+    label: "فوق فوری",
+    emoji: "🔥",
+    textClass: "text-red-700 dark:text-red-300",
+    bgClass: "bg-red-600/15 border-red-600/40",
+    borderClass: "border-l-red-600",
+    rank: -1,
+  },
   high: {
     label: "فوری",
     emoji: "🔴",
@@ -42,4 +50,4 @@ export const PRIORITY_META: Record<Priority, {
   },
 };
 
-export const PRIORITY_ORDER: Priority[] = ["high", "medium", "low", "none"];
+export const PRIORITY_ORDER: Priority[] = ["urgent", "high", "medium", "low", "none"];

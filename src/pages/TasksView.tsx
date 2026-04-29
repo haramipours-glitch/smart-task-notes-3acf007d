@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
-import { Plus, Calendar, Trash2, ChevronRight, ChevronDown, Flag, GripVertical, CornerDownRight, FolderInput } from "lucide-react";
+import { Plus, Calendar, Trash2, ChevronRight, ChevronDown, Flag, GripVertical, CornerDownRight, FolderInput, ArrowUp, ArrowDown } from "lucide-react";
 import { MoveToDialog } from "@/components/MoveToDialog";
 import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
 import { startItemDrag } from "@/lib/dragToFolder";
@@ -24,7 +24,7 @@ import { pushUndo } from "@/lib/undoStack";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { describeRule, nextOccurrence } from "@/lib/recurrence";
 import {
-  DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor,
+  DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor,
   closestCenter, useSensor, useSensors,
   SortableTaskRow, ChildDropZone, RootDropZone,
 } from "@/components/TaskDnDHelpers";
@@ -56,7 +56,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [delFolderOpen, setDelFolderOpen] = useState(false);
   const navigate = useNavigate();
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
+  );
   const SORT_KEY = "task_sort_v2";
   const scopeKey = `${scope}:${params.id || "_"}`;
   const loadSavedFilters = (): TaskFilters => {
@@ -391,6 +394,19 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     await Promise.all(updates);
   };
 
+  const moveSibling = async (t: Task, dir: -1 | 1) => {
+    const siblings = t.parent_id ? (childrenMap[t.parent_id] || []) : topLevel;
+    const idx = siblings.findIndex(s => s.id === t.id);
+    const newIdx = idx + dir;
+    if (idx < 0 || newIdx < 0 || newIdx >= siblings.length) return;
+    const reordered = arrayMove(siblings, idx, newIdx);
+    const map = new Map(reordered.map((s, i) => [s.id, i]));
+    setAllTasks(prev => prev.map(x => map.has(x.id) ? { ...x, position: map.get(x.id)! } : x));
+    await Promise.all(reordered.map((s, i) =>
+      supabase.from("tasks").update({ position: i }).eq("id", s.id)
+    ));
+  };
+
   const renderTask = (t: Task, depth = 0) => {
     const subs = childrenMap[t.id] || [];
     const open = expanded[t.id];
@@ -426,8 +442,14 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               {/* Row 2: drag handle + badges + actions */}
               <div className="flex items-center justify-between gap-1 mt-1.5 ms-6 flex-wrap">
                 <div className="flex items-center gap-1 flex-wrap min-w-0">
-                  <button {...dragHandle} className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0" aria-label="drag">
-                    <GripVertical className="w-3.5 h-3.5" />
+                  <button {...dragHandle} className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0 h-7 w-7 rounded-md bg-muted/40 hover:bg-muted flex items-center justify-center" aria-label="drag (long-press on mobile)" title="جابجایی (روی موبایل لمس طولانی)">
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => moveSibling(t, -1)} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move up" title="بالا">
+                    <ArrowUp className="w-3.5 h-3.5" />
+                  </button>
+                  <button onClick={() => moveSibling(t, 1)} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move down" title="پایین">
+                    <ArrowDown className="w-3.5 h-3.5" />
                   </button>
                   {t.priority !== "none" && (
                     <Badge variant="outline" className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 ${pm.bgClass} ${pm.textClass}`}>

@@ -11,6 +11,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
+import Typography from "@tiptap/extension-typography";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, Heading1, Heading2, Heading3,
   List, ListOrdered, ListChecks, Quote, Code, Image as ImgIcon, Music, Video, Paperclip,
@@ -74,6 +75,7 @@ export function RichEditor({
       Youtube.configure({ controls: true, nocookie: true }),
       TaskList,
       TaskItem.configure({ nested: true }),
+      Typography,
       Placeholder.configure({ placeholder }),
     ],
     content: initialHtml || (initialMarkdown ? markdownToHtml(initialMarkdown) : ""),
@@ -194,7 +196,7 @@ export function RichEditor({
   if (!editor) return <div className="min-h-[50vh] animate-pulse bg-muted/30 rounded" />;
 
   return (
-    <div className="border rounded-lg bg-background overflow-hidden relative">
+    <div className="bg-background overflow-hidden relative w-full">
       <input
         ref={fileRef} type="file" className="hidden"
         onChange={(e) => {
@@ -316,7 +318,7 @@ export function RichEditor({
         </DropdownMenu>
       </BubbleMenu>
 
-      <div className="p-3">
+      <div className="px-1 py-2">
         <EditorContent editor={editor} />
       </div>
 
