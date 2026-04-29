@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
-import { Plus, Calendar, Trash2, ChevronRight, ChevronDown, Flag, GripVertical, CornerDownRight, FolderInput } from "lucide-react";
+import { Plus, Calendar, Trash2, ChevronRight, ChevronDown, Flag, GripVertical, CornerDownRight, FolderInput, ArrowUp, ArrowDown } from "lucide-react";
 import { MoveToDialog } from "@/components/MoveToDialog";
 import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
 import { startItemDrag } from "@/lib/dragToFolder";
@@ -24,7 +24,7 @@ import { pushUndo } from "@/lib/undoStack";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { describeRule, nextOccurrence } from "@/lib/recurrence";
 import {
-  DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor,
+  DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor,
   closestCenter, useSensor, useSensors,
   SortableTaskRow, ChildDropZone, RootDropZone,
 } from "@/components/TaskDnDHelpers";
@@ -56,7 +56,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [delFolderOpen, setDelFolderOpen] = useState(false);
   const navigate = useNavigate();
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
+  );
   const SORT_KEY = "task_sort_v2";
   const scopeKey = `${scope}:${params.id || "_"}`;
   const loadSavedFilters = (): TaskFilters => {
