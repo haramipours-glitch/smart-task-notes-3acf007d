@@ -394,6 +394,19 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     await Promise.all(updates);
   };
 
+  const moveSibling = async (t: Task, dir: -1 | 1) => {
+    const siblings = t.parent_id ? (childrenMap[t.parent_id] || []) : topLevel;
+    const idx = siblings.findIndex(s => s.id === t.id);
+    const newIdx = idx + dir;
+    if (idx < 0 || newIdx < 0 || newIdx >= siblings.length) return;
+    const reordered = arrayMove(siblings, idx, newIdx);
+    const map = new Map(reordered.map((s, i) => [s.id, i]));
+    setAllTasks(prev => prev.map(x => map.has(x.id) ? { ...x, position: map.get(x.id)! } : x));
+    await Promise.all(reordered.map((s, i) =>
+      supabase.from("tasks").update({ position: i }).eq("id", s.id)
+    ));
+  };
+
   const renderTask = (t: Task, depth = 0) => {
     const subs = childrenMap[t.id] || [];
     const open = expanded[t.id];
