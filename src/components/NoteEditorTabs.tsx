@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm";
 
 /**
  * Three-mode note editor: visual rich editor / raw markdown / preview.
- * Used by NotesView and inside TaskDetail.
+ * Used by NotesView and inside TaskDetail. Frameless — text spans full width.
  */
 export function NoteEditorTabs({
   noteId,
@@ -38,10 +38,10 @@ export function NoteEditorTabs({
         <Textarea
           value={markdown}
           onChange={(e) => onChange(e.target.value, markdownToHtml(e.target.value))}
-          className="min-h-[40vh] font-mono text-sm w-full"
+          className="min-h-[40vh] font-mono text-sm w-full border-0 focus-visible:ring-0 px-0"
           dir="ltr"
         />
-        <div className="border rounded-lg p-4 bg-card/40">
+        <div>
           <p className="text-xs text-muted-foreground mb-2">پیش‌نمایش زنده:</p>
           <div className="prose-note max-w-none">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -52,7 +52,7 @@ export function NoteEditorTabs({
       </TabsContent>
 
       <TabsContent value="preview" className="mt-3">
-        <div className="border rounded-lg p-5 bg-card/40 min-h-[50vh]">
+        <div className="min-h-[50vh]">
           <div className="prose-note max-w-none">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {markdown || ""}
