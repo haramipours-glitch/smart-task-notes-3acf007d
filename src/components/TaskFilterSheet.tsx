@@ -3,17 +3,25 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Filter, Save, Trash2, Plus } from "lucide-react";
+import { Filter, Save, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+
+export type SortKey = "due" | "priority" | "created";
+export type SortDir = "asc" | "desc";
+export type SortLevel = { key: SortKey; dir: SortDir };
 
 export type TaskFilters = {
   folder_ids: string[];
   tag_ids: string[];
   priorities: string[]; // none|low|medium|high
   show_completed: boolean;
-  sort: "priority" | "due_asc" | "due_desc" | "created_desc" | "alpha";
+  // Two-level sort: primary then secondary
+  sort_primary: SortLevel;
+  sort_secondary: SortLevel;
+  // Legacy single-key sort kept for backward compat
+  sort?: "priority" | "due_asc" | "due_desc" | "created_desc" | "alpha";
 };
 
 export const DEFAULT_FILTERS: TaskFilters = {
@@ -21,12 +29,72 @@ export const DEFAULT_FILTERS: TaskFilters = {
   tag_ids: [],
   priorities: [],
   show_completed: false,
+  sort_primary: { key: "due", dir: "asc" },
+  sort_secondary: { key: "priority", dir: "asc" },
   sort: "priority",
 };
 
 const PROFILES_KEY = "task_filter_profiles_v1";
 
 type Profile = { name: string; filters: TaskFilters };
+
+const SORT_LABELS: Record<SortKey, string> = {
+  due: "سررسید",
+  priority: "اولویت",
+  created: "تاریخ ساخت",
+};
+
+const SORT_KEYS: SortKey[] = ["due", "priority", "created"];
+
+function SortLevelPicker({
+  label,
+  value,
+  onChange,
+  excludeKey,
+}: {
+  label: string;
+  value: SortLevel;
+  onChange: (v: SortLevel) => void;
+  excludeKey?: SortKey;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="flex flex-wrap gap-1.5 items-center">
+        {SORT_KEYS.filter((k) => k !== excludeKey).map((k) => {
+          const active = value.key === k;
+          return (
+            <button
+              key={k}
+              onClick={() => onChange({ ...value, key: k })}
+              className={`px-2.5 py-1 text-xs rounded-md border ${active ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}
+            >
+              {SORT_LABELS[k]}
+            </button>
+          );
+        })}
+        <div className="flex border rounded-md overflow-hidden ms-auto">
+          <button
+            onClick={() => onChange({ ...value, dir: "asc" })}
+            className={`px-2 py-1 ${value.dir === "asc" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            aria-label="صعودی"
+            title="صعودی"
+          >
+            <ArrowUp className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => onChange({ ...value, dir: "desc" })}
+            className={`px-2 py-1 ${value.dir === "desc" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            aria-label="نزولی"
+            title="نزولی"
+          >
+            <ArrowDown className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function TaskFilterSheet({
   filters,
@@ -41,6 +109,14 @@ export function TaskFilterSheet({
   const [tags, setTags] = useState<{ id: string; name: string }[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [profileName, setProfileName] = useState("");
+
+  // Migrate legacy filters that don't yet have sort_primary/secondary
+  useEffect(() => {
+    if (!filters.sort_primary || !filters.sort_secondary) {
+      onChange({ ...DEFAULT_FILTERS, ...filters, sort_primary: filters.sort_primary || DEFAULT_FILTERS.sort_primary, sort_secondary: filters.sort_secondary || DEFAULT_FILTERS.sort_secondary });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -67,12 +143,21 @@ export function TaskFilterSheet({
     onChange({ ...filters, [key]: next } as TaskFilters);
   };
 
+  const primary = filters.sort_primary || DEFAULT_FILTERS.sort_primary;
+  const secondary = filters.sort_secondary || DEFAULT_FILTERS.sort_secondary;
+
+  const sortChanged =
+    primary.key !== DEFAULT_FILTERS.sort_primary.key ||
+    primary.dir !== DEFAULT_FILTERS.sort_primary.dir ||
+    secondary.key !== DEFAULT_FILTERS.sort_secondary.key ||
+    secondary.dir !== DEFAULT_FILTERS.sort_secondary.dir;
+
   const activeCount =
     filters.folder_ids.length +
     filters.tag_ids.length +
     filters.priorities.length +
     (filters.show_completed ? 1 : 0) +
-    (filters.sort !== "priority" ? 1 : 0);
+    (sortChanged ? 1 : 0);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -87,7 +172,7 @@ export function TaskFilterSheet({
       </SheetTrigger>
       <SheetContent dir="rtl" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>فیلتر پیشرفته</SheetTitle>
+          <SheetTitle>فیلتر و مرتب‌سازی</SheetTitle>
         </SheetHeader>
 
         <div className="space-y-5 mt-4">
@@ -141,31 +226,26 @@ export function TaskFilterSheet({
             </div>
           </section>
 
-          {/* Sort */}
-          <section>
-            <div className="text-xs text-muted-foreground mb-2">مرتب‌سازی</div>
-            <div className="flex flex-wrap gap-1.5">
-              {([
-                ["priority", "اولویت"],
-                ["due_asc", "سررسید (نزدیک‌تر)"],
-                ["due_desc", "سررسید (دورتر)"],
-                ["created_desc", "جدیدترین"],
-                ["alpha", "الفبایی"],
-              ] as const).map(([v, l]) => (
-                <button
-                  key={v}
-                  onClick={() => onChange({ ...filters, sort: v })}
-                  className={`px-2.5 py-1 text-xs rounded-md border ${filters.sort === v ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
+          {/* Two-level sort */}
+          <section className="space-y-3 border rounded-md p-3 bg-muted/30">
+            <div className="text-xs font-medium">مرتب‌سازی دوگانه</div>
+            <SortLevelPicker
+              label="اولویت اول"
+              value={primary}
+              onChange={(v) => onChange({ ...filters, sort_primary: v })}
+              excludeKey={secondary.key}
+            />
+            <SortLevelPicker
+              label="اولویت دوم (در صورت برابری)"
+              value={secondary}
+              onChange={(v) => onChange({ ...filters, sort_secondary: v })}
+              excludeKey={primary.key}
+            />
           </section>
 
           {/* Priority */}
           <section>
-            <div className="text-xs text-muted-foreground mb-2">اولویت</div>
+            <div className="text-xs text-muted-foreground mb-2">فیلتر اولویت</div>
             <div className="flex flex-wrap gap-1.5">
               {[
                 ["high", "🔴 بالا"],
