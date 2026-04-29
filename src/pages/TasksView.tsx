@@ -30,7 +30,7 @@ import {
 } from "@/components/TaskDnDHelpers";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 
-import { TaskFilterSheet, DEFAULT_FILTERS, type TaskFilters } from "@/components/TaskFilterSheet";
+import { TaskFilterSheet, DEFAULT_FILTERS, type TaskFilters, type SortLevel } from "@/components/TaskFilterSheet";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
 
@@ -57,26 +57,42 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const [delFolderOpen, setDelFolderOpen] = useState(false);
   const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-  const SORT_KEY = "task_sort_v1";
-  const loadSavedSort = (): TaskFilters["sort"] => {
+  const SORT_KEY = "task_sort_v2";
+  const scopeKey = `${scope}:${params.id || "_"}`;
+  const loadSavedFilters = (): TaskFilters => {
     try {
       const raw = localStorage.getItem(SORT_KEY);
       if (raw) {
         const obj = JSON.parse(raw);
-        if (obj && obj[scope]) return obj[scope];
+        if (obj && obj[scopeKey]) {
+          const saved = obj[scopeKey];
+          // Merge into defaults so newly added fields are present
+          return {
+            ...DEFAULT_FILTERS,
+            ...saved,
+            sort_primary: saved.sort_primary || DEFAULT_FILTERS.sort_primary,
+            sort_secondary: saved.sort_secondary || DEFAULT_FILTERS.sort_secondary,
+          };
+        }
       }
     } catch {}
-    return "priority";
+    return DEFAULT_FILTERS;
   };
-  const [filters, setFilters] = useState<TaskFilters>({ ...DEFAULT_FILTERS, sort: loadSavedSort() });
+  const [filters, setFilters] = useState<TaskFilters>(loadSavedFilters());
+  // Reload saved filters when scope/folder/tag changes
+  useEffect(() => {
+    setFilters(loadSavedFilters());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scope, params.id]);
+  // Persist whole filter object per-scope
   useEffect(() => {
     try {
       const raw = localStorage.getItem(SORT_KEY);
       const obj = raw ? JSON.parse(raw) : {};
-      obj[scope] = filters.sort;
+      obj[scopeKey] = filters;
       localStorage.setItem(SORT_KEY, JSON.stringify(obj));
     } catch {}
-  }, [filters.sort, scope]);
+  }, [filters, scopeKey]);
   const [taskTagsMap, setTaskTagsMap] = useState<Record<string, string[]>>({});
 
   // Load task->tags mapping for tag filtering
@@ -163,25 +179,28 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
       });
     }
 
-    // Apply sort
-    list = [...list];
-    switch (filters.sort) {
-      case "due_asc":
-        list.sort((a, b) => (a.due_date ? new Date(a.due_date).getTime() : Infinity) - (b.due_date ? new Date(b.due_date).getTime() : Infinity));
-        break;
-      case "due_desc":
-        list.sort((a, b) => (b.due_date ? new Date(b.due_date).getTime() : -Infinity) - (a.due_date ? new Date(a.due_date).getTime() : -Infinity));
-        break;
-      case "created_desc":
-        list.sort((a, b) => new Date((b as any).created_at).getTime() - new Date((a as any).created_at).getTime());
-        break;
-      case "alpha":
-        list.sort((a, b) => a.title.localeCompare(b.title, "fa"));
-        break;
-      case "priority":
-      default:
-        list.sort((a, b) => (PRIORITY_META[a.priority]?.rank ?? 3) - (PRIORITY_META[b.priority]?.rank ?? 3));
-    }
+    // Apply two-level sort
+    const cmpForLevel = (lvl: SortLevel) => (a: Task, b: Task): number => {
+      let res = 0;
+      switch (lvl.key) {
+        case "due": {
+          const av = a.due_date ? new Date(a.due_date).getTime() : Infinity;
+          const bv = b.due_date ? new Date(b.due_date).getTime() : Infinity;
+          res = av - bv;
+          break;
+        }
+        case "priority":
+          res = (PRIORITY_META[a.priority]?.rank ?? 3) - (PRIORITY_META[b.priority]?.rank ?? 3);
+          break;
+        case "created":
+          res = new Date((a as any).created_at).getTime() - new Date((b as any).created_at).getTime();
+          break;
+      }
+      return lvl.dir === "desc" ? -res : res;
+    };
+    const primary = filters.sort_primary || DEFAULT_FILTERS.sort_primary;
+    const secondary = filters.sort_secondary || DEFAULT_FILTERS.sort_secondary;
+    list = [...list].sort((a, b) => cmpForLevel(primary)(a, b) || cmpForLevel(secondary)(a, b));
     return list;
   }, [allTasks, scope, params.id, filters, taskTagsMap]);
 
