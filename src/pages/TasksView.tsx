@@ -57,26 +57,42 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const [delFolderOpen, setDelFolderOpen] = useState(false);
   const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-  const SORT_KEY = "task_sort_v1";
-  const loadSavedSort = (): TaskFilters["sort"] => {
+  const SORT_KEY = "task_sort_v2";
+  const scopeKey = `${scope}:${params.id || "_"}`;
+  const loadSavedFilters = (): TaskFilters => {
     try {
       const raw = localStorage.getItem(SORT_KEY);
       if (raw) {
         const obj = JSON.parse(raw);
-        if (obj && obj[scope]) return obj[scope];
+        if (obj && obj[scopeKey]) {
+          const saved = obj[scopeKey];
+          // Merge into defaults so newly added fields are present
+          return {
+            ...DEFAULT_FILTERS,
+            ...saved,
+            sort_primary: saved.sort_primary || DEFAULT_FILTERS.sort_primary,
+            sort_secondary: saved.sort_secondary || DEFAULT_FILTERS.sort_secondary,
+          };
+        }
       }
     } catch {}
-    return "priority";
+    return DEFAULT_FILTERS;
   };
-  const [filters, setFilters] = useState<TaskFilters>({ ...DEFAULT_FILTERS, sort: loadSavedSort() });
+  const [filters, setFilters] = useState<TaskFilters>(loadSavedFilters());
+  // Reload saved filters when scope/folder/tag changes
+  useEffect(() => {
+    setFilters(loadSavedFilters());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scope, params.id]);
+  // Persist whole filter object per-scope
   useEffect(() => {
     try {
       const raw = localStorage.getItem(SORT_KEY);
       const obj = raw ? JSON.parse(raw) : {};
-      obj[scope] = filters.sort;
+      obj[scopeKey] = filters;
       localStorage.setItem(SORT_KEY, JSON.stringify(obj));
     } catch {}
-  }, [filters.sort, scope]);
+  }, [filters, scopeKey]);
   const [taskTagsMap, setTaskTagsMap] = useState<Record<string, string[]>>({});
 
   // Load task->tags mapping for tag filtering
