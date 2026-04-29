@@ -179,25 +179,28 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
       });
     }
 
-    // Apply sort
-    list = [...list];
-    switch (filters.sort) {
-      case "due_asc":
-        list.sort((a, b) => (a.due_date ? new Date(a.due_date).getTime() : Infinity) - (b.due_date ? new Date(b.due_date).getTime() : Infinity));
-        break;
-      case "due_desc":
-        list.sort((a, b) => (b.due_date ? new Date(b.due_date).getTime() : -Infinity) - (a.due_date ? new Date(a.due_date).getTime() : -Infinity));
-        break;
-      case "created_desc":
-        list.sort((a, b) => new Date((b as any).created_at).getTime() - new Date((a as any).created_at).getTime());
-        break;
-      case "alpha":
-        list.sort((a, b) => a.title.localeCompare(b.title, "fa"));
-        break;
-      case "priority":
-      default:
-        list.sort((a, b) => (PRIORITY_META[a.priority]?.rank ?? 3) - (PRIORITY_META[b.priority]?.rank ?? 3));
-    }
+    // Apply two-level sort
+    const cmpForLevel = (lvl: SortLevel) => (a: Task, b: Task): number => {
+      let res = 0;
+      switch (lvl.key) {
+        case "due": {
+          const av = a.due_date ? new Date(a.due_date).getTime() : Infinity;
+          const bv = b.due_date ? new Date(b.due_date).getTime() : Infinity;
+          res = av - bv;
+          break;
+        }
+        case "priority":
+          res = (PRIORITY_META[a.priority]?.rank ?? 3) - (PRIORITY_META[b.priority]?.rank ?? 3);
+          break;
+        case "created":
+          res = new Date((a as any).created_at).getTime() - new Date((b as any).created_at).getTime();
+          break;
+      }
+      return lvl.dir === "desc" ? -res : res;
+    };
+    const primary = filters.sort_primary || DEFAULT_FILTERS.sort_primary;
+    const secondary = filters.sort_secondary || DEFAULT_FILTERS.sort_secondary;
+    list = [...list].sort((a, b) => cmpForLevel(primary)(a, b) || cmpForLevel(secondary)(a, b));
     return list;
   }, [allTasks, scope, params.id, filters, taskTagsMap]);
 
