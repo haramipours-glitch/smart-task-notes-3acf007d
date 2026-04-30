@@ -178,7 +178,7 @@ export default function SettingsView() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `taskflow-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `arshnaz-export-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
       toast.success("صادرات کامل شد");
