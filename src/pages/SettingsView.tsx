@@ -119,9 +119,20 @@ export default function SettingsView() {
   useEffect(() => {
     if (!reminders?.theme) return;
     const root = document.documentElement;
-    if (reminders.theme === "dark") root.classList.add("dark");
-    else if (reminders.theme === "light") root.classList.remove("dark");
-    else {
+    const t = reminders.theme;
+    // Handle Arshnaz themes (light + dark variants) and standard themes
+    root.classList.remove("theme-arshnaz");
+    if (t === "arshnaz-light") {
+      root.classList.add("theme-arshnaz");
+      root.classList.remove("dark");
+    } else if (t === "arshnaz-dark") {
+      root.classList.add("theme-arshnaz");
+      root.classList.add("dark");
+    } else if (t === "dark") {
+      root.classList.add("dark");
+    } else if (t === "light") {
+      root.classList.remove("dark");
+    } else {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       if (prefersDark) root.classList.add("dark"); else root.classList.remove("dark");
     }
@@ -315,8 +326,13 @@ export default function SettingsView() {
               <SelectItem value="system">🖥️ سیستم</SelectItem>
               <SelectItem value="light">☀️ روشن</SelectItem>
               <SelectItem value="dark">🌙 تیره</SelectItem>
+              <SelectItem value="arshnaz-light">💖 آرشناز — روز</SelectItem>
+              <SelectItem value="arshnaz-dark">💜 آرشناز — شب</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-[11px] text-muted-foreground">
+            تم «آرشناز» با رنگ‌های صورتی-بنفش-آبی، تقدیم به عشق زندگی‌ام ❤️
+          </p>
         </Card>
       )}
 
