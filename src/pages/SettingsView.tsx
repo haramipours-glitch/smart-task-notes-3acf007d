@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home } from "lucide-react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home, Heart, Coffee } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { applyFontSize, applyUIScale, type FontSize } from "@/lib/uiScale";
 import { Card } from "@/components/ui/card";
@@ -226,6 +226,21 @@ export default function SettingsView() {
 
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
+      {/* Dedication card */}
+      <Card className="p-5 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-pink-950/30 dark:via-purple-950/30 dark:to-blue-950/30 border-pink-200/50 dark:border-pink-800/30">
+        <div className="flex items-center gap-3">
+          <img src="/favicon.png" alt="ARSHNAZ" className="w-12 h-12 rounded-xl shadow" width={48} height={48} loading="lazy" />
+          <div>
+            <h2 className="font-bold text-lg bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+              ARSHNAZ · آرشناز
+            </h2>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+              تقدیم به عشق زندگی‌ام، آرشناز <Heart className="w-3 h-3 fill-pink-500 text-pink-500" />
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-primary" /> تنظیمات
@@ -517,13 +532,35 @@ export default function SettingsView() {
         </div>
       </Card>
 
-      
+      {/* Donate card */}
+      <Card className="p-5 space-y-3 bg-gradient-to-br from-pink-50/50 to-purple-50/50 dark:from-pink-950/20 dark:to-purple-950/20">
+        <div className="flex items-center gap-2">
+          <Coffee className="w-4 h-4 text-pink-500" />
+          <h2 className="font-semibold">حمایت از توسعه‌دهنده</h2>
+        </div>
+        <p className="text-xs text-muted-foreground leading-6">
+          اگر آرشناز برات مفید بود و دوست داشتی حمایت کنی، می‌تونی یک قهوه مهمونم کنی ❤️
+        </p>
+        <Button asChild variant="outline" className="gap-2 border-pink-300 dark:border-pink-700 hover:bg-pink-50 dark:hover:bg-pink-950/30">
+          <a href="https://www.buymeacoffee.com/arshnaz" target="_blank" rel="noopener noreferrer">
+            <Heart className="w-4 h-4 fill-pink-500 text-pink-500" />
+            <span>Donate · حمایت مالی</span>
+          </a>
+        </Button>
+        <p className="text-[10px] text-muted-foreground">
+          این لینک رو می‌تونی بعداً به آدرس دلخواه (Buy Me a Coffee, Ko-fi, کارت‌به‌کارت) تغییر بدی.
+        </p>
+      </Card>
 
       <Card className="p-5 space-y-2">
-        <h2 className="font-semibold">درباره</h2>
-        <p className="text-sm text-muted-foreground">
-          به‌طور پیش‌فرض اپلیکیشن از <strong>Lovable AI</strong> استفاده می‌کند که نیازی به کلید ندارد.
-          اگر می‌خواهید از سرویس دیگری استفاده کنید، کلید خود را وارد کنید — این کلید فقط در مرورگر خود شما ذخیره می‌شود و به سرور ارسال نمی‌شود مگر هنگام فراخوانی AI.
+        <h2 className="font-semibold">درباره ARSHNAZ</h2>
+        <p className="text-sm text-muted-foreground leading-7">
+          <strong>آرشناز</strong> یک اپلیکیشن مدیریت تسک، نوت، عادت و سلامت روان است که با عشق ساخته شده و
+          تقدیم می‌شود به <span className="text-pink-500 font-semibold">عشق زندگی‌ام، آرشناز ❤️</span>.
+        </p>
+        <p className="text-xs text-muted-foreground leading-6 pt-2 border-t mt-3">
+          برای استفاده از قابلیت‌های هوش مصنوعی، API key شخصی خودت رو در بخش بالا وارد کن.
+          کلیدها فقط در مرورگر خودت ذخیره می‌شن.
         </p>
       </Card>
     </div>
