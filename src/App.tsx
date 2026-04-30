@@ -40,6 +40,7 @@ const WeeklyReviewView = lazy(() => import("./pages/WeeklyReviewView"));
 const NewTaskView = lazy(() => import("./pages/NewTaskView"));
 const NewNoteView = lazy(() => import("./pages/NewNoteView"));
 const TaskDetailView = lazy(() => import("./pages/TaskDetailView"));
+const AdminView = lazy(() => import("./pages/AdminView"));
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ const App = () => {
                 <Route path="decisions" element={<DecisionJournalView />} />
                 <Route path="about-me" element={<AboutMeView />} />
                 <Route path="settings" element={<SettingsView />} />
+                <Route path="admin" element={<AdminView />} />
                 <Route path="new/task" element={<NewTaskView />} />
                 <Route path="new/note" element={<NewNoteView />} />
                 <Route path="tasks/:id" element={<TaskDetailView />} />

@@ -1065,6 +1065,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           auto_create_daily_tasks: boolean
@@ -1118,9 +1139,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_user_list: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_name: string
+          email: string
+          is_admin: boolean
+          last_sign_in_at: string
+          note_count: number
+          task_count: number
+          user_id: string
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
+      app_role: "admin" | "user"
       recurrence_type: "none" | "daily" | "weekly" | "monthly"
       task_priority: "none" | "low" | "medium" | "urgent" | "high"
       task_status: "todo" | "in_progress" | "done"
@@ -1251,6 +1294,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "user"],
       recurrence_type: ["none", "daily", "weekly", "monthly"],
       task_priority: ["none", "low", "medium", "urgent", "high"],
       task_status: ["todo", "in_progress", "done"],

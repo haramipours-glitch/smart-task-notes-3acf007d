@@ -10,6 +10,18 @@ function getAISettings(mode: AIMode) {
   return cfg;
 }
 
+// Check whether the current user is allowed to use the built-in Lovable AI (admin only).
+async function isCurrentUserAdmin(): Promise<boolean> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { data } = await (supabase as any)
+      .from("user_roles").select("role")
+      .eq("user_id", user.id).eq("role", "admin").maybeSingle();
+    return !!data;
+  } catch { return false; }
+}
+
 export type AILanguage = "fa" | "en" | "auto";
 
 const LANG_KEY = "ai_language_v1";
@@ -33,6 +45,16 @@ export async function callAI(
   opts?: { webSearch?: boolean },
 ) {
   const settings = getAISettings(mode);
+  // Enforce per-user API key: if no personal key configured (i.e. provider=lovable),
+  // only allow if the current user is admin (the app owner).
+  if (!settings) {
+    const admin = await isCurrentUserAdmin();
+    if (!admin) {
+      throw new Error(
+        "برای استفاده از قابلیت‌های هوش مصنوعی، باید کلید API شخصی خود را از تنظیمات → AI وارد کنی. این برنامه از کلید مالک استفاده نمی‌کند."
+      );
+    }
+  }
   const lang = langOverride ?? getAILanguage();
   const language = lang === "auto" ? undefined : lang;
 
