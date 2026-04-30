@@ -75,13 +75,17 @@ export default function Auth() {
   };
 
   return (
-    <main dir="rtl" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-accent/30 p-4">
+    <main dir="rtl" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-background to-purple-50 dark:from-pink-950/20 dark:via-background dark:to-purple-950/20 p-4">
       <Card className="w-full max-w-md p-8 shadow-elegant">
-        <div className="flex items-center justify-center mb-6 gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-            <CheckSquare className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold">TaskFlow</h1>
+        <div className="flex flex-col items-center mb-6">
+          <img src="/favicon.png" alt="ARSHNAZ" className="w-16 h-16 rounded-2xl shadow-lg mb-3" width={64} height={64} />
+          <h1 className="text-3xl font-extrabold tracking-wider bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+            ARSHNAZ
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">آرشناز · مدیریت تسک با عشق</p>
+          <p className="text-[11px] text-pink-600 dark:text-pink-400 mt-2 flex items-center gap-1">
+            تقدیم به عشق زندگی‌ام، آرشناز <span aria-hidden>❤️</span>
+          </p>
         </div>
 
         <Alert className="mb-4 border-amber-500/40 bg-amber-500/5">
