@@ -45,6 +45,16 @@ export async function callAI(
   opts?: { webSearch?: boolean },
 ) {
   const settings = getAISettings(mode);
+  // Enforce per-user API key: if no personal key configured (i.e. provider=lovable),
+  // only allow if the current user is admin (the app owner).
+  if (!settings) {
+    const admin = await isCurrentUserAdmin();
+    if (!admin) {
+      throw new Error(
+        "برای استفاده از قابلیت‌های هوش مصنوعی، باید کلید API شخصی خود را از تنظیمات → AI وارد کنی. این برنامه از کلید مالک استفاده نمی‌کند."
+      );
+    }
+  }
   const lang = langOverride ?? getAILanguage();
   const language = lang === "auto" ? undefined : lang;
 
