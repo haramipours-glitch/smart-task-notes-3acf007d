@@ -12,6 +12,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -123,6 +124,7 @@ export function AppSidebar() {
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
   const { signOut, user } = useAuth();
+  const { isAdmin } = useUserRole();
   const [folders, setFolders] = useState<Folder[]>([]);
   const [tags, setTags] = useState<TagT[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -300,7 +302,10 @@ export function AppSidebar() {
           <CollapsibleContent forceMount={collapsed ? true : undefined}>
             <SidebarGroupContent>
               <SidebarMenu>
-                {section.items.map((item) => (
+                {(section.id === "settings" && isAdmin
+                  ? [...section.items, { url: "/app/admin", icon: Shield, label: "پنل مدیریت" }]
+                  : section.items
+                ).map((item) => (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton asChild>
                       <NavLink to={item.url} onClick={closeOnMobile} className="flex items-center gap-2"
