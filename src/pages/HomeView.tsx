@@ -224,11 +224,20 @@ export default function HomeView() {
 
   return (
     <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-5 pb-20">
-      <header>
-        <h1 className="text-2xl md:text-3xl font-bold">{greeting} 👋</h1>
-        <p className="text-muted-foreground text-xs md:text-sm mt-1">
-          {new Date().toLocaleDateString("fa-IR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-        </p>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">{greeting} 👋</h1>
+          <p className="text-muted-foreground text-xs md:text-sm mt-1">
+            {new Date().toLocaleDateString("fa-IR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        </div>
+        <Link to="/app/settings" className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-pink-200/60 dark:border-pink-800/40 bg-gradient-to-l from-pink-50 to-purple-50 dark:from-pink-950/30 dark:to-purple-950/30 hover:shadow-md transition shrink-0">
+          <img src="/favicon.png" alt="ARSHNAZ" className="w-7 h-7 rounded-md" width={28} height={28} loading="lazy" />
+          <div className="hidden sm:flex flex-col leading-tight">
+            <span className="text-xs font-bold bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">ARSHNAZ</span>
+            <span className="text-[9px] text-muted-foreground">با عشق ❤️</span>
+          </div>
+        </Link>
       </header>
 
       {/* Hourly inspiration: quote + story side-by-side on desktop, stacked on mobile */}
