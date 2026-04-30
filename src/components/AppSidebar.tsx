@@ -429,10 +429,13 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b">
         <div className="flex items-center gap-2 px-2 py-1">
-          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center shrink-0">
-            <Sparkles className="w-4 h-4 text-primary-foreground" />
-          </div>
-          {!collapsed && <span className="font-bold text-base">TaskFlow</span>}
+          <img src="/favicon.png" alt="ARSHNAZ" className="w-8 h-8 rounded-lg shrink-0" loading="lazy" width={32} height={32} />
+          {!collapsed && (
+            <div className="flex flex-col leading-tight">
+              <span className="font-bold text-base bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">ARSHNAZ</span>
+              <span className="text-[9px] text-muted-foreground">تقدیم به عشق زندگی‌ام، آرشناز ❤️</span>
+            </div>
+          )}
         </div>
       </SidebarHeader>
 

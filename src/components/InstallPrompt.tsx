@@ -54,7 +54,7 @@ export default function InstallPrompt() {
           <Download className="h-5 w-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">نصب TaskFlow روی دستگاه</p>
+          <p className="text-sm font-medium">نصب ARSHNAZ روی دستگاه</p>
           <p className="mt-1 text-xs text-muted-foreground">
             {iosHint
               ? "روی دکمه Share در سافاری بزنید و «Add to Home Screen» را انتخاب کنید."
