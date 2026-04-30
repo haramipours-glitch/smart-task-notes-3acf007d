@@ -10,6 +10,18 @@ function getAISettings(mode: AIMode) {
   return cfg;
 }
 
+// Check whether the current user is allowed to use the built-in Lovable AI (admin only).
+async function isCurrentUserAdmin(): Promise<boolean> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { data } = await (supabase as any)
+      .from("user_roles").select("role")
+      .eq("user_id", user.id).eq("role", "admin").maybeSingle();
+    return !!data;
+  } catch { return false; }
+}
+
 export type AILanguage = "fa" | "en" | "auto";
 
 const LANG_KEY = "ai_language_v1";
