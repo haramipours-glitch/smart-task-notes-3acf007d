@@ -478,7 +478,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex flex-col leading-tight">
               <span className="font-bold text-base bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">ARSHNAZ</span>
-              <span className="text-[9px] text-muted-foreground">تقدیم به عشق زندگی‌ام، آرشناز ❤️</span>
+              <span className="text-[9px] text-muted-foreground">{useTranslation().i18n.language?.startsWith("en") ? "Dedicated to the love of my life, Arshnaz ❤️" : "تقدیم به عشق زندگی‌ام، آرشناز ❤️"}</span>
             </div>
           )}
         </div>
