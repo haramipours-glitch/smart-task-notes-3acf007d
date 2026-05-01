@@ -164,6 +164,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed" && !isMobile;
   const { signOut, user } = useAuth();
   const { isAdmin } = useUserRole();
+  const tr = useLabel();
   const [folders, setFolders] = useState<Folder[]>([]);
   const [tags, setTags] = useState<TagT[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
