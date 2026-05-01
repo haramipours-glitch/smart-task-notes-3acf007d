@@ -244,6 +244,8 @@ export default function SettingsView() {
 
       {/* App language switcher (i18n) */}
       <LanguageSwitcher />
+
+      <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-primary" /> تنظیمات
         </h1>
