@@ -328,13 +328,13 @@ export function AppSidebar() {
           {!collapsed && (
             <SidebarGroupLabel className="flex items-center justify-between pe-1 group">
               {dragHandle && (
-                <button {...dragHandle} className="cursor-grab active:cursor-grabbing p-0.5 opacity-30 hover:opacity-80 transition" title="جابجا کن">
+                <button {...dragHandle} className="cursor-grab active:cursor-grabbing p-0.5 opacity-30 hover:opacity-80 transition" title={tr("جابجا کن")}>
                   <GripVertical className="w-3 h-3" />
                 </button>
               )}
               <CollapsibleTrigger className="flex items-center gap-2 flex-1 hover:bg-sidebar-accent/50 rounded transition">
                 <SectionIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                <span>{section.title}</span>
+                <span>{tr(section.title)}</span>
                 <ChevronDown className={`w-3.5 h-3.5 me-auto text-muted-foreground transition-transform ${isOpen ? "" : "-rotate-90"}`} />
               </CollapsibleTrigger>
             </SidebarGroupLabel>
@@ -351,7 +351,7 @@ export function AppSidebar() {
                       <NavLink to={item.url} onClick={closeOnMobile} className="flex items-center gap-2"
                         activeClassName="bg-accent text-accent-foreground font-medium">
                         <item.icon className="w-4 h-4" />
-                        {!collapsed && <span>{item.label}</span>}
+                        {!collapsed && <span>{tr(item.label)}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
