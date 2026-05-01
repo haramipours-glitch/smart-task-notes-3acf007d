@@ -316,6 +316,41 @@ const TOOLS: Record<string, any> = {
       },
     },
   },
+  distortion_detect: {
+    type: "function",
+    function: {
+      name: "report_distortions",
+      description: "Report detected cognitive distortions and a balanced alternative thought.",
+      parameters: {
+        type: "object",
+        properties: {
+          distortions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                key: {
+                  type: "string",
+                  enum: [
+                    "overgeneralization", "all_or_nothing", "mental_filter",
+                    "discounting_positive", "jumping_to_conclusions", "magnification",
+                    "emotional_reasoning", "shoulds", "labeling", "personalization",
+                  ],
+                },
+                explanation: { type: "string", description: "1-2 sentences in user's language tied to their wording" },
+              },
+              required: ["key", "explanation"],
+              additionalProperties: false,
+            },
+          },
+          alternative_thought: { type: "string", description: "Balanced alternative in user's language" },
+          summary: { type: "string", description: "Optional 1-sentence overall observation" },
+        },
+        required: ["distortions", "alternative_thought"],
+        additionalProperties: false,
+      },
+    },
+  },
 };
 
 const TONE_DIRECTIVES: Record<string, string> = {
