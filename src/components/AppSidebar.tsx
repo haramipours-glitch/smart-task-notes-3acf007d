@@ -30,6 +30,45 @@ import { CSS } from "@dnd-kit/utilities";
 import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
 import { TagDeleteDialog } from "@/components/TagDeleteDialog";
 import { readItemDrag, moveItemToFolder } from "@/lib/dragToFolder";
+import { useTranslation } from "react-i18next";
+
+// Map Persian labels (used in SECTIONS) → English equivalents.
+// Used only when the active app language is "en".
+const EN_LABELS: Record<string, string> = {
+  "کارها و برنامه‌ریزی": "Tasks & Planning",
+  "نوت‌ها و دانش": "Notes & Knowledge",
+  "خودشناسی و بینش": "Self-Knowledge & Insights",
+  "سلامت ذهن": "Mental Health",
+  "ابزار و تنظیمات": "Tools & Settings",
+  "امروز": "Today",
+  "فردا": "Tomorrow",
+  "۷ روز آینده": "Next 7 Days",
+  "تقویم": "Calendar",
+  "اهداف": "Goals",
+  "عادت‌ها": "Habits",
+  "نوت‌ها": "Notes",
+  "مرور (SR)": "Review (SR)",
+  "خودشناسی": "Self-Knowledge",
+  "بینش هفتگی": "Weekly Insights",
+  "بازنگری هفتگی": "Weekly Review",
+  "Check-in روزانه": "Daily Check-in",
+  "ژورنال تصمیم": "Decision Journal",
+  "ثبت افکار (CBT)": "Thought Records (CBT)",
+  "مدل ABC": "ABC Model",
+  "چت سقراطی": "Socratic Chat",
+  "درباره من": "About Me",
+  "تنظیمات": "Settings",
+  "پنل مدیریت": "Admin Panel",
+  "جابجا کن": "Drag",
+  "فولدرها": "Folders",
+  "تگ‌ها": "Tags",
+};
+
+function useLabel() {
+  const { i18n } = useTranslation();
+  const lang = (i18n.language || "fa").split("-")[0];
+  return (label: string) => (lang === "en" && EN_LABELS[label]) || label;
+}
 
 type Folder = { id: string; name: string; parent_id: string | null; color: string };
 type TagT = { id: string; name: string; color: string };
