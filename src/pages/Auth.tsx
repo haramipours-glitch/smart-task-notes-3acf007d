@@ -11,12 +11,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const DISCLAIMER_KEY = "clinical_disclaimer_accepted_v1";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { t, i18n } = useTranslation();
+  const isEn = (i18n.language || "fa").startsWith("en");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,16 +78,18 @@ export default function Auth() {
   };
 
   return (
-    <main dir="rtl" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-background to-purple-50 dark:from-pink-950/20 dark:via-background dark:to-purple-950/20 p-4">
+    <main dir={isEn ? "ltr" : "rtl"} className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-background to-purple-50 dark:from-pink-950/20 dark:via-background dark:to-purple-950/20 p-4">
       <Card className="w-full max-w-md p-8 shadow-elegant">
         <div className="flex flex-col items-center mb-6">
           <img src="/favicon.png" alt="ARSHNAZ" className="w-16 h-16 rounded-2xl shadow-lg mb-3" width={64} height={64} />
           <h1 className="text-3xl font-extrabold tracking-wider bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
             ARSHNAZ
           </h1>
-          <p className="text-xs text-muted-foreground mt-1">آرشناز · مدیریت تسک با عشق</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {isEn ? "Arshnaz · Manage tasks with love" : "آرشناز · مدیریت تسک با عشق"}
+          </p>
           <p className="text-[11px] text-pink-600 dark:text-pink-400 mt-2 flex items-center gap-1">
-            تقدیم به عشق زندگی‌ام، آرشناز <span aria-hidden>❤️</span>
+            {t("auth.dedication")}
           </p>
         </div>
 
