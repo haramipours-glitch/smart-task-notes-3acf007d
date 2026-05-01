@@ -247,50 +247,56 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
     </div>
   );
 
+  const noteEditorBody = activeNote && (
+    <div className="space-y-3 mt-2">
+      <div className="flex items-center gap-2">
+        <Button size="sm" variant="ghost" onClick={() => setActiveNote(null)} className="gap-1">
+          <ArrowRight className="w-4 h-4" />
+          بازگشت به تسک
+        </Button>
+      </div>
+      <Input
+        value={activeNote.title}
+        onChange={(e) => saveNote(activeNote.id, { title: e.target.value })}
+        className="border-none focus-visible:ring-0 px-0 text-lg font-semibold"
+        dir="auto"
+      />
+      <NoteEditorTabs
+        noteId={activeNote.id}
+        markdown={activeNote.content || ""}
+        onChange={(md) => saveNote(activeNote.id, { content: md })}
+      />
+    </div>
+  );
+
   return (
     <>
       {mode === "page" ? (
         <div className="w-full px-1 sm:px-2 md:px-4 py-4">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-xl font-bold">جزئیات تسک</h1>
-            <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">
-              <Sparkles className="w-4 h-4" /> AI
-            </Button>
+            <h1 className="text-xl font-bold">{activeNote ? "ویرایش نوت" : "جزئیات تسک"}</h1>
+            {!activeNote && (
+              <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">
+                <Sparkles className="w-4 h-4" /> AI
+              </Button>
+            )}
           </div>
-          {body}
+          {activeNote ? noteEditorBody : body}
         </div>
       ) : (
         <Sheet open={true} onOpenChange={(v) => !v && onClose()}>
           <SheetContent className="w-full sm:max-w-full overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="flex items-center justify-between">
-                <span>جزئیات تسک</span>
-                <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">
-                  <Sparkles className="w-4 h-4" /> AI
-                </Button>
+                <span>{activeNote ? "ویرایش نوت" : "جزئیات تسک"}</span>
+                {!activeNote && (
+                  <Button size="sm" onClick={() => setAiOpen(true)} className="gap-1">
+                    <Sparkles className="w-4 h-4" /> AI
+                  </Button>
+                )}
               </SheetTitle>
             </SheetHeader>
-            {body}
-          </SheetContent>
-        </Sheet>
-      )}
-
-      {activeNote && (
-        <Sheet open={true} onOpenChange={(v) => !v && setActiveNote(null)}>
-          <SheetContent side="left" className="w-full sm:max-w-full overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>
-                <Input value={activeNote.title} onChange={(e) => saveNote(activeNote.id, { title: e.target.value })}
-                  className="border-none focus-visible:ring-0 px-0 text-lg font-semibold" dir="auto" />
-              </SheetTitle>
-            </SheetHeader>
-            <div className="mt-4">
-              <NoteEditorTabs
-                noteId={activeNote.id}
-                markdown={activeNote.content || ""}
-                onChange={(md) => saveNote(activeNote.id, { content: md })}
-              />
-            </div>
+            {activeNote ? noteEditorBody : body}
           </SheetContent>
         </Sheet>
       )}
