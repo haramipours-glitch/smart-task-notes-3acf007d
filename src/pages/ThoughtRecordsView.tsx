@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Plus, X, Sparkles, Brain, BookOpen } from "lucide-react";
-import { detectDistortions, DISTORTION_LABELS, DISTORTION_HINTS, type Distortion } from "@/lib/distortions";
+import { Plus, X, Sparkles, Brain, BookOpen, Loader2 } from "lucide-react";
+import { DISTORTION_LABELS, DISTORTION_HINTS, type Distortion } from "@/lib/distortions";
+import { callAI } from "@/lib/ai";
 
 const EMOTIONS = ["اضطراب", "خشم", "غم", "شرم", "گناه", "ترس", "نومیدی", "سرخوردگی"];
 
@@ -20,6 +21,9 @@ export default function ThoughtRecordsView() {
   const [records, setRecords] = useState<any[]>([]);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<any>(initial());
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiExplanations, setAiExplanations] = useState<Record<string, string>>({});
+  const [aiAlternative, setAiAlternative] = useState<string>("");
 
   function initial() {
     return {
@@ -40,9 +44,44 @@ export default function ThoughtRecordsView() {
     setRecords(data || []);
   }
 
-  function detect() {
-    const text = `${form.automatic_thought} ${form.evidence_for.join(" ")}`;
-    setForm({ ...form, distortions: detectDistortions(text) });
+  async function detect() {
+    if (!form.automatic_thought.trim()) {
+      toast.error("اول فکر خودکار را بنویس");
+      return;
+    }
+    setAiBusy(true);
+    try {
+      const payload = [
+        `موقعیت: ${form.situation || "—"}`,
+        `فکر خودکار: ${form.automatic_thought}`,
+        form.evidence_for.filter((x: string) => x.trim()).length
+          ? `شواهد تاییدکننده: ${form.evidence_for.filter((x: string) => x.trim()).join(" | ")}`
+          : "",
+        form.evidence_against.filter((x: string) => x.trim()).length
+          ? `شواهد ردکننده: ${form.evidence_against.filter((x: string) => x.trim()).join(" | ")}`
+          : "",
+      ].filter(Boolean).join("\n");
+      const r = await callAI("distortion_detect", payload);
+      const d = r.data;
+      if (!d || !Array.isArray(d.distortions)) {
+        throw new Error("پاسخ AI ساختاری نبود");
+      }
+      const keys = d.distortions.map((x: any) => x.key as Distortion);
+      const explMap: Record<string, string> = {};
+      d.distortions.forEach((x: any) => { explMap[x.key] = x.explanation; });
+      setAiExplanations(explMap);
+      setAiAlternative(d.alternative_thought || "");
+      setForm({
+        ...form,
+        distortions: keys,
+        alternative_thought: form.alternative_thought || d.alternative_thought || "",
+      });
+      toast.success(keys.length ? `${keys.length} الگو شناسایی شد` : "الگوی واضحی پیدا نشد");
+    } catch (e: any) {
+      toast.error(e.message || "خطا در تشخیص");
+    } finally {
+      setAiBusy(false);
+    }
   }
 
   async function save() {
@@ -171,17 +210,28 @@ export default function ThoughtRecordsView() {
             <ListField label="۵. شواهد تاییدکننده فکر" items={form.evidence_for} onChange={(items) => setForm({ ...form, evidence_for: items })} />
             <ListField label="۶. شواهد ردکننده فکر" items={form.evidence_against} onChange={(items) => setForm({ ...form, evidence_against: items })} />
             <div className="flex gap-2">
-              <Button variant="outline" onClick={detect}><Sparkles className="w-4 h-4 ms-1" /> تشخیص خطاهای شناختی</Button>
+              <Button variant="outline" onClick={detect} disabled={aiBusy}>
+                {aiBusy ? <Loader2 className="w-4 h-4 ms-1 animate-spin" /> : <Sparkles className="w-4 h-4 ms-1" />}
+                تشخیص با هوش مصنوعی
+              </Button>
             </div>
             {form.distortions.length > 0 && (
-              <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                <div className="font-medium text-sm">خطاهای شناسایی‌شده:</div>
+              <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+                <div className="font-medium text-sm">خطاهای شناسایی‌شده توسط AI:</div>
                 {form.distortions.map((d: Distortion) => (
-                  <div key={d} className="text-sm">
+                  <div key={d} className="text-sm space-y-1">
                     <Badge variant="secondary">{DISTORTION_LABELS[d]}</Badge>
-                    <span className="text-muted-foreground me-2">{DISTORTION_HINTS[d]}</span>
+                    <p className="text-muted-foreground leading-6">
+                      {aiExplanations[d] || DISTORTION_HINTS[d]}
+                    </p>
                   </div>
                 ))}
+                {aiAlternative && (
+                  <div className="border-t pt-3 mt-2">
+                    <div className="font-medium text-sm mb-1">💡 فکر جایگزین پیشنهادی AI:</div>
+                    <p className="text-sm text-muted-foreground leading-7">{aiAlternative}</p>
+                  </div>
+                )}
               </div>
             )}
             <div className="space-y-2">

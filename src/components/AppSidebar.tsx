@@ -30,6 +30,45 @@ import { CSS } from "@dnd-kit/utilities";
 import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
 import { TagDeleteDialog } from "@/components/TagDeleteDialog";
 import { readItemDrag, moveItemToFolder } from "@/lib/dragToFolder";
+import { useTranslation } from "react-i18next";
+
+// Map Persian labels (used in SECTIONS) → English equivalents.
+// Used only when the active app language is "en".
+const EN_LABELS: Record<string, string> = {
+  "کارها و برنامه‌ریزی": "Tasks & Planning",
+  "نوت‌ها و دانش": "Notes & Knowledge",
+  "خودشناسی و بینش": "Self-Knowledge & Insights",
+  "سلامت ذهن": "Mental Health",
+  "ابزار و تنظیمات": "Tools & Settings",
+  "امروز": "Today",
+  "فردا": "Tomorrow",
+  "۷ روز آینده": "Next 7 Days",
+  "تقویم": "Calendar",
+  "اهداف": "Goals",
+  "عادت‌ها": "Habits",
+  "نوت‌ها": "Notes",
+  "مرور (SR)": "Review (SR)",
+  "خودشناسی": "Self-Knowledge",
+  "بینش هفتگی": "Weekly Insights",
+  "بازنگری هفتگی": "Weekly Review",
+  "Check-in روزانه": "Daily Check-in",
+  "ژورنال تصمیم": "Decision Journal",
+  "ثبت افکار (CBT)": "Thought Records (CBT)",
+  "مدل ABC": "ABC Model",
+  "چت سقراطی": "Socratic Chat",
+  "درباره من": "About Me",
+  "تنظیمات": "Settings",
+  "پنل مدیریت": "Admin Panel",
+  "جابجا کن": "Drag",
+  "فولدرها": "Folders",
+  "تگ‌ها": "Tags",
+};
+
+function useLabel() {
+  const { i18n } = useTranslation();
+  const lang = (i18n.language || "fa").split("-")[0];
+  return (label: string) => (lang === "en" && EN_LABELS[label]) || label;
+}
 
 type Folder = { id: string; name: string; parent_id: string | null; color: string };
 type TagT = { id: string; name: string; color: string };
@@ -125,6 +164,9 @@ export function AppSidebar() {
   const collapsed = state === "collapsed" && !isMobile;
   const { signOut, user } = useAuth();
   const { isAdmin } = useUserRole();
+  const tr = useLabel();
+  const { i18n: i18nApp } = useTranslation();
+  const isEn = (i18nApp.language || "fa").startsWith("en");
   const [folders, setFolders] = useState<Folder[]>([]);
   const [tags, setTags] = useState<TagT[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -288,13 +330,13 @@ export function AppSidebar() {
           {!collapsed && (
             <SidebarGroupLabel className="flex items-center justify-between pe-1 group">
               {dragHandle && (
-                <button {...dragHandle} className="cursor-grab active:cursor-grabbing p-0.5 opacity-30 hover:opacity-80 transition" title="جابجا کن">
+                <button {...dragHandle} className="cursor-grab active:cursor-grabbing p-0.5 opacity-30 hover:opacity-80 transition" title={tr("جابجا کن")}>
                   <GripVertical className="w-3 h-3" />
                 </button>
               )}
               <CollapsibleTrigger className="flex items-center gap-2 flex-1 hover:bg-sidebar-accent/50 rounded transition">
                 <SectionIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                <span>{section.title}</span>
+                <span>{tr(section.title)}</span>
                 <ChevronDown className={`w-3.5 h-3.5 me-auto text-muted-foreground transition-transform ${isOpen ? "" : "-rotate-90"}`} />
               </CollapsibleTrigger>
             </SidebarGroupLabel>
@@ -311,7 +353,7 @@ export function AppSidebar() {
                       <NavLink to={item.url} onClick={closeOnMobile} className="flex items-center gap-2"
                         activeClassName="bg-accent text-accent-foreground font-medium">
                         <item.icon className="w-4 h-4" />
-                        {!collapsed && <span>{item.label}</span>}
+                        {!collapsed && <span>{tr(item.label)}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -438,7 +480,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex flex-col leading-tight">
               <span className="font-bold text-base bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">ARSHNAZ</span>
-              <span className="text-[9px] text-muted-foreground">تقدیم به عشق زندگی‌ام، آرشناز ❤️</span>
+              <span className="text-[9px] text-muted-foreground">{isEn ? "Dedicated to the love of my life, Arshnaz ❤️" : "تقدیم به عشق زندگی‌ام، آرشناز ❤️"}</span>
             </div>
           )}
         </div>
