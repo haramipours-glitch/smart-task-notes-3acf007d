@@ -20,6 +20,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { loadSettings, saveSettings, ensureNotificationPermission, type UserSettings } from "@/lib/reminders";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: (c: ProviderConfig) => void }) {
   const info = PROVIDER_INFO[value.provider];
@@ -241,7 +242,8 @@ export default function SettingsView() {
         </div>
       </Card>
 
-      <div>
+      {/* App language switcher (i18n) */}
+      <LanguageSwitcher />
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-primary" /> تنظیمات
         </h1>
