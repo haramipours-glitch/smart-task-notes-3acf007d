@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Plus, Sparkles, Trash2, FileText, Clock, ChevronDown } from "lucide-react";
+import { Plus, Sparkles, Trash2, FileText, Clock, ChevronDown, ArrowRight } from "lucide-react";
 import { PRIORITY_META, PRIORITY_ORDER } from "@/lib/priority";
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
