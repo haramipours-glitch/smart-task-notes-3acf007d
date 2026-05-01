@@ -165,6 +165,8 @@ export function AppSidebar() {
   const { signOut, user } = useAuth();
   const { isAdmin } = useUserRole();
   const tr = useLabel();
+  const { i18n: i18nApp } = useTranslation();
+  const isEn = (i18nApp.language || "fa").startsWith("en");
   const [folders, setFolders] = useState<Folder[]>([]);
   const [tags, setTags] = useState<TagT[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -478,7 +480,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex flex-col leading-tight">
               <span className="font-bold text-base bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">ARSHNAZ</span>
-              <span className="text-[9px] text-muted-foreground">{useTranslation().i18n.language?.startsWith("en") ? "Dedicated to the love of my life, Arshnaz ❤️" : "تقدیم به عشق زندگی‌ام، آرشناز ❤️"}</span>
+              <span className="text-[9px] text-muted-foreground">{isEn ? "Dedicated to the love of my life, Arshnaz ❤️" : "تقدیم به عشق زندگی‌ام، آرشناز ❤️"}</span>
             </div>
           )}
         </div>
