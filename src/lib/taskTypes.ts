@@ -16,6 +16,7 @@ export type Task = {
   start_at: string | null;
   end_at: string | null;
   estimated_minutes: number | null;
+  is_avoidance?: boolean;
 };
 
 export type TaskNote = { id: string; title: string; content: string };
