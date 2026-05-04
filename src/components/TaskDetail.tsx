@@ -124,6 +124,12 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                     </button>
                   );
                 })}
+                {t.priority !== "none" && (
+                  <button onClick={() => save({ priority: "none" as any })}
+                    className="px-2 py-1.5 rounded-lg border border-dashed text-[11px] text-muted-foreground hover:bg-accent">
+                    حذف اولویت
+                  </button>
+                )}
               </div>
             </div>
 
