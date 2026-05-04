@@ -175,7 +175,7 @@ export default function HomeView() {
         completedToday: snap.completedToday,
         pomodoroMinutes: snap.pomodoroMinutes,
         lastCheckin: snap.lastCheckin,
-        topTask: snap.topTask ? { title: snap.topTask.title, priority: snap.topTask.priority, due: snap.topTask.due_date } : null,
+        topTask: snap.topTasks[0] ? { title: snap.topTasks[0].title, priority: snap.topTasks[0].priority, due: snap.topTasks[0].due_date } : null,
       };
       const { data, error } = await supabase.functions.invoke("ai-assistant", {
         body: { mode: "daily_brief", input: JSON.stringify(payload), language: "fa" },
