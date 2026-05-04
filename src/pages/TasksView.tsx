@@ -451,6 +451,11 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                   <button onClick={() => moveSibling(t, 1)} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move down" title="پایین">
                     <ArrowDown className="w-3.5 h-3.5" />
                   </button>
+                  {t.is_avoidance && (
+                    <Badge variant="outline" className="text-[10px] gap-0.5 px-1.5 py-0 h-5 bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/40">
+                      <Ban className="w-2.5 h-2.5" /> اجتنابی
+                    </Badge>
+                  )}
                   {t.priority !== "none" && (
                     <Badge variant="outline" className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 ${pm.bgClass} ${pm.textClass}`}>
                       <Flag className="w-2.5 h-2.5" /> {pm.label}
