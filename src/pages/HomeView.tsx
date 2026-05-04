@@ -132,16 +132,18 @@ export default function HomeView() {
     const todayDue = todayList.length;
 
     const sorted = [...todayList].sort((a, b) => {
-      const rank = (p: string) => p === "high" ? 0 : p === "medium" ? 1 : p === "low" ? 2 : 3;
+      const rank = (p: string) => p === "urgent" ? -1 : p === "high" ? 0 : p === "medium" ? 1 : p === "low" ? 2 : 3;
       const r = rank(a.priority as string) - rank(b.priority as string);
       if (r !== 0) return r;
       const at = a.due_date ? new Date(a.due_date).getTime() : Infinity;
       const bt = b.due_date ? new Date(b.due_date).getTime() : Infinity;
       return at - bt;
     });
-    const top = sorted[0]
-      ? { id: sorted[0].id, title: sorted[0].title, priority: sorted[0].priority as string, due_date: sorted[0].due_date as string | null }
-      : null;
+    // Show urgent + high (and fall back to first sorted if none of those exist)
+    const important = sorted.filter(t => t.priority === "urgent" || t.priority === "high").slice(0, 4);
+    const top = important.length > 0
+      ? important.map(t => ({ id: t.id, title: t.title, priority: t.priority as string, due_date: t.due_date as string | null }))
+      : (sorted[0] ? [{ id: sorted[0].id, title: sorted[0].title, priority: sorted[0].priority as string, due_date: sorted[0].due_date as string | null }] : []);
     const minutes = (pomos.data || []).reduce((s, p) => s + (p.duration_minutes || 0), 0);
 
     setSnap({
@@ -150,7 +152,7 @@ export default function HomeView() {
       completedToday: completed.count || 0,
       pomodoroMinutes: minutes,
       lastCheckin: checkin.data ? { mood: checkin.data.mood, energy: checkin.data.energy, focus: checkin.data.focus, date: checkin.data.checkin_date } : undefined,
-      topTask: top,
+      topTasks: top,
     });
   }
 
