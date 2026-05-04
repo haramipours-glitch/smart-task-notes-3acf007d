@@ -407,5 +407,5 @@ function QuickCard({ icon: Icon, to, label, color }: any) {
 }
 
 function labelPriority(p: string) {
-  return p === "high" ? "بالا" : p === "medium" ? "متوسط" : p === "low" ? "پایین" : "بدون";
+  return p === "urgent" ? "فوق فوری" : p === "high" ? "فوری" : p === "medium" ? "متوسط" : p === "low" ? "پایین" : "بدون";
 }
