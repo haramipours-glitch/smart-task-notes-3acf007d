@@ -417,7 +417,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
       <div key={t.id}>
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
-            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass}`}
+            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""}`}
               style={{ marginInlineStart: depth * 16 }}>
               {/* Row 1: chevron + TITLE (wide) + checkbox (right) */}
               <div dir="rtl" className="flex items-start gap-2">
