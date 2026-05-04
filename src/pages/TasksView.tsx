@@ -436,7 +436,21 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                     className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}
                   />
                 </div>
-                <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
+                {t.is_avoidance ? (
+                  <button
+                    onClick={() => toggleTask(t)}
+                    title={t.completed ? "موفق به اجتناب — لغو" : "علامت بزن: موفق به اجتناب شدم"}
+                    className={`mt-0.5 shrink-0 h-5 w-5 rounded-md border-2 flex items-center justify-center transition ${
+                      t.completed
+                        ? "bg-amber-500 border-amber-500 text-white"
+                        : "border-amber-500/60 text-amber-600 hover:bg-amber-500/10"
+                    }`}
+                  >
+                    <Ban className="w-3 h-3" />
+                  </button>
+                ) : (
+                  <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
+                )}
               </div>
 
               {/* Row 2: drag handle + badges + actions */}
