@@ -931,6 +931,7 @@ export type Database = {
           goal_id: string | null
           goal_level: string | null
           id: string
+          is_avoidance: boolean
           kanban_column_id: string | null
           parent_id: string | null
           position: number
@@ -957,6 +958,7 @@ export type Database = {
           goal_id?: string | null
           goal_level?: string | null
           id?: string
+          is_avoidance?: boolean
           kanban_column_id?: string | null
           parent_id?: string | null
           position?: number
@@ -983,6 +985,7 @@ export type Database = {
           goal_id?: string | null
           goal_level?: string | null
           id?: string
+          is_avoidance?: boolean
           kanban_column_id?: string | null
           parent_id?: string | null
           position?: number

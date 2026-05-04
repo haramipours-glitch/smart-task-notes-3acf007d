@@ -26,7 +26,7 @@ type Snapshot = {
   completedToday: number;
   pomodoroMinutes: number;
   lastCheckin?: { mood: number | null; energy: number | null; focus: number | null; date: string };
-  topTask: { id: string; title: string; priority: string; due_date: string | null } | null;
+  topTasks: { id: string; title: string; priority: string; due_date: string | null }[];
 };
 
 const BRIEF_KEY = "daily_brief_v1";
@@ -132,16 +132,18 @@ export default function HomeView() {
     const todayDue = todayList.length;
 
     const sorted = [...todayList].sort((a, b) => {
-      const rank = (p: string) => p === "high" ? 0 : p === "medium" ? 1 : p === "low" ? 2 : 3;
+      const rank = (p: string) => p === "urgent" ? -1 : p === "high" ? 0 : p === "medium" ? 1 : p === "low" ? 2 : 3;
       const r = rank(a.priority as string) - rank(b.priority as string);
       if (r !== 0) return r;
       const at = a.due_date ? new Date(a.due_date).getTime() : Infinity;
       const bt = b.due_date ? new Date(b.due_date).getTime() : Infinity;
       return at - bt;
     });
-    const top = sorted[0]
-      ? { id: sorted[0].id, title: sorted[0].title, priority: sorted[0].priority as string, due_date: sorted[0].due_date as string | null }
-      : null;
+    // Show urgent + high (and fall back to first sorted if none of those exist)
+    const important = sorted.filter(t => t.priority === "urgent" || t.priority === "high").slice(0, 4);
+    const top = important.length > 0
+      ? important.map(t => ({ id: t.id, title: t.title, priority: t.priority as string, due_date: t.due_date as string | null }))
+      : (sorted[0] ? [{ id: sorted[0].id, title: sorted[0].title, priority: sorted[0].priority as string, due_date: sorted[0].due_date as string | null }] : []);
     const minutes = (pomos.data || []).reduce((s, p) => s + (p.duration_minutes || 0), 0);
 
     setSnap({
@@ -150,7 +152,7 @@ export default function HomeView() {
       completedToday: completed.count || 0,
       pomodoroMinutes: minutes,
       lastCheckin: checkin.data ? { mood: checkin.data.mood, energy: checkin.data.energy, focus: checkin.data.focus, date: checkin.data.checkin_date } : undefined,
-      topTask: top,
+      topTasks: top,
     });
   }
 
@@ -173,7 +175,7 @@ export default function HomeView() {
         completedToday: snap.completedToday,
         pomodoroMinutes: snap.pomodoroMinutes,
         lastCheckin: snap.lastCheckin,
-        topTask: snap.topTask ? { title: snap.topTask.title, priority: snap.topTask.priority, due: snap.topTask.due_date } : null,
+        topTask: snap.topTasks[0] ? { title: snap.topTasks[0].title, priority: snap.topTasks[0].priority, due: snap.topTasks[0].due_date } : null,
       };
       const { data, error } = await supabase.functions.invoke("ai-assistant", {
         body: { mode: "daily_brief", input: JSON.stringify(payload), language: "fa" },
@@ -296,27 +298,31 @@ export default function HomeView() {
         )}
       </Card>
 
-      {/* Top task */}
-      {snap.topTask && (
+      {/* Top tasks */}
+      {snap.topTasks.length > 0 && (
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Target className="w-4 h-4 text-amber-500" />
-              مهم‌ترین تسک امروز
+              مهم‌ترین کارهای امروز
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <button
-              onClick={() => navigate(`/app/tasks/${snap.topTask!.id}`)}
-              className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
-            >
-              <span className="flex-1 truncate font-medium">{snap.topTask.title}</span>
-              <span className={`text-xs px-2 py-0.5 rounded-full ms-2 ${
-                snap.topTask.priority === "high" ? "bg-destructive/15 text-destructive" :
-                snap.topTask.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
-                snap.topTask.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
-              }`}>{labelPriority(snap.topTask.priority)}</span>
-            </button>
+          <CardContent className="space-y-1.5">
+            {snap.topTasks.map((tt) => (
+              <button
+                key={tt.id}
+                onClick={() => navigate(`/app/tasks/${tt.id}`)}
+                className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
+              >
+                <span className="flex-1 truncate font-medium">{tt.title}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ms-2 ${
+                  tt.priority === "urgent" ? "bg-red-600/20 text-red-700 dark:text-red-300" :
+                  tt.priority === "high" ? "bg-destructive/15 text-destructive" :
+                  tt.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
+                  tt.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
+                }`}>{labelPriority(tt.priority)}</span>
+              </button>
+            ))}
           </CardContent>
         </Card>
       )}
@@ -401,5 +407,5 @@ function QuickCard({ icon: Icon, to, label, color }: any) {
 }
 
 function labelPriority(p: string) {
-  return p === "high" ? "بالا" : p === "medium" ? "متوسط" : p === "low" ? "پایین" : "بدون";
+  return p === "urgent" ? "فوق فوری" : p === "high" ? "فوری" : p === "medium" ? "متوسط" : p === "low" ? "پایین" : "بدون";
 }

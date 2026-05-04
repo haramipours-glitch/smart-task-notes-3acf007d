@@ -50,4 +50,5 @@ export const PRIORITY_META: Record<Priority, {
   },
 };
 
-export const PRIORITY_ORDER: Priority[] = ["urgent", "high", "medium", "low", "none"];
+export const PRIORITY_ORDER: Priority[] = ["urgent", "high", "medium", "low"];
+export const PRIORITY_SELECTABLE: Priority[] = ["urgent", "high", "medium", "low"];

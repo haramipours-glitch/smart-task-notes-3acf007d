@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Plus, Sparkles, Trash2, FileText, Clock, ChevronDown, ArrowRight } from "lucide-react";
+import { Plus, Sparkles, Trash2, FileText, Clock, ChevronDown, ArrowRight, Ban } from "lucide-react";
 import { PRIORITY_META, PRIORITY_ORDER } from "@/lib/priority";
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
@@ -17,6 +17,8 @@ import { NoteEditorTabs } from "@/components/NoteEditorTabs";
 import { TaskStepLists } from "@/components/TaskStepLists";
 import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
+import { DueDatePicker } from "@/components/DueDatePicker";
+import { Switch } from "@/components/ui/switch";
 import { pushUndo } from "@/lib/undoStack";
 import type { Task, TaskNote, ConfirmState } from "@/lib/taskTypes";
 
@@ -122,27 +124,43 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                     </button>
                   );
                 })}
+                {t.priority !== "none" && (
+                  <button onClick={() => save({ priority: "none" as any })}
+                    className="px-2 py-1.5 rounded-lg border border-dashed text-[11px] text-muted-foreground hover:bg-accent">
+                    حذف اولویت
+                  </button>
+                )}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-muted-foreground">سررسید</label>
-                <Input type="datetime-local" value={t.due_date ? t.due_date.slice(0, 16) : ""}
-                  onChange={(e) => {
-                    const newDue = e.target.value ? new Date(e.target.value) : null;
-                    const patch: Partial<Task> = { due_date: newDue ? newDue.toISOString() : null };
-                    if (t.reminder_at && newDue) {
-                      if (t.due_date) {
-                        const delta = newDue.getTime() - new Date(t.due_date).getTime();
-                        patch.reminder_at = new Date(new Date(t.reminder_at).getTime() + delta).toISOString();
-                      } else {
-                        patch.reminder_at = newDue.toISOString();
-                      }
-                    }
-                    save(patch);
-                  }} />
+            <div className="rounded-lg border bg-amber-500/5 border-amber-500/30 p-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Ban className="w-4 h-4 text-amber-600" />
+                <div>
+                  <p className="text-sm font-medium">تسک اجتنابی (نباید انجام شود)</p>
+                  <p className="text-[10px] text-muted-foreground">مثل: سیگار نکشم، تلویزیون نبینم — تیک = موفق به اجتناب</p>
+                </div>
               </div>
+              <Switch
+                checked={!!t.is_avoidance}
+                onCheckedChange={(v) => save({ is_avoidance: v } as any)}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <DueDatePicker
+                label="سررسید"
+                value={t.due_date}
+                onChange={(iso) => {
+                  const newDue = iso ? new Date(iso) : null;
+                  const patch: Partial<Task> = { due_date: iso };
+                  if (t.reminder_at && newDue && t.due_date) {
+                    const delta = newDue.getTime() - new Date(t.due_date).getTime();
+                    patch.reminder_at = new Date(new Date(t.reminder_at).getTime() + delta).toISOString();
+                  }
+                  save(patch);
+                }}
+              />
               <div>
                 <label className="text-xs text-muted-foreground">یادآور</label>
                 <Input type="datetime-local" value={t.reminder_at ? t.reminder_at.slice(0, 16) : ""}

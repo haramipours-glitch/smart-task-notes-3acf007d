@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { startOfDay, endOfDay, addDays, format } from "date-fns";
-import { Plus, Calendar, Trash2, ChevronRight, ChevronDown, Flag, GripVertical, CornerDownRight, FolderInput, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Calendar, Trash2, ChevronRight, ChevronDown, Flag, GripVertical, CornerDownRight, FolderInput, ArrowUp, ArrowDown, Ban } from "lucide-react";
 import { MoveToDialog } from "@/components/MoveToDialog";
 import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
 import { startItemDrag } from "@/lib/dragToFolder";
@@ -417,7 +417,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
       <div key={t.id}>
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
-            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass}`}
+            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""}`}
               style={{ marginInlineStart: depth * 16 }}>
               {/* Row 1: chevron + TITLE (wide) + checkbox (right) */}
               <div dir="rtl" className="flex items-start gap-2">
@@ -436,7 +436,21 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                     className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}
                   />
                 </div>
-                <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
+                {t.is_avoidance ? (
+                  <button
+                    onClick={() => toggleTask(t)}
+                    title={t.completed ? "موفق به اجتناب — لغو" : "علامت بزن: موفق به اجتناب شدم"}
+                    className={`mt-0.5 shrink-0 h-5 w-5 rounded-md border-2 flex items-center justify-center transition ${
+                      t.completed
+                        ? "bg-amber-500 border-amber-500 text-white"
+                        : "border-amber-500/60 text-amber-600 hover:bg-amber-500/10"
+                    }`}
+                  >
+                    <Ban className="w-3 h-3" />
+                  </button>
+                ) : (
+                  <Checkbox checked={t.completed} onCheckedChange={() => toggleTask(t)} className="mt-1 shrink-0" />
+                )}
               </div>
 
               {/* Row 2: drag handle + badges + actions */}
@@ -451,6 +465,11 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                   <button onClick={() => moveSibling(t, 1)} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move down" title="پایین">
                     <ArrowDown className="w-3.5 h-3.5" />
                   </button>
+                  {t.is_avoidance && (
+                    <Badge variant="outline" className="text-[10px] gap-0.5 px-1.5 py-0 h-5 bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/40">
+                      <Ban className="w-2.5 h-2.5" /> اجتنابی
+                    </Badge>
+                  )}
                   {t.priority !== "none" && (
                     <Badge variant="outline" className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 ${pm.bgClass} ${pm.textClass}`}>
                       <Flag className="w-2.5 h-2.5" /> {pm.label}
