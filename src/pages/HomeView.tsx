@@ -298,27 +298,31 @@ export default function HomeView() {
         )}
       </Card>
 
-      {/* Top task */}
-      {snap.topTask && (
+      {/* Top tasks */}
+      {snap.topTasks.length > 0 && (
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Target className="w-4 h-4 text-amber-500" />
-              مهم‌ترین تسک امروز
+              مهم‌ترین کارهای امروز
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <button
-              onClick={() => navigate(`/app/tasks/${snap.topTask!.id}`)}
-              className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
-            >
-              <span className="flex-1 truncate font-medium">{snap.topTask.title}</span>
-              <span className={`text-xs px-2 py-0.5 rounded-full ms-2 ${
-                snap.topTask.priority === "high" ? "bg-destructive/15 text-destructive" :
-                snap.topTask.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
-                snap.topTask.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
-              }`}>{labelPriority(snap.topTask.priority)}</span>
-            </button>
+          <CardContent className="space-y-1.5">
+            {snap.topTasks.map((tt) => (
+              <button
+                key={tt.id}
+                onClick={() => navigate(`/app/tasks/${tt.id}`)}
+                className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
+              >
+                <span className="flex-1 truncate font-medium">{tt.title}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ms-2 ${
+                  tt.priority === "urgent" ? "bg-red-600/20 text-red-700 dark:text-red-300" :
+                  tt.priority === "high" ? "bg-destructive/15 text-destructive" :
+                  tt.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
+                  tt.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
+                }`}>{labelPriority(tt.priority)}</span>
+              </button>
+            ))}
           </CardContent>
         </Card>
       )}
