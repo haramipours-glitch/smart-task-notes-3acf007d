@@ -284,6 +284,46 @@ export default function HomeView() {
         </Card>
       )}
 
+      {/* عادت‌های امروز */}
+      {snap.habitsToday.length > 0 && (
+        <Card className="border-pink-500/30 bg-gradient-to-br from-pink-500/5 to-transparent">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Repeat className="w-4 h-4 text-pink-500" />
+                عادت‌های امروز
+              </span>
+              <span className="text-[10px] text-muted-foreground font-normal">
+                {toPersianDigits(snap.habitsToday.filter(h => h.done).length)}/{toPersianDigits(snap.habitsToday.length)}
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-1.5">
+            {snap.habitsToday.map((h) => (
+              <button
+                key={h.id}
+                onClick={async () => {
+                  if (!user) return;
+                  const today = new Date().toISOString().slice(0, 10);
+                  if (h.done) {
+                    await supabase.from("habit_logs").delete().eq("habit_id", h.id).eq("log_date", today);
+                  } else {
+                    await supabase.from("habit_logs").insert({ habit_id: h.id, user_id: user.id, log_date: today });
+                  }
+                  load();
+                }}
+                className={`px-2.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 transition border
+                  ${h.done ? "bg-pink-500/20 border-pink-500/40 text-pink-700 dark:text-pink-300" : "border-border hover:bg-accent"}`}
+              >
+                <span>{h.icon}</span>
+                <span className="truncate max-w-[100px]">{h.name}</span>
+                {h.done && <Check className="w-3 h-3" />}
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Check-in سریع */}
       <Link to="/app/checkin">
         <Card className="border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-transparent hover:bg-accent/20 transition">
