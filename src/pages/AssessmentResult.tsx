@@ -103,7 +103,7 @@ export default function AssessmentResult() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {!aiAnalysis && (
+          {aiAnalysis === null && (
             <Button onClick={generateAiAnalysis} disabled={loadingAi} size="lg" className="w-full sm:w-auto">
               {loadingAi ? (
                 <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> در حال تحلیل عمیق…</>
@@ -112,7 +112,10 @@ export default function AssessmentResult() {
               )}
             </Button>
           )}
-          {aiAnalysis && (
+          {aiAnalysis !== null && (
+            <></>
+          )}
+          {aiAnalysis !== null && (
             <>
               <article
                 dir="rtl"
