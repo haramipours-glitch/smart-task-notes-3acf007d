@@ -61,8 +61,16 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const [quickSub, setQuickSub] = useState<Record<string, string>>({});
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
+  const [makeChildOf, setMakeChildOf] = useState<Task | null>(null);
   const [delFolderOpen, setDelFolderOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Patch a task field optimistically + persist
+  const patchTask = async (id: string, patch: Partial<Task>) => {
+    setAllTasks(prev => prev.map(x => x.id === id ? { ...x, ...patch } as Task : x));
+    const { error } = await supabase.from("tasks").update(patch as any).eq("id", id);
+    if (error) toast.error(error.message);
+  };
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
