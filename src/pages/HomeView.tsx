@@ -52,6 +52,7 @@ const ALL_QUICK: { key: string; icon: any; to: string; label: string; color: str
 ];
 
 const QUICK_KEY = "home_quick_widgets_v1";
+const FOCUS_KEY = "home_focus_mode_v1";
 const DEFAULT_QUICK = ALL_QUICK.map((q) => q.key);
 
 function loadEnabledQuick(): string[] {
@@ -63,6 +64,14 @@ function loadEnabledQuick(): string[] {
     }
   } catch {}
   return DEFAULT_QUICK;
+}
+
+function loadFocusMode(): boolean {
+  try {
+    const raw = localStorage.getItem(FOCUS_KEY);
+    if (raw === null) return true; // default focus mode for new users
+    return raw === "1";
+  } catch { return true; }
 }
 
 export default function HomeView() {
