@@ -27,6 +27,7 @@ type Snapshot = {
   pomodoroMinutes: number;
   lastCheckin?: { mood: number | null; energy: number | null; focus: number | null; date: string };
   topTasks: { id: string; title: string; priority: string; due_date: string | null }[];
+  habitsToday: { id: string; name: string; icon: string; done: boolean }[];
 };
 
 const BRIEF_KEY = "daily_brief_v1";
