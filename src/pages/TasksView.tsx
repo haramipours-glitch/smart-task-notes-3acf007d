@@ -127,7 +127,11 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const load = async () => {
     if (!user) return;
     // Always fetch ALL user's tasks for tree completeness, then filter top-level by scope
-    const { data: allData } = await supabase.from("tasks").select("*").order("position").order("created_at", { ascending: false });
+    const { data: allData } = await supabase.from("tasks")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("position").order("created_at", { ascending: false })
+      .limit(2000);
     const all = ((allData || []) as unknown) as Task[];
     setAllTasks(all);
 
