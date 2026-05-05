@@ -77,48 +77,43 @@ type Section = { id: string; title: string; icon: any; defaultOpen: boolean; ite
 
 const SECTIONS: Section[] = [
   {
-    id: "tasks", title: "کارها و برنامه‌ریزی", icon: ListTodo, defaultOpen: true,
+    id: "do", title: "انجام دادن", icon: ListTodo, defaultOpen: true,
     items: [
-      { url: "/app/inbox", icon: Inbox, label: "Inbox" },
       { url: "/app/today", icon: CalIcon, label: "امروز" },
+      { url: "/app/inbox", icon: Inbox, label: "Inbox" },
       { url: "/app/tomorrow", icon: Sun, label: "فردا" },
       { url: "/app/next7", icon: CalendarDays, label: "۷ روز آینده" },
-      { url: "/app/smart", icon: Filter, label: "Smart Lists" },
       { url: "/app/calendar", icon: Calendar, label: "تقویم" },
-      { url: "/app/goals", icon: Target, label: "اهداف" },
-      { url: "/app/habits", icon: Target, label: "عادت‌ها" },
+      { url: "/app/smart", icon: Filter, label: "Smart Lists" },
       { url: "/app/pomodoro", icon: Timer, label: "Pomodoro" },
     ],
   },
   {
-    id: "notes", title: "نوت‌ها و دانش", icon: FileText, defaultOpen: false,
+    id: "grow", title: "رشد", icon: TrendingUp, defaultOpen: false,
     items: [
+      { url: "/app/goals", icon: Target, label: "اهداف" },
+      { url: "/app/habits", icon: Target, label: "عادت‌ها" },
       { url: "/app/notes", icon: FileText, label: "نوت‌ها" },
       { url: "/app/review", icon: Brain, label: "مرور (SR)" },
+      { url: "/app/weekly-review", icon: CalendarDays, label: "بازنگری هفتگی" },
+      { url: "/app/insights", icon: TrendingUp, label: "بینش هفتگی" },
     ],
   },
   {
-    id: "self", title: "خودشناسی و بینش", icon: HeartPulse, defaultOpen: false,
+    id: "mind", title: "ذهن", icon: BrainCircuit, defaultOpen: false,
     items: [
-      { url: "/app/self", icon: HeartPulse, label: "خودشناسی" },
-      { url: "/app/insights", icon: TrendingUp, label: "بینش هفتگی" },
-      { url: "/app/weekly-review", icon: CalendarDays, label: "بازنگری هفتگی" },
       { url: "/app/checkin", icon: Activity, label: "Check-in روزانه" },
+      { url: "/app/thoughts", icon: BookOpen, label: "ثبت افکار (CBT)" },
+      { url: "/app/abc", icon: Zap, label: "مدل ABC" },
+      { url: "/app/socratic", icon: MessageCircleQuestion, label: "چت سقراطی" },
       { url: "/app/decisions", icon: BookOpen, label: "ژورنال تصمیم" },
     ],
   },
   {
-    id: "mind", title: "سلامت ذهن", icon: BrainCircuit, defaultOpen: false,
-    items: [
-      { url: "/app/thoughts", icon: BookOpen, label: "ثبت افکار (CBT)" },
-      { url: "/app/abc", icon: Zap, label: "مدل ABC" },
-      { url: "/app/socratic", icon: MessageCircleQuestion, label: "چت سقراطی" },
-    ],
-  },
-  {
-    id: "settings", title: "ابزار و تنظیمات", icon: Wrench, defaultOpen: false,
+    id: "me", title: "خودِ من", icon: User, defaultOpen: false,
     items: [
       { url: "/app/about-me", icon: User, label: "درباره من" },
+      { url: "/app/self", icon: HeartPulse, label: "خودشناسی" },
       { url: "/app/settings", icon: Settings, label: "تنظیمات" },
     ],
   },
