@@ -12,6 +12,8 @@ import ClinicalDisclaimer from "@/components/ClinicalDisclaimer";
 import RemindersRunner from "@/components/RemindersRunner";
 import BackButtonHandler from "@/components/BackButtonHandler";
 import CommandPalette from "@/components/CommandPalette";
+import QuickCaptureDialog from "@/components/QuickCaptureDialog";
+import KeyboardShortcutsDialog from "@/components/KeyboardShortcutsDialog";
 import { BottomTabBar } from "@/components/BottomTabBar";
 import Onboarding from "@/components/Onboarding";
 import HeaderBackButton from "@/components/HeaderBackButton";
@@ -65,6 +67,8 @@ export default function AppLayout() {
         <RemindersRunner />
         <BackButtonHandler />
         <CommandPalette />
+        <QuickCaptureDialog />
+        <KeyboardShortcutsDialog />
         <BottomTabBar />
         <Onboarding />
       </div>
