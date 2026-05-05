@@ -13,6 +13,7 @@ import RemindersRunner from "@/components/RemindersRunner";
 import BackButtonHandler from "@/components/BackButtonHandler";
 import CommandPalette from "@/components/CommandPalette";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import Onboarding from "@/components/Onboarding";
 import HeaderBackButton from "@/components/HeaderBackButton";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
@@ -52,7 +53,7 @@ export default function AppLayout() {
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto pb-4">
+          <main className="flex-1 overflow-auto pb-20 md:pb-4">
             <Outlet />
           </main>
         </div>
@@ -65,6 +66,7 @@ export default function AppLayout() {
         <BackButtonHandler />
         <CommandPalette />
         <BottomTabBar />
+        <Onboarding />
       </div>
     </SidebarProvider>
   );

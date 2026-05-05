@@ -35,11 +35,10 @@ import { useTranslation } from "react-i18next";
 // Map Persian labels (used in SECTIONS) → English equivalents.
 // Used only when the active app language is "en".
 const EN_LABELS: Record<string, string> = {
-  "کارها و برنامه‌ریزی": "Tasks & Planning",
-  "نوت‌ها و دانش": "Notes & Knowledge",
-  "خودشناسی و بینش": "Self-Knowledge & Insights",
-  "سلامت ذهن": "Mental Health",
-  "ابزار و تنظیمات": "Tools & Settings",
+  "انجام دادن": "Do",
+  "رشد": "Grow",
+  "ذهن": "Mind",
+  "خودِ من": "Me",
   "امروز": "Today",
   "فردا": "Tomorrow",
   "۷ روز آینده": "Next 7 Days",
@@ -78,55 +77,50 @@ type Section = { id: string; title: string; icon: any; defaultOpen: boolean; ite
 
 const SECTIONS: Section[] = [
   {
-    id: "tasks", title: "کارها و برنامه‌ریزی", icon: ListTodo, defaultOpen: true,
+    id: "do", title: "انجام دادن", icon: ListTodo, defaultOpen: true,
     items: [
-      { url: "/app/inbox", icon: Inbox, label: "Inbox" },
       { url: "/app/today", icon: CalIcon, label: "امروز" },
+      { url: "/app/inbox", icon: Inbox, label: "Inbox" },
       { url: "/app/tomorrow", icon: Sun, label: "فردا" },
       { url: "/app/next7", icon: CalendarDays, label: "۷ روز آینده" },
-      { url: "/app/smart", icon: Filter, label: "Smart Lists" },
       { url: "/app/calendar", icon: Calendar, label: "تقویم" },
-      { url: "/app/goals", icon: Target, label: "اهداف" },
-      { url: "/app/habits", icon: Target, label: "عادت‌ها" },
+      { url: "/app/smart", icon: Filter, label: "Smart Lists" },
       { url: "/app/pomodoro", icon: Timer, label: "Pomodoro" },
     ],
   },
   {
-    id: "notes", title: "نوت‌ها و دانش", icon: FileText, defaultOpen: false,
+    id: "grow", title: "رشد", icon: TrendingUp, defaultOpen: false,
     items: [
+      { url: "/app/goals", icon: Target, label: "اهداف" },
+      { url: "/app/habits", icon: Target, label: "عادت‌ها" },
       { url: "/app/notes", icon: FileText, label: "نوت‌ها" },
       { url: "/app/review", icon: Brain, label: "مرور (SR)" },
+      { url: "/app/weekly-review", icon: CalendarDays, label: "بازنگری هفتگی" },
+      { url: "/app/insights", icon: TrendingUp, label: "بینش هفتگی" },
     ],
   },
   {
-    id: "self", title: "خودشناسی و بینش", icon: HeartPulse, defaultOpen: false,
+    id: "mind", title: "ذهن", icon: BrainCircuit, defaultOpen: false,
     items: [
-      { url: "/app/self", icon: HeartPulse, label: "خودشناسی" },
-      { url: "/app/insights", icon: TrendingUp, label: "بینش هفتگی" },
-      { url: "/app/weekly-review", icon: CalendarDays, label: "بازنگری هفتگی" },
       { url: "/app/checkin", icon: Activity, label: "Check-in روزانه" },
+      { url: "/app/thoughts", icon: BookOpen, label: "ثبت افکار (CBT)" },
+      { url: "/app/abc", icon: Zap, label: "مدل ABC" },
+      { url: "/app/socratic", icon: MessageCircleQuestion, label: "چت سقراطی" },
       { url: "/app/decisions", icon: BookOpen, label: "ژورنال تصمیم" },
     ],
   },
   {
-    id: "mind", title: "سلامت ذهن", icon: BrainCircuit, defaultOpen: false,
-    items: [
-      { url: "/app/thoughts", icon: BookOpen, label: "ثبت افکار (CBT)" },
-      { url: "/app/abc", icon: Zap, label: "مدل ABC" },
-      { url: "/app/socratic", icon: MessageCircleQuestion, label: "چت سقراطی" },
-    ],
-  },
-  {
-    id: "settings", title: "ابزار و تنظیمات", icon: Wrench, defaultOpen: false,
+    id: "me", title: "خودِ من", icon: User, defaultOpen: false,
     items: [
       { url: "/app/about-me", icon: User, label: "درباره من" },
+      { url: "/app/self", icon: HeartPulse, label: "خودشناسی" },
       { url: "/app/settings", icon: Settings, label: "تنظیمات" },
     ],
   },
 ];
 
 // Default order: folders → tags → tasks → notes → self → mind → settings
-const DEFAULT_ORDER = ["__folders", "__tags", "tasks", "notes", "self", "mind", "settings"];
+const DEFAULT_ORDER = ["__folders", "__tags", "do", "grow", "mind", "me"];
 const ORDER_KEY = "sidebar_order_v1";
 
 function loadOrder(): string[] {
@@ -344,7 +338,7 @@ export function AppSidebar() {
           <CollapsibleContent forceMount={collapsed ? true : undefined}>
             <SidebarGroupContent>
               <SidebarMenu>
-                {(section.id === "settings" && isAdmin
+                {(section.id === "me" && isAdmin
                   ? [...section.items, { url: "/app/admin", icon: Shield, label: "پنل مدیریت" }]
                   : section.items
                 ).map((item) => (
