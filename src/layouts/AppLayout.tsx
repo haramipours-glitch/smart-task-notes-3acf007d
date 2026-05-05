@@ -66,6 +66,7 @@ export default function AppLayout() {
         <BackButtonHandler />
         <CommandPalette />
         <BottomTabBar />
+        <Onboarding />
       </div>
     </SidebarProvider>
   );
