@@ -36,6 +36,10 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const [taskNotes, setTaskNotes] = useState<TaskNote[]>([]);
   const [activeNote, setActiveNote] = useState<TaskNote | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
+  const [folders, setFolders] = useState<{ id: string; name: string; parent_id: string | null; color: string | null }[]>([]);
+  const [tags, setTags] = useState<{ id: string; name: string; color: string | null }[]>([]);
+  const [taskTagIds, setTaskTagIds] = useState<string[]>([]);
+  const [priorityOpen, setPriorityOpen] = useState(false);
   const hasTimeBlock = !!(t.start_at || t.end_at || t.estimated_minutes);
   const [timeBlockOpen, setTimeBlockOpen] = useState<boolean>(hasTimeBlock);
 
@@ -46,7 +50,39 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
       .order("updated_at", { ascending: false }).then(({ data }) => {
         setTaskNotes((data || []) as any);
       });
+    supabase.from("task_tags").select("tag_id").eq("task_id", task.id).then(({ data }) => {
+      setTaskTagIds((data || []).map((r: any) => r.tag_id));
+    });
   }, [task.id]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("folders").select("id,name,parent_id,color").order("position").then(({ data }) => {
+      setFolders((data || []) as any);
+    });
+    supabase.from("tags").select("id,name,color").order("name").then(({ data }) => {
+      setTags((data || []) as any);
+    });
+  }, [user]);
+
+  const folderName = (id: string | null): string => {
+    if (!id) return "بدون فولدر";
+    const f = folders.find(x => x.id === id);
+    if (!f) return "—";
+    const parent = f.parent_id ? folders.find(x => x.id === f.parent_id) : null;
+    return parent ? `${parent.name} / ${f.name}` : f.name;
+  };
+
+  const toggleTag = async (tagId: string) => {
+    if (!user) return;
+    if (taskTagIds.includes(tagId)) {
+      setTaskTagIds(taskTagIds.filter(x => x !== tagId));
+      await supabase.from("task_tags").delete().eq("task_id", t.id).eq("tag_id", tagId);
+    } else {
+      setTaskTagIds([...taskTagIds, tagId]);
+      await supabase.from("task_tags").insert({ task_id: t.id, tag_id: tagId, user_id: user.id });
+    }
+  };
 
   const refreshTask = async () => {
     const { data } = await supabase.from("tasks").select("*").eq("id", task.id).single();
