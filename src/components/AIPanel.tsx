@@ -108,9 +108,82 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
         <span className="text-sm">زبان پاسخ AI</span>
         <AILangToggle value={aiLang} onChange={setAiLang} />
       </div>
+
+      <Tabs value={tab} onValueChange={setTab} className="mt-4">
+        <TabsList className="grid grid-cols-4">
+          <TabsTrigger value="create">تسک</TabsTrigger>
+          <TabsTrigger value="note">نوت</TabsTrigger>
+          <TabsTrigger value="suggest">پیشنهاد</TabsTrigger>
+          <TabsTrigger value="chat">چت</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="create" className="space-y-3 mt-4">
+          <p className="text-sm text-muted-foreground">با زبان طبیعی تسک بساز</p>
+          <Textarea placeholder="مثال: فردا ساعت ۱۰ جلسه تیمی، اولویت بالا" value={input}
+            onChange={(e) => setInput(e.target.value)} rows={4} />
+          <Button onClick={createTaskFromNL} disabled={loading} className="w-full">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "ساخت تسک"}
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="note" className="space-y-3 mt-4">
+          <p className="text-sm text-muted-foreground">موضوع نوت رو بگو</p>
+          <Textarea placeholder="مثال: راهنمای شروع یوگا برای مبتدی" value={input}
+            onChange={(e) => setInput(e.target.value)} rows={4} />
+          <Button onClick={generateNote} disabled={loading} className="w-full">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "تولید نوت Markdown"}
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="suggest" className="space-y-3 mt-4">
+          <p className="text-sm text-muted-foreground">یک موضوع بده، پیشنهاد می‌گیریم</p>
+          <Textarea placeholder="مثال: راه‌اندازی کسب‌وکار آنلاین" value={input}
+            onChange={(e) => setInput(e.target.value)} rows={3} />
+          <Button onClick={getSuggestions} disabled={loading} className="w-full">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "پیشنهاد بگیر"}
+          </Button>
+
+          {suggestions.length > 0 && (
+            <div className="space-y-2 mt-4">
+              {suggestions.map((s, i) => (
+                <Card key={i} className="p-3 flex gap-3 items-start cursor-pointer hover:bg-accent/30"
+                  onClick={() => setPicked((p) => ({ ...p, [i]: !p[i] }))}>
+                  <Checkbox checked={picked[i] || false} className="mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm">{s.title}</p>
+                    {s.description && <p className="text-xs text-muted-foreground mt-0.5">{s.description}</p>}
+                  </div>
+                </Card>
+              ))}
+              <Button onClick={addPickedAsTasks} className="w-full mt-2" variant="default">
+                افزودن انتخاب‌شده‌ها به تسک‌ها
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="chat" className="mt-4 flex flex-col h-[55vh]">
+          <div dir="rtl" className="flex-1 overflow-y-auto space-y-2 mb-2">
+            {chat.length === 0 && <p className="text-sm text-muted-foreground text-center mt-8">سؤالی درباره تسک‌هات بپرس</p>}
+            {chat.map((m, i) => (
+              <div key={i} dir="rtl" className={`p-3 rounded-2xl text-end leading-7 ${m.role === "user" ? "bg-primary/10 ms-8" : "bg-muted me-8"}`}>
+                <div className="text-xs prose-note">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                </div>
+              </div>
+            ))}
+            {loading && <Loader2 className="w-4 h-4 animate-spin mx-auto" />}
+          </div>
+          <div className="flex gap-2">
+            <Input dir="rtl" value={chatInput} onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendChat()} placeholder="بپرس..." />
+            <Button size="icon" onClick={sendChat} disabled={loading}><Send className="w-4 h-4" /></Button>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </>
   );
 
-  // close fragment is added below before tabs section — handled by replacing the trailing JSX
   return isMobile ? (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[85vh]">
@@ -131,84 +204,8 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
           </SheetTitle>
         </SheetHeader>
         {body}
-        <div className="mt-3 flex items-center justify-between p-2 rounded-lg border bg-accent/20">
-          <span className="text-sm">زبان پاسخ AI</span>
-          <AILangToggle value={aiLang} onChange={setAiLang} />
-        </div>
-
-        <Tabs value={tab} onValueChange={setTab} className="mt-4">
-          <TabsList className="grid grid-cols-4">
-            <TabsTrigger value="create">تسک</TabsTrigger>
-            <TabsTrigger value="note">نوت</TabsTrigger>
-            <TabsTrigger value="suggest">پیشنهاد</TabsTrigger>
-            <TabsTrigger value="chat">چت</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="create" className="space-y-3 mt-4">
-            <p className="text-sm text-muted-foreground">با زبان طبیعی تسک بساز</p>
-            <Textarea placeholder="مثال: فردا ساعت ۱۰ جلسه تیمی، اولویت بالا" value={input}
-              onChange={(e) => setInput(e.target.value)} rows={4} />
-            <Button onClick={createTaskFromNL} disabled={loading} className="w-full">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "ساخت تسک"}
-            </Button>
-          </TabsContent>
-
-          <TabsContent value="note" className="space-y-3 mt-4">
-            <p className="text-sm text-muted-foreground">موضوع نوت رو بگو</p>
-            <Textarea placeholder="مثال: راهنمای شروع یوگا برای مبتدی" value={input}
-              onChange={(e) => setInput(e.target.value)} rows={4} />
-            <Button onClick={generateNote} disabled={loading} className="w-full">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "تولید نوت Markdown"}
-            </Button>
-          </TabsContent>
-
-          <TabsContent value="suggest" className="space-y-3 mt-4">
-            <p className="text-sm text-muted-foreground">یک موضوع بده، پیشنهاد می‌گیریم</p>
-            <Textarea placeholder="مثال: راه‌اندازی کسب‌وکار آنلاین" value={input}
-              onChange={(e) => setInput(e.target.value)} rows={3} />
-            <Button onClick={getSuggestions} disabled={loading} className="w-full">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "پیشنهاد بگیر"}
-            </Button>
-
-            {suggestions.length > 0 && (
-              <div className="space-y-2 mt-4">
-                {suggestions.map((s, i) => (
-                  <Card key={i} className="p-3 flex gap-3 items-start cursor-pointer hover:bg-accent/30"
-                    onClick={() => setPicked((p) => ({ ...p, [i]: !p[i] }))}>
-                    <Checkbox checked={picked[i] || false} className="mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{s.title}</p>
-                      {s.description && <p className="text-xs text-muted-foreground mt-0.5">{s.description}</p>}
-                    </div>
-                  </Card>
-                ))}
-                <Button onClick={addPickedAsTasks} className="w-full mt-2" variant="default">
-                  افزودن انتخاب‌شده‌ها به تسک‌ها
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="chat" className="mt-4 flex flex-col h-[60vh]">
-            <div dir="rtl" className="flex-1 overflow-y-auto space-y-2 mb-2">
-              {chat.length === 0 && <p className="text-sm text-muted-foreground text-center mt-8">سؤالی درباره تسک‌هات بپرس</p>}
-              {chat.map((m, i) => (
-                <div key={i} dir="rtl" className={`p-3 rounded-2xl text-end leading-7 ${m.role === "user" ? "bg-primary/10 ms-8" : "bg-muted me-8"}`}>
-                  <div className="text-xs prose-note">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
-                  </div>
-                </div>
-              ))}
-              {loading && <Loader2 className="w-4 h-4 animate-spin mx-auto" />}
-            </div>
-            <div className="flex gap-2">
-              <Input dir="rtl" value={chatInput} onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendChat()} placeholder="بپرس..." />
-              <Button size="icon" onClick={sendChat} disabled={loading}><Send className="w-4 h-4" /></Button>
-            </div>
-          </TabsContent>
-        </Tabs>
       </SheetContent>
     </Sheet>
   );
 }
+
