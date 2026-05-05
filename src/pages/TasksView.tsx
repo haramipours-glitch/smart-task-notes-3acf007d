@@ -233,10 +233,17 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
 
     // Recurring task: instead of marking complete, roll forward to next occurrence
     if (newCompleted && t.recurrence_rule && user) {
-      const base = t.due_date ? new Date(t.due_date) : new Date();
-      const next = nextOccurrence(t.recurrence_rule, base);
+      const now = new Date();
+      let next = nextOccurrence(t.recurrence_rule, t.due_date ? new Date(t.due_date) : now);
+      // Catch up: skip past missed occurrences until we reach one >= today
+      let guard = 0;
+      while (next && next < now && guard < 500) {
+        const advanced = nextOccurrence(t.recurrence_rule, next);
+        if (!advanced || advanced <= next) break;
+        next = advanced;
+        guard++;
+      }
       if (next) {
-        // Shift reminder by the same delta as the due date
         let nextReminderIso: string | null = null;
         if (t.reminder_at && t.due_date) {
           const delta = next.getTime() - new Date(t.due_date).getTime();

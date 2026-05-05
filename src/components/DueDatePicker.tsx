@@ -2,40 +2,38 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Calendar, Clock, X } from "lucide-react";
+import { Calendar, Clock, X, Bell } from "lucide-react";
 import { addDays, format, startOfDay } from "date-fns";
 
 /**
- * Smart due-date picker.
- * - Quick chips: امروز / فردا / + هفته
- * - Date input (date only by default)
- * - Optional "include time" toggle — when off, due is set to 23:59 of that day
- *   (so it stays in that calendar day in any timezone display).
- *   When on, user picks an exact HH:MM.
- *
- * Value is an ISO string (or null).
+ * Compact smart due-date picker.
+ * - Quick chips: امروز / فردا  + date input
+ * - Toggle for time (with time field)
+ * - Toggle for reminder (with datetime field)
  */
 export function DueDatePicker({
   value,
   onChange,
+  reminderValue = null,
+  onReminderChange,
   label = "سررسید",
   compact = false,
 }: {
   value: string | null;
   onChange: (iso: string | null) => void;
+  reminderValue?: string | null;
+  onReminderChange?: (iso: string | null) => void;
   label?: string;
   compact?: boolean;
 }) {
-  // Local state derived from `value`
   const [datePart, setDatePart] = useState<string>("");
   const [timePart, setTimePart] = useState<string>("");
   const [includeTime, setIncludeTime] = useState<boolean>(false);
+  const [reminderOn, setReminderOn] = useState<boolean>(!!reminderValue);
 
   useEffect(() => {
     if (!value) {
-      setDatePart("");
-      setTimePart("");
-      setIncludeTime(false);
+      setDatePart(""); setTimePart(""); setIncludeTime(false);
       return;
     }
     const d = new Date(value);
@@ -46,20 +44,17 @@ export function DueDatePicker({
     const h = String(d.getHours()).padStart(2, "0");
     const mm = String(d.getMinutes()).padStart(2, "0");
     setDatePart(`${y}-${m}-${day}`);
-    // If time is exactly 23:59:00, treat as "no time"
     const isEndOfDayMarker = d.getHours() === 23 && d.getMinutes() === 59;
     setIncludeTime(!isEndOfDayMarker);
     setTimePart(isEndOfDayMarker ? "09:00" : `${h}:${mm}`);
   }, [value]);
 
+  useEffect(() => { setReminderOn(!!reminderValue); }, [reminderValue]);
+
   const emit = (date: string, time: string, withTime: boolean) => {
-    if (!date) {
-      onChange(null);
-      return;
-    }
+    if (!date) { onChange(null); return; }
     const t = withTime && time ? time : "23:59";
-    const iso = new Date(`${date}T${t}`).toISOString();
-    onChange(iso);
+    onChange(new Date(`${date}T${t}`).toISOString());
   };
 
   const setQuick = (offsetDays: number) => {
@@ -70,10 +65,9 @@ export function DueDatePicker({
   };
 
   const clear = () => {
-    setDatePart("");
-    setTimePart("");
-    setIncludeTime(false);
+    setDatePart(""); setTimePart(""); setIncludeTime(false);
     onChange(null);
+    if (onReminderChange) { setReminderOn(false); onReminderChange(null); }
   };
 
   return (
@@ -84,87 +78,76 @@ export function DueDatePicker({
         </label>
       )}
 
-      {/* Quick chips */}
-      <div className="flex gap-1.5 flex-wrap">
+      {/* Quick chips + date input on the same row */}
+      <div className="flex gap-1.5 items-center flex-wrap">
         <Button
-          type="button"
-          size="sm"
+          type="button" size="sm"
           variant={isToday(datePart) ? "default" : "outline"}
-          onClick={() => setQuick(0)}
-          className="h-7 text-xs"
-        >
-          امروز
-        </Button>
+          onClick={() => setQuick(0)} className="h-8 text-xs px-2"
+        >امروز</Button>
         <Button
-          type="button"
-          size="sm"
+          type="button" size="sm"
           variant={isTomorrow(datePart) ? "default" : "outline"}
-          onClick={() => setQuick(1)}
-          className="h-7 text-xs"
-        >
-          فردا
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => setQuick(7)}
-          className="h-7 text-xs"
-        >
-          + هفته
-        </Button>
+          onClick={() => setQuick(1)} className="h-8 text-xs px-2"
+        >فردا</Button>
+        <Input
+          type="date" value={datePart}
+          onChange={(e) => { setDatePart(e.target.value); emit(e.target.value, timePart, includeTime); }}
+          className="h-8 flex-1 min-w-[130px] text-xs"
+        />
         {value && (
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            onClick={clear}
-            className="h-7 text-xs gap-1"
-          >
-            <X className="w-3 h-3" /> حذف
+          <Button type="button" size="icon" variant="ghost" onClick={clear} className="h-8 w-8" title="حذف">
+            <X className="w-3.5 h-3.5" />
           </Button>
         )}
       </div>
 
-      {/* Date + optional time */}
-      <div className={compact ? "space-y-2" : "grid grid-cols-2 gap-2"}>
-        <Input
-          type="date"
-          value={datePart}
-          onChange={(e) => {
-            setDatePart(e.target.value);
-            emit(e.target.value, timePart, includeTime);
-          }}
-          className="h-9"
-        />
+      {/* Time toggle + time input on one row */}
+      <div className="flex items-center gap-2">
+        <Switch checked={includeTime} onCheckedChange={(v) => {
+          setIncludeTime(v);
+          if (datePart) emit(datePart, timePart || "09:00", v);
+        }} id="due-time-toggle" />
+        <label htmlFor="due-time-toggle" className="text-[11px] text-muted-foreground flex items-center gap-1 cursor-pointer flex-shrink-0">
+          <Clock className="w-3 h-3" /> ساعت
+        </label>
         {includeTime && (
           <Input
-            type="time"
-            value={timePart || "09:00"}
-            onChange={(e) => {
-              setTimePart(e.target.value);
-              emit(datePart, e.target.value, true);
-            }}
-            className="h-9"
+            type="time" value={timePart || "09:00"}
+            onChange={(e) => { setTimePart(e.target.value); emit(datePart, e.target.value, true); }}
+            className="h-8 flex-1 text-xs"
           />
         )}
       </div>
 
-      {/* Toggle: include time */}
-      <div className="flex items-center gap-2 pt-0.5">
-        <Switch
-          checked={includeTime}
-          onCheckedChange={(v) => {
-            setIncludeTime(v);
-            if (datePart) emit(datePart, timePart || "09:00", v);
-          }}
-          id="due-time-toggle"
-        />
-        <label htmlFor="due-time-toggle" className="text-[11px] text-muted-foreground flex items-center gap-1 cursor-pointer">
-          <Clock className="w-3 h-3" />
-          {includeTime ? "ساعت دقیق فعال است" : "بدون ساعت — فقط تاریخ"}
-        </label>
-      </div>
+      {/* Reminder (only when callback supplied) */}
+      {onReminderChange && (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={reminderOn}
+            onCheckedChange={(v) => {
+              setReminderOn(v);
+              if (!v) onReminderChange(null);
+              else if (datePart) {
+                const t = includeTime && timePart ? timePart : "09:00";
+                onReminderChange(new Date(`${datePart}T${t}`).toISOString());
+              }
+            }}
+            id="reminder-toggle"
+          />
+          <label htmlFor="reminder-toggle" className="text-[11px] text-muted-foreground flex items-center gap-1 cursor-pointer flex-shrink-0">
+            <Bell className="w-3 h-3" /> یادآور
+          </label>
+          {reminderOn && (
+            <Input
+              type="datetime-local"
+              value={reminderValue ? reminderValue.slice(0, 16) : ""}
+              onChange={(e) => onReminderChange(e.target.value ? new Date(e.target.value).toISOString() : null)}
+              className="h-8 flex-1 text-xs"
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
