@@ -33,6 +33,13 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-ki
 import { TaskFilterSheet, DEFAULT_FILTERS, type TaskFilters, type SortLevel } from "@/components/TaskFilterSheet";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DueDatePicker } from "@/components/DueDatePicker";
+import { RecurrenceEditor } from "@/components/RecurrenceEditor";
+import { MakeChildDialog } from "@/components/MakeChildDialog";
+import { PRIORITY_SELECTABLE, type Priority } from "@/lib/priority";
+import { Repeat, Network } from "lucide-react";
+import type { RecurrenceRule } from "@/lib/recurrence";
 
 
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag" }) {
