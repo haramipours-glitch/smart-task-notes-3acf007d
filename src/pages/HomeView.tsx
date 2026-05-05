@@ -242,81 +242,10 @@ export default function HomeView() {
     return "شب بخیر";
   })();
 
-  return (
-    <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-5 pb-20">
-      <header className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">{greeting} 👋</h1>
-          <p className="text-muted-foreground text-xs md:text-sm mt-1">
-            {new Date().toLocaleDateString("fa-IR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-          </p>
-        </div>
-        <Link to="/app/settings" className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-pink-200/60 dark:border-pink-800/40 bg-gradient-to-l from-pink-50 to-purple-50 dark:from-pink-950/30 dark:to-purple-950/30 hover:shadow-md transition shrink-0">
-          <img src="/favicon.png" alt="ARSHNAZ" className="w-7 h-7 rounded-md" width={28} height={28} loading="lazy" />
-          <div className="hidden sm:flex flex-col leading-tight">
-            <span className="text-xs font-bold bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">ARSHNAZ</span>
-            <span className="text-[9px] text-muted-foreground">با عشق ❤️</span>
-          </div>
-        </Link>
-      </header>
-
-      {/* Hourly inspiration: quote + story side-by-side on desktop, stacked on mobile */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
-          <CardContent className="p-4 flex items-start gap-3 h-full">
-            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
-            <div>
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
-              <p className="text-sm md:text-base leading-7">{quote.text}</p>
-              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
-            </div>
-          </CardContent>
-        </Card>
-        <HourlyStoryCard />
-      </div>
-
-      {/* 4-column row */}
-      <div className="grid grid-cols-4 gap-2">
-        <StatCard icon={Heart} color="text-rose-500" label="چک‌این"
-          value={snap.lastCheckin?.mood != null ? `${toPersianDigits(snap.lastCheckin.mood)}/۱۰` : "—"}
-          to="/app/checkin" />
-        <StatCard icon={ListTodo} color="text-blue-500" label="امروز"
-          value={toPersianDigits(snap.todayDue)} to="/app/today" />
-        <StatCard icon={CalendarDays} color="text-sky-500" label="فردا"
-          value={toPersianDigits(snap.tomorrowDue)} to="/app/tomorrow" />
-        <StatCard icon={CheckCircle2} color="text-emerald-500" label="انجام‌شده"
-          value={toPersianDigits(snap.completedToday)} to="/app/today" />
-      </div>
-
-      {/* Daily Brief */}
-      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
-        <CardContent className="p-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium">خلاصه‌ی هوشمند روز</span>
-          </div>
-          <div className="flex gap-1">
-            <Button size="sm" onClick={() => generateBrief(!!brief)} disabled={loadingBrief}>
-              {loadingBrief
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : brief
-                  ? <><RefreshCw className="w-3.5 h-3.5 ms-1" /> به‌روزرسانی</>
-                  : <><Sparkles className="w-3.5 h-3.5 ms-1" /> دریافت Brief</>}
-            </Button>
-          </div>
-        </CardContent>
-        {brief && (
-          <CardContent className="pt-0">
-            <article dir="rtl"
-              className="prose prose-sm dark:prose-invert max-w-none leading-7
-                prose-headings:text-foreground prose-headings:font-semibold
-                prose-p:my-2 prose-strong:text-foreground text-end"
-              dangerouslySetInnerHTML={{ __html: markdownToHtml(brief) }} />
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Top tasks */}
+  // ----- Focus cards (always shown) -----
+  const focusCards = (
+    <>
+      {/* مهم‌ترین کارهای امروز */}
       {snap.topTasks.length > 0 && (
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
           <CardHeader className="pb-2">
@@ -345,7 +274,104 @@ export default function HomeView() {
         </Card>
       )}
 
-      {/* Quick access — customizable */}
+      {/* Check-in سریع */}
+      <Link to="/app/checkin">
+        <Card className="border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-transparent hover:bg-accent/20 transition">
+          <CardContent className="p-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-rose-500" />
+              <div>
+                <p className="text-sm font-medium">Check-in روزانه</p>
+                <p className="text-xs text-muted-foreground">
+                  {snap.lastCheckin?.mood != null
+                    ? `آخرین خلق‌و‌خو: ${toPersianDigits(snap.lastCheckin.mood)}/۱۰`
+                    : "هنوز ثبت نکرده‌ای"}
+                </p>
+              </div>
+            </div>
+            <Button size="sm" variant="secondary">ثبت</Button>
+          </CardContent>
+        </Card>
+      </Link>
+
+      {/* Pomodoro */}
+      <Link to="/app/pomodoro">
+        <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent hover:bg-accent/20 transition">
+          <CardContent className="p-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Timer className="w-5 h-5 text-amber-500" />
+              <div>
+                <p className="text-sm font-medium">Pomodoro</p>
+                <p className="text-xs text-muted-foreground">
+                  {snap.pomodoroMinutes > 0
+                    ? `${toPersianDigits(snap.pomodoroMinutes)} دقیقه امروز`
+                    : "یک تمرکز ۲۵ دقیقه‌ای شروع کن"}
+                </p>
+              </div>
+            </div>
+            <Button size="sm" variant="secondary">شروع</Button>
+          </CardContent>
+        </Card>
+      </Link>
+    </>
+  );
+
+  // ----- Extra (full) content -----
+  const extraContent = (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
+          <CardContent className="p-4 flex items-start gap-3 h-full">
+            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
+            <div>
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
+              <p className="text-sm md:text-base leading-7">{quote.text}</p>
+              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
+            </div>
+          </CardContent>
+        </Card>
+        <HourlyStoryCard />
+      </div>
+
+      <div className="grid grid-cols-4 gap-2">
+        <StatCard icon={Heart} color="text-rose-500" label="چک‌این"
+          value={snap.lastCheckin?.mood != null ? `${toPersianDigits(snap.lastCheckin.mood)}/۱۰` : "—"}
+          to="/app/checkin" />
+        <StatCard icon={ListTodo} color="text-blue-500" label="امروز"
+          value={toPersianDigits(snap.todayDue)} to="/app/today" />
+        <StatCard icon={CalendarDays} color="text-sky-500" label="فردا"
+          value={toPersianDigits(snap.tomorrowDue)} to="/app/tomorrow" />
+        <StatCard icon={CheckCircle2} color="text-emerald-500" label="انجام‌شده"
+          value={toPersianDigits(snap.completedToday)} to="/app/today" />
+      </div>
+
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+        <CardContent className="p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">خلاصه‌ی هوشمند روز</span>
+          </div>
+          <div className="flex gap-1">
+            <Button size="sm" onClick={() => generateBrief(!!brief)} disabled={loadingBrief}>
+              {loadingBrief
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : brief
+                  ? <><RefreshCw className="w-3.5 h-3.5 ms-1" /> به‌روزرسانی</>
+                  : <><Sparkles className="w-3.5 h-3.5 ms-1" /> دریافت Brief</>}
+            </Button>
+          </div>
+        </CardContent>
+        {brief && (
+          <CardContent className="pt-0">
+            <article dir="rtl"
+              className="prose prose-sm dark:prose-invert max-w-none leading-7
+                prose-headings:text-foreground prose-headings:font-semibold
+                prose-p:my-2 prose-strong:text-foreground text-end"
+              dangerouslySetInnerHTML={{ __html: markdownToHtml(brief) }} />
+          </CardContent>
+        )}
+      </Card>
+
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
           <h2 className="text-sm font-semibold text-muted-foreground">دسترسی سریع</h2>
@@ -393,6 +419,54 @@ export default function HomeView() {
           </div>
         )}
       </section>
+    </>
+  );
+
+  return (
+    <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-5 pb-20">
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">{greeting} 👋</h1>
+          <p className="text-muted-foreground text-xs md:text-sm mt-1">
+            {new Date().toLocaleDateString("fa-IR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button variant="ghost" size="sm" onClick={toggleFocus} className="h-8 text-xs gap-1"
+            title={focusMode ? "نمایش کامل" : "حالت متمرکز"}>
+            {focusMode ? <><Sparkles className="w-3.5 h-3.5 text-primary" /> متمرکز</> : <>کامل</>}
+          </Button>
+          <Link to="/app/settings" className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-pink-200/60 dark:border-pink-800/40 bg-gradient-to-l from-pink-50 to-purple-50 dark:from-pink-950/30 dark:to-purple-950/30 hover:shadow-md transition">
+            <img src="/favicon.png" alt="ARSHNAZ" className="w-7 h-7 rounded-md" width={28} height={28} loading="lazy" />
+            <div className="hidden sm:flex flex-col leading-tight">
+              <span className="text-xs font-bold bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">ARSHNAZ</span>
+              <span className="text-[9px] text-muted-foreground">با عشق ❤️</span>
+            </div>
+          </Link>
+        </div>
+      </header>
+
+      {focusCards}
+
+      {focusMode ? (
+        <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="w-full gap-2">
+              <SlidersHorizontal className="w-4 h-4" /> بیشتر
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[85vh] overflow-y-auto" dir="rtl">
+            <SheetHeader>
+              <SheetTitle>بیشتر</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-5 mt-4">
+              {extraContent}
+            </div>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        extraContent
+      )}
     </div>
   );
 }
