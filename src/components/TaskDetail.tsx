@@ -149,62 +149,140 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               maxHeight={360}
             />
 
-            <div>
-              <label className="text-xs text-muted-foreground mb-1 block">اولویت</label>
-              <div className="flex gap-1.5 flex-wrap">
-                {PRIORITY_ORDER.map((p) => {
-                  const m = PRIORITY_META[p];
-                  const active = t.priority === p;
-                  return (
-                    <button key={p} onClick={() => save({ priority: p })}
-                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1.5 ${active ? `${m.bgClass} ${m.textClass} ring-2 ring-current` : "hover:bg-accent border-border"}`}>
-                      <span>{m.emoji}</span> {m.label}
+            {/* Priority accordion + inline avoidance toggle */}
+            <div className="rounded-lg border">
+              <div className="flex items-center justify-between p-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPriorityOpen(o => !o)}
+                  className="flex items-center gap-2 flex-1 text-start min-w-0"
+                >
+                  <ChevronDown className={`w-4 h-4 transition-transform shrink-0 ${priorityOpen ? "" : "-rotate-90"}`} />
+                  <span className="text-xs text-muted-foreground shrink-0">اولویت:</span>
+                  {t.priority && t.priority !== "none" ? (
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${PRIORITY_META[t.priority as Priority].bgClass} ${PRIORITY_META[t.priority as Priority].textClass}`}>
+                      {PRIORITY_META[t.priority as Priority].emoji} {PRIORITY_META[t.priority as Priority].label}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">بدون</span>
+                  )}
+                </button>
+                <label className="flex items-center gap-1.5 cursor-pointer shrink-0 px-2 py-1 rounded hover:bg-accent" title="تسک اجتنابی — تیک = موفق به اجتناب">
+                  <Checkbox
+                    checked={!!t.is_avoidance}
+                    onCheckedChange={(v) => save({ is_avoidance: !!v } as any)}
+                  />
+                  <Ban className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="text-[11px] text-muted-foreground">اجتنابی</span>
+                </label>
+              </div>
+              {priorityOpen && (
+                <div className="px-2 pb-2 flex gap-1.5 flex-wrap border-t pt-2">
+                  {PRIORITY_ORDER.map((p) => {
+                    const m = PRIORITY_META[p];
+                    const active = t.priority === p;
+                    return (
+                      <button key={p} onClick={() => { save({ priority: p }); setPriorityOpen(false); }}
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1.5 ${active ? `${m.bgClass} ${m.textClass} ring-2 ring-current` : "hover:bg-accent border-border"}`}>
+                        <span>{m.emoji}</span> {m.label}
+                      </button>
+                    );
+                  })}
+                  {t.priority !== "none" && (
+                    <button onClick={() => { save({ priority: "none" as any }); setPriorityOpen(false); }}
+                      className="px-2 py-1.5 rounded-lg border border-dashed text-[11px] text-muted-foreground hover:bg-accent">
+                      حذف اولویت
                     </button>
-                  );
-                })}
-                {t.priority !== "none" && (
-                  <button onClick={() => save({ priority: "none" as any })}
-                    className="px-2 py-1.5 rounded-lg border border-dashed text-[11px] text-muted-foreground hover:bg-accent">
-                    حذف اولویت
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-lg border bg-amber-500/5 border-amber-500/30 p-3 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <Ban className="w-4 h-4 text-amber-600" />
-                <div>
-                  <p className="text-sm font-medium">تسک اجتنابی (نباید انجام شود)</p>
-                  <p className="text-[10px] text-muted-foreground">مثل: سیگار نکشم، تلویزیون نبینم — تیک = موفق به اجتناب</p>
+                  )}
                 </div>
-              </div>
-              <Switch
-                checked={!!t.is_avoidance}
-                onCheckedChange={(v) => save({ is_avoidance: v } as any)}
-              />
+              )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <DueDatePicker
-                label="سررسید"
-                value={t.due_date}
-                onChange={(iso) => {
-                  const newDue = iso ? new Date(iso) : null;
-                  const patch: Partial<Task> = { due_date: iso };
-                  if (t.reminder_at && newDue && t.due_date) {
-                    const delta = newDue.getTime() - new Date(t.due_date).getTime();
-                    patch.reminder_at = new Date(new Date(t.reminder_at).getTime() + delta).toISOString();
-                  }
-                  save(patch);
-                }}
-              />
-              <div>
-                <label className="text-xs text-muted-foreground">یادآور</label>
-                <Input type="datetime-local" value={t.reminder_at ? t.reminder_at.slice(0, 16) : ""}
-                  onChange={(e) => save({ reminder_at: e.target.value ? new Date(e.target.value).toISOString() : null })} />
-              </div>
+            {/* Folder + Tags */}
+            <div className="grid grid-cols-2 gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="justify-start gap-1.5 h-9 text-xs">
+                    <FolderIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{folderName(t.folder_id)}</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-1 max-h-[40vh] overflow-y-auto" align="start">
+                  <button
+                    onClick={() => save({ folder_id: null })}
+                    className={`w-full text-end p-2 rounded text-sm hover:bg-accent ${t.folder_id === null ? "bg-accent" : ""}`}
+                  >بدون فولدر (Inbox)</button>
+                  {folders.filter(f => !f.parent_id).map(f => {
+                    const children = folders.filter(c => c.parent_id === f.id);
+                    return (
+                      <div key={f.id}>
+                        <button
+                          onClick={() => save({ folder_id: f.id })}
+                          className={`w-full text-end p-2 rounded text-sm hover:bg-accent flex items-center gap-2 ${t.folder_id === f.id ? "bg-accent" : ""}`}
+                        >
+                          <FolderIcon className="w-3.5 h-3.5" style={{ color: f.color || undefined }} />
+                          {f.name}
+                        </button>
+                        {children.map(c => (
+                          <button key={c.id}
+                            onClick={() => save({ folder_id: c.id })}
+                            className={`w-full text-end p-2 ps-6 rounded text-xs hover:bg-accent flex items-center gap-2 ${t.folder_id === c.id ? "bg-accent" : ""}`}
+                          >
+                            <FolderIcon className="w-3 h-3" style={{ color: c.color || undefined }} />
+                            {c.name}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })}
+                  {folders.length === 0 && <p className="text-xs text-muted-foreground p-2 text-center">فولدری نداری</p>}
+                </PopoverContent>
+              </Popover>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="justify-start gap-1.5 h-9 text-xs">
+                    <TagIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">
+                      {taskTagIds.length === 0 ? "بدون تگ" : `${taskTagIds.length} تگ`}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-1 max-h-[40vh] overflow-y-auto" align="start">
+                  {tags.length === 0 && <p className="text-xs text-muted-foreground p-2 text-center">تگی نداری</p>}
+                  {tags.map(tg => {
+                    const active = taskTagIds.includes(tg.id);
+                    return (
+                      <button key={tg.id} onClick={() => toggleTag(tg.id)}
+                        className={`w-full text-end p-2 rounded text-sm hover:bg-accent flex items-center justify-between gap-2 ${active ? "bg-accent" : ""}`}>
+                        <span className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ background: tg.color || "hsl(var(--muted-foreground))" }} />
+                          {tg.name}
+                        </span>
+                        {active && <Check className="w-3.5 h-3.5" />}
+                      </button>
+                    );
+                  })}
+                </PopoverContent>
+              </Popover>
             </div>
+
+            {/* Due date + reminder (compact, integrated) */}
+            <DueDatePicker
+              label="سررسید"
+              value={t.due_date}
+              reminderValue={t.reminder_at}
+              onReminderChange={(iso) => save({ reminder_at: iso })}
+              onChange={(iso) => {
+                const newDue = iso ? new Date(iso) : null;
+                const patch: Partial<Task> = { due_date: iso };
+                if (t.reminder_at && newDue && t.due_date) {
+                  const delta = newDue.getTime() - new Date(t.due_date).getTime();
+                  patch.reminder_at = new Date(new Date(t.reminder_at).getTime() + delta).toISOString();
+                }
+                save(patch);
+              }}
+            />
+
 
             <Collapsible open={timeBlockOpen} onOpenChange={setTimeBlockOpen}>
               <div className="rounded-lg border border-primary/30 bg-primary/5">
