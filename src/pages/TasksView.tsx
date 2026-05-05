@@ -496,21 +496,80 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                       <Ban className="w-2.5 h-2.5" /> اجتنابی
                     </Badge>
                   )}
-                  {t.priority !== "none" && (
-                    <Badge variant="outline" className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 ${pm.bgClass} ${pm.textClass}`}>
-                      <Flag className="w-2.5 h-2.5" /> {pm.label}
-                    </Badge>
-                  )}
-                  {t.due_date && (
-                    <Badge variant="secondary" className="text-[10px] gap-0.5 px-1.5 py-0 h-5">
-                      <Calendar className="w-2.5 h-2.5" />
-                      {format(new Date(t.due_date), "MMM d, HH:mm")}
-                    </Badge>
-                  )}
+                  {/* Priority — tap to change */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 inline-flex items-center rounded-md border ${t.priority !== "none" ? `${pm.bgClass} ${pm.textClass}` : "bg-muted/40 text-muted-foreground border-dashed"}`}
+                        title="تغییر اولویت"
+                      >
+                        <Flag className="w-2.5 h-2.5" /> {t.priority !== "none" ? pm.label : "+ اولویت"}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-44 p-1" align="start" onClick={(e) => e.stopPropagation()}>
+                      {PRIORITY_SELECTABLE.map(p => {
+                        const m = PRIORITY_META[p];
+                        return (
+                          <button key={p}
+                            onClick={() => patchTask(t.id, { priority: p as Priority })}
+                            className={`w-full text-start px-2 py-1.5 text-xs rounded hover:bg-accent flex items-center gap-2 ${t.priority === p ? "bg-accent" : ""}`}>
+                            <Flag className={`w-3 h-3 ${m.textClass}`} /> {m.label}
+                          </button>
+                        );
+                      })}
+                      {t.priority !== "none" && (
+                        <button onClick={() => patchTask(t.id, { priority: "none" as Priority })}
+                          className="w-full text-start px-2 py-1.5 text-xs rounded hover:bg-accent text-muted-foreground border-t mt-1">
+                          حذف اولویت
+                        </button>
+                      )}
+                    </PopoverContent>
+                  </Popover>
+
+                  {/* Date — tap to change */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 inline-flex items-center rounded-md border ${t.due_date ? "bg-secondary text-secondary-foreground" : "bg-muted/40 text-muted-foreground border-dashed"}`}
+                        title="تغییر تاریخ"
+                      >
+                        <Calendar className="w-2.5 h-2.5" />
+                        {t.due_date ? format(new Date(t.due_date), "MMM d, HH:mm") : "+ تاریخ"}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-3" align="start" onClick={(e) => e.stopPropagation()}>
+                      <DueDatePicker
+                        value={t.due_date}
+                        onChange={(iso) => patchTask(t.id, { due_date: iso })}
+                        reminderValue={t.reminder_at}
+                        onReminderChange={(iso) => patchTask(t.id, { reminder_at: iso })}
+                        label=""
+                      />
+                    </PopoverContent>
+                  </Popover>
+
                   {t.due_date && !t.completed && <Countdown target={t.due_date} className="text-[10px]" />}
-                  {t.recurrence_rule && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">🔁 {describeRule(t.recurrence_rule)}</Badge>
-                  )}
+
+                  {/* Recurrence — tap to change */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 inline-flex items-center rounded-md border ${t.recurrence_rule ? "" : "bg-muted/40 text-muted-foreground border-dashed"}`}
+                        title="تغییر تکرار"
+                      >
+                        <Repeat className="w-2.5 h-2.5" /> {t.recurrence_rule ? describeRule(t.recurrence_rule) : "+ تکرار"}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-2" align="start" onClick={(e) => e.stopPropagation()}>
+                      <RecurrenceEditor
+                        value={t.recurrence_rule}
+                        onChange={(rule: RecurrenceRule | null) => patchTask(t.id, { recurrence_rule: rule, recurrence: rule ? (rule.freq as any) : "none" })}
+                      />
+                    </PopoverContent>
+                  </Popover>
                   {prog.total > 0 && (
                     <span className="text-[10px] text-muted-foreground">{prog.done}/{prog.total}</span>
                   )}
