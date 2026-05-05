@@ -10,6 +10,7 @@ import { HEXACO_LABELS, type HexacoFactor } from "@/lib/assessments/hexaco";
 import { VIA_LABELS, type ViaStrength } from "@/lib/assessments/via";
 import { QUADRANT_LABELS, QUADRANT_DESC, type AttachmentQuadrant } from "@/lib/assessments/ecr";
 import { markdownToHtml } from "@/lib/markdown";
+import { streamAI } from "@/lib/aiStream";
 import { toast } from "sonner";
 
 export default function AssessmentResult() {
@@ -42,31 +43,35 @@ export default function AssessmentResult() {
   async function generateAiAnalysis() {
     if (!data || !type) return;
     setLoadingAi(true);
+    setAiAnalysis(""); // start empty so streamed tokens render progressively
+    const labelMap: Record<string, string> = {
+      hexaco: "HEXACO-60 (شش بُعد شخصیت: H/E/X/A/C/O، هر بُعد 10..50)",
+      via: "VIA-72 (24 نقطه قوت، هر کدام 3..15)",
+      ecr: "ECR-R (دو بُعد دلبستگی: anxiety و avoidance، 1..7)",
+    };
+    const payload = {
+      instrument: labelMap[type] || type,
+      scores: data.scores,
+      analysis: data.analysis,
+    };
+    let accumulated = "";
     try {
-      const labelMap: Record<string, string> = {
-        hexaco: "HEXACO-60 (شش بُعد شخصیت: H/E/X/A/C/O، هر بُعد 10..50)",
-        via: "VIA-72 (24 نقطه قوت، هر کدام 3..15)",
-        ecr: "ECR-R (دو بُعد دلبستگی: anxiety و avoidance، 1..7)",
-      };
-      const payload = {
-        instrument: labelMap[type] || type,
-        scores: data.scores,
-        analysis: data.analysis,
-      };
-      const { data: resp, error } = await supabase.functions.invoke("ai-assistant", {
-        body: {
-          mode: "assessment_analysis",
-          input: JSON.stringify(payload),
-          language: "fa",
+      await streamAI({
+        mode: "assessment_analysis",
+        input: JSON.stringify(payload),
+        language: "fa",
+        onDelta: (chunk) => {
+          accumulated += chunk;
+          setAiAnalysis(accumulated);
+        },
+        onDone: () => {
+          localStorage.setItem(`assessment_ai_${type}_${data.id}`, accumulated);
+          toast.success("تحلیل جامع آماده شد");
         },
       });
-      if (error) throw error;
-      const text = resp?.text || "";
-      setAiAnalysis(text);
-      localStorage.setItem(`assessment_ai_${type}_${data.id}`, text);
-      toast.success("تحلیل جامع آماده شد");
     } catch (e: any) {
       toast.error(e.message || "خطا در دریافت تحلیل");
+      if (!accumulated) setAiAnalysis(null);
     } finally {
       setLoadingAi(false);
     }
@@ -98,7 +103,7 @@ export default function AssessmentResult() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {!aiAnalysis && (
+          {aiAnalysis === null && (
             <Button onClick={generateAiAnalysis} disabled={loadingAi} size="lg" className="w-full sm:w-auto">
               {loadingAi ? (
                 <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> در حال تحلیل عمیق…</>
@@ -107,8 +112,14 @@ export default function AssessmentResult() {
               )}
             </Button>
           )}
-          {aiAnalysis && (
+          {aiAnalysis !== null && (
             <>
+              {loadingAi && (
+                <div className="text-xs text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  در حال نوشتن لحظه‌به‌لحظه…
+                </div>
+              )}
               <article
                 dir="rtl"
                 className="prose prose-sm md:prose-base dark:prose-invert max-w-none
@@ -123,22 +134,24 @@ export default function AssessmentResult() {
                   text-end"
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(aiAnalysis) }}
               />
-              <div className="flex gap-2 pt-4 border-t">
-                <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
-                  {loadingAi ? <Loader2 className="w-4 h-4 ms-1 animate-spin" /> : <Sparkles className="w-4 h-4 ms-1" />}
-                  تولید مجدد
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(aiAnalysis);
-                    toast.success("به کلیپ‌بورد کپی شد");
-                  }}
-                >
-                  کپی متن کامل
-                </Button>
-              </div>
+              {!loadingAi && aiAnalysis && (
+                <div className="flex gap-2 pt-4 border-t">
+                  <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
+                    <Sparkles className="w-4 h-4 ms-1" />
+                    تولید مجدد
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(aiAnalysis);
+                      toast.success("به کلیپ‌بورد کپی شد");
+                    }}
+                  >
+                    کپی متن کامل
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </CardContent>
