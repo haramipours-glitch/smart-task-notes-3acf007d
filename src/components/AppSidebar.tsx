@@ -338,7 +338,7 @@ export function AppSidebar() {
           <CollapsibleContent forceMount={collapsed ? true : undefined}>
             <SidebarGroupContent>
               <SidebarMenu>
-                {(section.id === "settings" && isAdmin
+                {(section.id === "me" && isAdmin
                   ? [...section.items, { url: "/app/admin", icon: Shield, label: "پنل مدیریت" }]
                   : section.items
                 ).map((item) => (
