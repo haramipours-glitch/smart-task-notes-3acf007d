@@ -35,11 +35,10 @@ import { useTranslation } from "react-i18next";
 // Map Persian labels (used in SECTIONS) → English equivalents.
 // Used only when the active app language is "en".
 const EN_LABELS: Record<string, string> = {
-  "کارها و برنامه‌ریزی": "Tasks & Planning",
-  "نوت‌ها و دانش": "Notes & Knowledge",
-  "خودشناسی و بینش": "Self-Knowledge & Insights",
-  "سلامت ذهن": "Mental Health",
-  "ابزار و تنظیمات": "Tools & Settings",
+  "انجام دادن": "Do",
+  "رشد": "Grow",
+  "ذهن": "Mind",
+  "خودِ من": "Me",
   "امروز": "Today",
   "فردا": "Tomorrow",
   "۷ روز آینده": "Next 7 Days",
