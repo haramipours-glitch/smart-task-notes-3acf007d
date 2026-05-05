@@ -285,6 +285,7 @@ export type Database = {
         Row: {
           color: string | null
           created_at: string
+          goal_id: string | null
           id: string
           name: string
           parent_id: string | null
@@ -295,6 +296,7 @@ export type Database = {
         Insert: {
           color?: string | null
           created_at?: string
+          goal_id?: string | null
           id?: string
           name: string
           parent_id?: string | null
@@ -305,6 +307,7 @@ export type Database = {
         Update: {
           color?: string | null
           created_at?: string
+          goal_id?: string | null
           id?: string
           name?: string
           parent_id?: string | null
@@ -394,25 +397,31 @@ export type Database = {
         Row: {
           color: string | null
           created_at: string
+          frequency: string
           icon: string | null
           id: string
           name: string
+          target_per_week: number
           user_id: string
         }
         Insert: {
           color?: string | null
           created_at?: string
+          frequency?: string
           icon?: string | null
           id?: string
           name: string
+          target_per_week?: number
           user_id: string
         }
         Update: {
           color?: string | null
           created_at?: string
+          frequency?: string
           icon?: string | null
           id?: string
           name?: string
+          target_per_week?: number
           user_id?: string
         }
         Relationships: []
@@ -515,6 +524,7 @@ export type Database = {
           content: string
           created_at: string
           folder_id: string | null
+          goal_id: string | null
           id: string
           pinned: boolean
           sr_due_date: string | null
@@ -532,6 +542,7 @@ export type Database = {
           content?: string
           created_at?: string
           folder_id?: string | null
+          goal_id?: string | null
           id?: string
           pinned?: boolean
           sr_due_date?: string | null
@@ -549,6 +560,7 @@ export type Database = {
           content?: string
           created_at?: string
           folder_id?: string | null
+          goal_id?: string | null
           id?: string
           pinned?: boolean
           sr_due_date?: string | null

@@ -16,7 +16,9 @@ import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
 import { AILangToggle } from "@/components/AILangToggle";
 import { pushUndo } from "@/lib/undoStack";
 
-type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null; folder_id?: string | null };
+import { GoalPicker } from "@/components/GoalPicker";
+
+type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null; folder_id?: string | null; goal_id?: string | null };
 
 const AI_GROUPS: { label: string; items: { key: string; label: string }[] }[] = [
   {
@@ -234,6 +236,13 @@ export default function NotesView() {
               <Button size="icon" variant="ghost" onClick={() => setConfirmDel(selected)}>
                 <Trash2 className="w-4 h-4" />
               </Button>
+            </div>
+
+            <div className="mb-3 max-w-xs">
+              <GoalPicker
+                value={selected.goal_id ?? null}
+                onChange={(id) => save({ goal_id: id } as any)}
+              />
             </div>
 
             <NoteEditorTabs

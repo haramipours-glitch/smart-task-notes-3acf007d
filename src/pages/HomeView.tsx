@@ -27,6 +27,7 @@ type Snapshot = {
   pomodoroMinutes: number;
   lastCheckin?: { mood: number | null; energy: number | null; focus: number | null; date: string };
   topTasks: { id: string; title: string; priority: string; due_date: string | null }[];
+  habitsToday: { id: string; name: string; icon: string; done: boolean }[];
 };
 
 const BRIEF_KEY = "daily_brief_v1";
@@ -128,7 +129,7 @@ export default function HomeView() {
     const tomorrowISO = tomorrow.toISOString();
     const dayAfterISO = dayAfter.toISOString();
 
-    const [tasks, tomorrowTasks, completed, pomos, checkin] = await Promise.all([
+    const [tasks, tomorrowTasks, completed, pomos, checkin, habitsRes, habitLogsRes] = await Promise.all([
       supabase.from("tasks").select("id,title,priority,due_date,completed")
         .eq("user_id", user.id).eq("completed", false)
         .gte("due_date", todayISO).lt("due_date", tomorrowISO)
@@ -144,6 +145,9 @@ export default function HomeView() {
         .gte("started_at", todayISO),
       supabase.from("daily_checkins").select("mood,energy,focus,checkin_date")
         .eq("user_id", user.id).order("checkin_date", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("habits").select("id,name,icon,frequency").eq("user_id", user.id),
+      supabase.from("habit_logs").select("habit_id,log_date")
+        .eq("user_id", user.id).eq("log_date", today.toISOString().slice(0, 10)),
     ]);
 
     const todayList = tasks.data || [];
@@ -164,6 +168,11 @@ export default function HomeView() {
       : (sorted[0] ? [{ id: sorted[0].id, title: sorted[0].title, priority: sorted[0].priority as string, due_date: sorted[0].due_date as string | null }] : []);
     const minutes = (pomos.data || []).reduce((s, p) => s + (p.duration_minutes || 0), 0);
 
+    const todayLogs = new Set((habitLogsRes.data || []).map((l: any) => l.habit_id));
+    const habitsList = (habitsRes.data || [])
+      .filter((h: any) => h.frequency !== "weekly")
+      .map((h: any) => ({ id: h.id, name: h.name, icon: h.icon || "🎯", done: todayLogs.has(h.id) }));
+
     setSnap({
       todayDue,
       tomorrowDue: tomorrowTasks.count || 0,
@@ -171,6 +180,7 @@ export default function HomeView() {
       pomodoroMinutes: minutes,
       lastCheckin: checkin.data ? { mood: checkin.data.mood, energy: checkin.data.energy, focus: checkin.data.focus, date: checkin.data.checkin_date } : undefined,
       topTasks: top,
+      habitsToday: habitsList,
     });
   }
 
@@ -268,6 +278,46 @@ export default function HomeView() {
                   tt.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
                   tt.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
                 }`}>{labelPriority(tt.priority)}</span>
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* عادت‌های امروز */}
+      {snap.habitsToday.length > 0 && (
+        <Card className="border-pink-500/30 bg-gradient-to-br from-pink-500/5 to-transparent">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Repeat className="w-4 h-4 text-pink-500" />
+                عادت‌های امروز
+              </span>
+              <span className="text-[10px] text-muted-foreground font-normal">
+                {toPersianDigits(snap.habitsToday.filter(h => h.done).length)}/{toPersianDigits(snap.habitsToday.length)}
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-1.5">
+            {snap.habitsToday.map((h) => (
+              <button
+                key={h.id}
+                onClick={async () => {
+                  if (!user) return;
+                  const today = new Date().toISOString().slice(0, 10);
+                  if (h.done) {
+                    await supabase.from("habit_logs").delete().eq("habit_id", h.id).eq("log_date", today);
+                  } else {
+                    await supabase.from("habit_logs").insert({ habit_id: h.id, user_id: user.id, log_date: today });
+                  }
+                  load();
+                }}
+                className={`px-2.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 transition border
+                  ${h.done ? "bg-pink-500/20 border-pink-500/40 text-pink-700 dark:text-pink-300" : "border-border hover:bg-accent"}`}
+              >
+                <span>{h.icon}</span>
+                <span className="truncate max-w-[100px]">{h.name}</span>
+                {h.done && <Check className="w-3 h-3" />}
               </button>
             ))}
           </CardContent>
