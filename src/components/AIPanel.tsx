@@ -102,7 +102,27 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
     finally { setLoading(false); }
   };
 
-  return (
+  const body = (
+    <>
+      <div className="mt-1 flex items-center justify-between p-2 rounded-lg border bg-accent/20">
+        <span className="text-sm">زبان پاسخ AI</span>
+        <AILangToggle value={aiLang} onChange={setAiLang} />
+      </div>
+  );
+
+  // close fragment is added below before tabs section — handled by replacing the trailing JSX
+  return isMobile ? (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="max-h-[85vh]">
+        <DrawerHeader className="pb-2">
+          <DrawerTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" /> دستیار AI
+          </DrawerTitle>
+        </DrawerHeader>
+        <div className="px-4 pb-4 overflow-y-auto">{body}</div>
+      </DrawerContent>
+    </Drawer>
+  ) : (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
@@ -110,6 +130,7 @@ export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (
             <Sparkles className="w-5 h-5 text-primary" /> دستیار AI
           </SheetTitle>
         </SheetHeader>
+        {body}
         <div className="mt-3 flex items-center justify-between p-2 rounded-lg border bg-accent/20">
           <span className="text-sm">زبان پاسخ AI</span>
           <AILangToggle value={aiLang} onChange={setAiLang} />
