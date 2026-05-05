@@ -120,7 +120,7 @@ const SECTIONS: Section[] = [
 ];
 
 // Default order: folders → tags → tasks → notes → self → mind → settings
-const DEFAULT_ORDER = ["__folders", "__tags", "tasks", "notes", "self", "mind", "settings"];
+const DEFAULT_ORDER = ["__folders", "__tags", "do", "grow", "mind", "me"];
 const ORDER_KEY = "sidebar_order_v1";
 
 function loadOrder(): string[] {
