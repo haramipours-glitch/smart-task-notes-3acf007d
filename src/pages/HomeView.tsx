@@ -83,6 +83,15 @@ export default function HomeView() {
   const [quote, setQuote] = useState(getQuoteForHour());
   const [enabledQuick, setEnabledQuick] = useState<string[]>(loadEnabledQuick);
   const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [focusMode, setFocusMode] = useState<boolean>(loadFocusMode);
+  const toggleFocus = () => {
+    setFocusMode((v) => {
+      const n = !v;
+      try { localStorage.setItem(FOCUS_KEY, n ? "1" : "0"); } catch {}
+      return n;
+    });
+  };
 
   // Refresh quote every hour
   useEffect(() => {
