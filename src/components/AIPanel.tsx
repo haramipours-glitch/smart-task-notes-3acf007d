@@ -19,6 +19,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export function AIPanel({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [tab, setTab] = useState("create");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
