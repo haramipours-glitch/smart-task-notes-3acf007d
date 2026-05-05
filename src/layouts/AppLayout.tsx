@@ -13,6 +13,7 @@ import RemindersRunner from "@/components/RemindersRunner";
 import BackButtonHandler from "@/components/BackButtonHandler";
 import CommandPalette from "@/components/CommandPalette";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import Onboarding from "@/components/Onboarding";
 import HeaderBackButton from "@/components/HeaderBackButton";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
