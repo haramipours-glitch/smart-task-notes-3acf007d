@@ -578,6 +578,14 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                   <ChildDropZone parentId={t.id} />
                   <Button
                     size="icon" variant="ghost"
+                    onClick={() => setMakeChildOf(t)}
+                    title="تبدیل به زیرتسکِ…"
+                    className="h-6 w-6"
+                  >
+                    <Network className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    size="icon" variant="ghost"
                     onClick={() => setMoveTask(t)}
                     title="انتقال"
                     draggable
