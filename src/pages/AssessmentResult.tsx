@@ -113,10 +113,13 @@ export default function AssessmentResult() {
             </Button>
           )}
           {aiAnalysis !== null && (
-            <></>
-          )}
-          {aiAnalysis !== null && (
             <>
+              {loadingAi && (
+                <div className="text-xs text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  در حال نوشتن لحظه‌به‌لحظه…
+                </div>
+              )}
               <article
                 dir="rtl"
                 className="prose prose-sm md:prose-base dark:prose-invert max-w-none
@@ -131,22 +134,24 @@ export default function AssessmentResult() {
                   text-end"
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(aiAnalysis) }}
               />
-              <div className="flex gap-2 pt-4 border-t">
-                <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
-                  {loadingAi ? <Loader2 className="w-4 h-4 ms-1 animate-spin" /> : <Sparkles className="w-4 h-4 ms-1" />}
-                  تولید مجدد
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(aiAnalysis);
-                    toast.success("به کلیپ‌بورد کپی شد");
-                  }}
-                >
-                  کپی متن کامل
-                </Button>
-              </div>
+              {!loadingAi && aiAnalysis && (
+                <div className="flex gap-2 pt-4 border-t">
+                  <Button variant="outline" size="sm" onClick={generateAiAnalysis} disabled={loadingAi}>
+                    <Sparkles className="w-4 h-4 ms-1" />
+                    تولید مجدد
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(aiAnalysis);
+                      toast.success("به کلیپ‌بورد کپی شد");
+                    }}
+                  >
+                    کپی متن کامل
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </CardContent>
