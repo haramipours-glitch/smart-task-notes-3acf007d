@@ -244,6 +244,27 @@ export default function GoalsView() {
                   );
                 })}
               </div>
+
+              {/* Linked folders & notes */}
+              {(() => {
+                const lf = linkedFolders.filter(x => x.goal_id === g.id);
+                const ln = linkedNotes.filter(x => x.goal_id === g.id);
+                if (lf.length === 0 && ln.length === 0) return null;
+                return (
+                  <div className="mt-3 pt-3 border-t flex flex-wrap gap-1.5">
+                    {lf.map(f => (
+                      <Badge key={f.id} variant="outline" className="text-[10px] gap-1">
+                        📁 {f.name}
+                      </Badge>
+                    ))}
+                    {ln.map(n => (
+                      <Badge key={n.id} variant="outline" className="text-[10px] gap-1">
+                        📝 {n.title}
+                      </Badge>
+                    ))}
+                  </div>
+                );
+              })()}
             </Card>
           );
         })}
