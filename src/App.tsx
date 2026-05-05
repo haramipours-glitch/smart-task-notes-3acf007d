@@ -42,7 +42,16 @@ const NewNoteView = lazy(() => import("./pages/NewNoteView"));
 const TaskDetailView = lazy(() => import("./pages/TaskDetailView"));
 const AdminView = lazy(() => import("./pages/AdminView"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,        // 1m: avoid refetch storms
+      gcTime: 5 * 60_000,       // 5m cache
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const RouteFallback = () => (
   <div className="flex min-h-screen items-center justify-center bg-background" />
