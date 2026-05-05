@@ -755,6 +755,19 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
         />
       )}
 
+      {makeChildOf && (
+        <MakeChildDialog
+          open={!!makeChildOf}
+          onOpenChange={(v) => !v && setMakeChildOf(null)}
+          task={makeChildOf}
+          allTasks={allTasks}
+          onDone={(newParentId) => {
+            setAllTasks(prev => prev.map(x => x.id === makeChildOf!.id ? { ...x, parent_id: newParentId } : x));
+            if (newParentId) setExpanded(s => ({ ...s, [newParentId]: true }));
+          }}
+        />
+      )}
+
       {isFolder && delFolderOpen && (
         <FolderDeleteDialog
           open={delFolderOpen}
