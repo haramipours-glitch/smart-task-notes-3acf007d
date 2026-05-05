@@ -129,7 +129,7 @@ export default function HomeView() {
     const tomorrowISO = tomorrow.toISOString();
     const dayAfterISO = dayAfter.toISOString();
 
-    const [tasks, tomorrowTasks, completed, pomos, checkin] = await Promise.all([
+    const [tasks, tomorrowTasks, completed, pomos, checkin, habitsRes, habitLogsRes] = await Promise.all([
       supabase.from("tasks").select("id,title,priority,due_date,completed")
         .eq("user_id", user.id).eq("completed", false)
         .gte("due_date", todayISO).lt("due_date", tomorrowISO)
@@ -145,6 +145,9 @@ export default function HomeView() {
         .gte("started_at", todayISO),
       supabase.from("daily_checkins").select("mood,energy,focus,checkin_date")
         .eq("user_id", user.id).order("checkin_date", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("habits").select("id,name,icon,frequency").eq("user_id", user.id),
+      supabase.from("habit_logs").select("habit_id,log_date")
+        .eq("user_id", user.id).eq("log_date", today.toISOString().slice(0, 10)),
     ]);
 
     const todayList = tasks.data || [];
@@ -165,6 +168,11 @@ export default function HomeView() {
       : (sorted[0] ? [{ id: sorted[0].id, title: sorted[0].title, priority: sorted[0].priority as string, due_date: sorted[0].due_date as string | null }] : []);
     const minutes = (pomos.data || []).reduce((s, p) => s + (p.duration_minutes || 0), 0);
 
+    const todayLogs = new Set((habitLogsRes.data || []).map((l: any) => l.habit_id));
+    const habitsList = (habitsRes.data || [])
+      .filter((h: any) => h.frequency !== "weekly")
+      .map((h: any) => ({ id: h.id, name: h.name, icon: h.icon || "🎯", done: todayLogs.has(h.id) }));
+
     setSnap({
       todayDue,
       tomorrowDue: tomorrowTasks.count || 0,
@@ -172,6 +180,7 @@ export default function HomeView() {
       pomodoroMinutes: minutes,
       lastCheckin: checkin.data ? { mood: checkin.data.mood, energy: checkin.data.energy, focus: checkin.data.focus, date: checkin.data.checkin_date } : undefined,
       topTasks: top,
+      habitsToday: habitsList,
     });
   }
 
