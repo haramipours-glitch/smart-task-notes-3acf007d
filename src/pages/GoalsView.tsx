@@ -28,6 +28,8 @@ export default function GoalsView() {
   const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [tasks, setTasks] = useState<GoalTask[]>([]);
+  const [linkedNotes, setLinkedNotes] = useState<{ id: string; title: string; goal_id: string }[]>([]);
+  const [linkedFolders, setLinkedFolders] = useState<{ id: string; name: string; goal_id: string; color: string | null }[]>([]);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -36,12 +38,16 @@ export default function GoalsView() {
 
   const load = async () => {
     if (!user) return;
-    const [g, t] = await Promise.all([
+    const [g, t, n, f] = await Promise.all([
       supabase.from("goals").select("*").order("created_at", { ascending: false }),
       supabase.from("tasks").select("id,title,goal_id,goal_level,due_date,parent_id,completed").not("goal_id", "is", null),
+      supabase.from("notes").select("id,title,goal_id").not("goal_id", "is", null),
+      supabase.from("folders").select("id,name,goal_id,color").not("goal_id", "is", null),
     ]);
     setGoals((g.data || []) as Goal[]);
     setTasks((t.data || []) as GoalTask[]);
+    setLinkedNotes((n.data || []) as any);
+    setLinkedFolders((f.data || []) as any);
   };
 
   useEffect(() => { load(); }, [user]);
