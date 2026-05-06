@@ -26,6 +26,10 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://cdn.gpteng.co" crossorigin>
 
+  <!-- Preload most-used Vazirmatn weights to shorten the critical chain (CSS -> font) -->
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Regular.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Bold.woff2">
+
   <!-- Inline critical styles for the initial shell so FCP fires before the JS bundle parses -->
   <style>
     html, body { margin: 0; padding: 0; background-color: #0F172A; color: #e2e8f0; font-family: Vazirmatn, system-ui, -apple-system, sans-serif; }
