@@ -439,12 +439,36 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     const pm = PRIORITY_META[t.priority] || PRIORITY_META.none;
     const prog = getProgress(t.id);
     const pct = prog.total > 0 ? Math.round((prog.done / prog.total) * 100) : 0;
+    const parent = t.parent_id ? allTasks.find(x => x.id === t.parent_id) : null;
+    const STEP = 18; // px per nesting level
     return (
-      <div key={t.id}>
+      <div key={t.id} className="relative" style={{ paddingInlineStart: depth * STEP }}>
+        {/* Vertical guide lines for each ancestor level */}
+        {Array.from({ length: depth }).map((_, i) => (
+          <span
+            key={i}
+            aria-hidden
+            className="absolute top-0 bottom-0 w-px bg-border/70 pointer-events-none"
+            style={{ insetInlineStart: i * STEP + 7 }}
+          />
+        ))}
+        {/* Horizontal connector from parent line to this card */}
+        {depth > 0 && (
+          <span
+            aria-hidden
+            className="absolute h-px bg-border/70 pointer-events-none"
+            style={{ insetInlineStart: (depth - 1) * STEP + 7, top: 20, width: STEP - 4 }}
+          />
+        )}
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
-            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""}`}
-              style={{ marginInlineStart: depth * 16 }}>
+            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""} ${depth > 0 ? "bg-muted/20" : ""}`}>
+              {depth > 0 && parent && (
+                <div className="flex items-center gap-1 mb-1 text-[10px] text-muted-foreground/80">
+                  <CornerDownRight className="w-2.5 h-2.5 shrink-0" />
+                  <span className="truncate">سطح {depth} · زیرِ «{parent.title}»</span>
+                </div>
+              )}
               {/* Row 1: chevron + TITLE (wide) + checkbox (right) */}
               <div dir="rtl" className="flex items-start gap-2">
                 {subs.length > 0 ? (
