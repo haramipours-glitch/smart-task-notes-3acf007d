@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Plus, Pin, Trash2, Search, Sparkles, Loader2, FolderInput } from "lucide-react";
+import { Plus, Pin, Trash2, Search, Sparkles, Loader2, FolderInput, PinOff } from "lucide-react";
+import SwipeableRow from "@/components/gestures/SwipeableRow";
 import { MoveToDialog } from "@/components/MoveToDialog";
 import { startItemDrag } from "@/lib/dragToFolder";
 import { supabase } from "@/integrations/supabase/client";
