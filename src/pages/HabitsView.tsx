@@ -196,14 +196,18 @@ export default function HabitsView() {
               </div>
               <div className="flex gap-1 justify-between">
                 {days.map((d) => {
-                  const done = logs.some((l) => l.habit_id === h.id && isSameDay(new Date(l.log_date), d));
+                  const log = logs.find((l) => l.habit_id === h.id && isSameDay(new Date(l.log_date), d));
+                  const done = !!log;
+                  const hasNote = !!log?.note;
                   return (
-                    <button key={d.toISOString()} onClick={() => toggle(h.id, d)}
-                      className={`flex-1 aspect-square rounded-md flex flex-col items-center justify-center text-xs transition
-                        ${done ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-accent"}`}>
-                      <span>{format(d, "EEE")[0]}</span>
-                      <span className="font-bold">{format(d, "d")}</span>
-                    </button>
+                    <DayCell
+                      key={d.toISOString()}
+                      date={d}
+                      done={done}
+                      hasNote={hasNote}
+                      onTap={() => toggle(h.id, d)}
+                      onLongPress={() => openNote(h.id, d)}
+                    />
                   );
                 })}
               </div>
@@ -212,6 +216,63 @@ export default function HabitsView() {
         })}
         {habits.length === 0 && <Card className="p-8 text-center text-muted-foreground">هنوز عادتی نداری</Card>}
       </div>
+
+      <Dialog open={!!noteDialog} onOpenChange={(v) => !v && setNoteDialog(null)}>
+        <DialogContent dir="rtl">
+          <DialogHeader>
+            <DialogTitle>
+              یادداشت {noteDialog && format(noteDialog.date, "yyyy/MM/dd")}
+            </DialogTitle>
+          </DialogHeader>
+          <Textarea
+            placeholder="چه احساسی داشتی؟ چه چیزی را یاد گرفتی؟"
+            value={noteDialog?.note || ""}
+            onChange={(e) => setNoteDialog((s) => s ? { ...s, note: e.target.value } : s)}
+            className="min-h-[120px]"
+            dir="auto"
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setNoteDialog(null)}>انصراف</Button>
+            <Button onClick={saveNote}>ذخیره</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function DayCell({
+  date,
+  done,
+  hasNote,
+  onTap,
+  onLongPress,
+}: {
+  date: Date;
+  done: boolean;
+  hasNote: boolean;
+  onTap: () => void;
+  onLongPress: () => void;
+}) {
+  const { handlers } = useTapGestures({
+    onSingleTap: onTap,
+    onLongPress,
+  });
+  return (
+    <button
+      {...handlers}
+      onClick={(e) => {
+        // For non-touch (desktop), also support click
+        if ((e as any).pointerType === "mouse" || !("ontouchstart" in window)) onTap();
+      }}
+      className={`relative flex-1 aspect-square rounded-md flex flex-col items-center justify-center text-xs transition select-none
+        ${done ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-accent"}`}
+    >
+      <span>{format(date, "EEE")[0]}</span>
+      <span className="font-bold">{format(date, "d")}</span>
+      {hasNote && (
+        <StickyNote className="w-2.5 h-2.5 absolute top-1 end-1 opacity-80" />
+      )}
+    </button>
   );
 }
