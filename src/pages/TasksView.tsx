@@ -34,6 +34,10 @@ import { TaskFilterSheet, DEFAULT_FILTERS, type TaskFilters, type SortLevel } fr
 import { QuickAddTask } from "@/components/QuickAddTask";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import SwipeableRow from "@/components/gestures/SwipeableRow";
+import PullToRefresh from "@/components/gestures/PullToRefresh";
+import TaskActionSheet from "@/components/TaskActionSheet";
+import { useLongPress } from "@/lib/useLongPress";
 import { DueDatePicker } from "@/components/DueDatePicker";
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { MakeChildDialog } from "@/components/MakeChildDialog";
