@@ -813,6 +813,16 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
           onDone={() => { setDelFolderOpen(false); navigate("/app/inbox"); }}
         />
       )}
+
+      <TaskActionSheet
+        task={actionTask}
+        onOpenChange={(v) => !v && setActionTask(null)}
+        onComplete={() => actionTask && toggleTask(actionTask)}
+        onDelete={() => actionTask && askDeleteTask(actionTask)}
+        onMove={() => actionTask && setMoveTask(actionTask)}
+        onMakeChild={() => actionTask && setMakeChildOf(actionTask)}
+        onEdit={() => actionTask && navigate(`/app/tasks/${actionTask.id}`)}
+      />
     </div>
   );
 }
