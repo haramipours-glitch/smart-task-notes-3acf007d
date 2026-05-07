@@ -675,7 +675,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const isFolder = scope === "folder" && !!params.id;
 
   const listView = (
-    <>
+    <PullToRefresh onRefresh={load}>
       <div className="flex gap-2 mb-4 items-center">
         <div className="flex-1">
           <QuickAddTask
