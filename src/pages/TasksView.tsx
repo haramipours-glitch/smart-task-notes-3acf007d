@@ -707,7 +707,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
             <Card className="p-8 text-center text-muted-foreground">هیچ تسکی نیست</Card>
           )}
           <SortableContext items={topLevel.map(t => t.id)} strategy={verticalListSortingStrategy}>
-            {topLevel.map((t) => renderTask(t))}
+            {topLevel.map((t) => <TaskItem key={t.id} t={t} />)}
           </SortableContext>
         </div>
         <DragOverlay>
