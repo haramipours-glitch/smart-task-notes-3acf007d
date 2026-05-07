@@ -8,6 +8,11 @@ interface Props {
   onDelete?: () => void;
   disabled?: boolean;
   isCompleted?: boolean;
+  rightLabel?: string;
+  rightLabelAlt?: string;
+  leftLabel?: string;
+  RightIcon?: typeof Check;
+  rightColor?: "emerald" | "amber" | "primary";
 }
 
 const ACTION_THRESHOLD = 96;     // px past which the action commits on release
@@ -28,7 +33,18 @@ export default function SwipeableRow({
   onDelete,
   disabled,
   isCompleted,
+  rightLabel,
+  rightLabelAlt,
+  leftLabel,
+  RightIcon = Check,
+  rightColor = "emerald",
 }: Props) {
+  const colorMap = {
+    emerald: { full: "bg-emerald-700", armed: "bg-emerald-600", base: "bg-emerald-500/80" },
+    amber: { full: "bg-amber-700", armed: "bg-amber-600", base: "bg-amber-500/80" },
+    primary: { full: "bg-primary", armed: "bg-primary/90", base: "bg-primary/70" },
+  } as const;
+  const rc = colorMap[rightColor];
   const [dx, setDx] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [committedFull, setCommittedFull] = useState<"none" | "right" | "left">("none");
@@ -142,14 +158,14 @@ export default function SwipeableRow({
       {showRight && (
         <div
           className={`absolute inset-y-0 start-0 flex items-center gap-2 px-4 text-white ${
-            isFull ? "bg-emerald-700" : armed.current ? "bg-emerald-600" : "bg-emerald-500/80"
+            isFull ? rc.full : armed.current ? rc.armed : rc.base
           }`}
           style={{ width: Math.abs(dx) + 16 }}
           aria-hidden
         >
-          {isFull ? <Zap className="w-5 h-5" /> : <Check className="w-5 h-5" />}
+          {isFull ? <Zap className="w-5 h-5" /> : <RightIcon className="w-5 h-5" />}
           <span className="text-xs font-medium">
-            {isFull ? "آنی!" : isCompleted ? "بازگشایی" : "تکمیل"}
+            {isFull ? "آنی!" : (isCompleted ? (rightLabelAlt ?? "بازگشایی") : (rightLabel ?? "تکمیل"))}
           </span>
         </div>
       )}
@@ -161,7 +177,7 @@ export default function SwipeableRow({
           style={{ width: Math.abs(dx) + 16 }}
           aria-hidden
         >
-          <span className="text-xs font-medium">{isFull ? "حذف آنی!" : "حذف"}</span>
+          <span className="text-xs font-medium">{isFull ? "آنی!" : (leftLabel ?? "حذف")}</span>
           {isFull ? <Zap className="w-5 h-5" /> : <Trash2 className="w-5 h-5" />}
         </div>
       )}
