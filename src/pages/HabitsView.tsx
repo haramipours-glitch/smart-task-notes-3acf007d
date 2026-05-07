@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import { Plus, Flame, Trash2, Target } from "lucide-react";
+import { Plus, Flame, Trash2, Target, StickyNote } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { format, subDays, isSameDay, startOfWeek } from "date-fns";
 import { toast } from "sonner";
+import { useTapGestures } from "@/lib/useTapGestures";
+import { haptic } from "@/lib/haptics";
 
 type Habit = {
   id: string;
@@ -17,7 +21,7 @@ type Habit = {
   frequency: "daily" | "weekly";
   target_per_week: number;
 };
-type Log = { habit_id: string; log_date: string };
+type Log = { habit_id: string; log_date: string; note?: string | null };
 
 export default function HabitsView() {
   const { user } = useAuth();
