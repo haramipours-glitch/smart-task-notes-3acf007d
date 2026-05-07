@@ -35,7 +35,7 @@ export default function HabitsView() {
     if (!user) return;
     const [h, l] = await Promise.all([
       supabase.from("habits").select("*"),
-      supabase.from("habit_logs").select("habit_id, log_date").gte("log_date", format(subDays(new Date(), 60), "yyyy-MM-dd")),
+      supabase.from("habit_logs").select("habit_id, log_date, note").gte("log_date", format(subDays(new Date(), 60), "yyyy-MM-dd")),
     ]);
     setHabits((h.data || []) as any);
     setLogs((l.data || []) as any);
