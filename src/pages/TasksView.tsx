@@ -468,6 +468,11 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
         )}
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
+            <SwipeableRow
+              onComplete={() => toggleTask(t)}
+              onDelete={() => askDeleteTask(t)}
+              isCompleted={t.completed}
+            >
             <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""} ${depth > 0 ? "bg-muted/20" : ""}`}>
               {depth > 0 && parent && (
                 <div className="flex items-center gap-1 mb-1 text-[10px] text-muted-foreground/80">
