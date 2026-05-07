@@ -720,7 +720,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
           ) : null}
         </DragOverlay>
       </DndContext>
-    </>
+    </PullToRefresh>
   );
 
   return (
