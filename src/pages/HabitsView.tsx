@@ -258,13 +258,12 @@ function DayCell({
     onSingleTap: onTap,
     onLongPress,
   });
+  const isTouch = typeof window !== "undefined" && "ontouchstart" in window;
   return (
     <button
-      {...handlers}
-      onClick={(e) => {
-        // For non-touch (desktop), also support click
-        if ((e as any).pointerType === "mouse" || !("ontouchstart" in window)) onTap();
-      }}
+      {...(isTouch ? handlers : {})}
+      onClick={isTouch ? undefined : onTap}
+      onContextMenu={(e) => { e.preventDefault(); onLongPress(); }}
       className={`relative flex-1 aspect-square rounded-md flex flex-col items-center justify-center text-xs transition select-none
         ${done ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-accent"}`}
     >
