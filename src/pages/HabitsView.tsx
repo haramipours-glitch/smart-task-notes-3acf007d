@@ -109,6 +109,29 @@ export default function HabitsView() {
     return { count, target: h.target_per_week || 7 };
   };
 
+  // Note dialog state for long-press on a day
+  const [noteDialog, setNoteDialog] = useState<{ habit_id: string; date: Date; note: string } | null>(null);
+  const openNote = (habit_id: string, date: Date) => {
+    const d = format(date, "yyyy-MM-dd");
+    const existing = logs.find((l) => l.habit_id === habit_id && l.log_date === d);
+    setNoteDialog({ habit_id, date, note: existing?.note || "" });
+  };
+  const saveNote = async () => {
+    if (!noteDialog || !user) return;
+    const d = format(noteDialog.date, "yyyy-MM-dd");
+    const { habit_id, note } = noteDialog;
+    const exists = logs.find((l) => l.habit_id === habit_id && l.log_date === d);
+    if (exists) {
+      await supabase.from("habit_logs").update({ note }).eq("habit_id", habit_id).eq("log_date", d);
+    } else {
+      await supabase.from("habit_logs").insert({ habit_id, user_id: user.id, log_date: d, note });
+    }
+    setNoteDialog(null);
+    haptic("success");
+    toast.success("یادداشت ذخیره شد");
+    load();
+  };
+
   return (
     <div dir="rtl" className="p-4 md:p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">عادت‌ها</h1>
