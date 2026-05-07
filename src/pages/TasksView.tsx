@@ -658,12 +658,13 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                 </Button>
               </div>
             </Card>
+            </SwipeableRow>
           )}
         </SortableTaskRow>
         {open && subs.length > 0 && (
           <div className="mt-2 space-y-2">
             <SortableContext items={subs.map(s => s.id)} strategy={verticalListSortingStrategy}>
-              {subs.map((s) => renderTask(s, depth + 1))}
+              {subs.map((s) => <TaskItem key={s.id} t={s} depth={depth + 1} />)}
             </SortableContext>
           </div>
         )}
