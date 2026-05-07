@@ -438,7 +438,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     ));
   };
 
-  const renderTask = (t: Task, depth = 0) => {
+  const TaskItem = ({ t, depth = 0 }: { t: Task; depth?: number }) => {
     const subs = childrenMap[t.id] || [];
     const open = expanded[t.id];
     const pm = PRIORITY_META[t.priority] || PRIORITY_META.none;
@@ -446,8 +446,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     const pct = prog.total > 0 ? Math.round((prog.done / prog.total) * 100) : 0;
     const parent = t.parent_id ? allTasks.find(x => x.id === t.parent_id) : null;
     const STEP = 18; // px per nesting level
+    const lp = useLongPress({ onLongPress: () => setActionTask(t) });
     return (
-      <div key={t.id} className="relative" style={{ paddingInlineStart: depth * STEP }}>
+      <div className="relative swipe-row" style={{ paddingInlineStart: depth * STEP }} {...lp.handlers}>
         {/* Vertical guide lines for each ancestor level */}
         {Array.from({ length: depth }).map((_, i) => (
           <span
