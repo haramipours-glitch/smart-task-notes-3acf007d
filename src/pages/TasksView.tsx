@@ -487,10 +487,17 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                     {open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </button>
                 ) : <span className="w-4 shrink-0" />}
-                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => {
-                  if (t.title.startsWith("چک‌این روزانه")) { navigate("/app/checkin"); return; }
-                  navigate(`/app/tasks/${t.id}`);
-                }}>
+                <div
+                  className="flex-1 min-w-0 cursor-pointer select-none"
+                  onClick={() => {
+                    if (t.title.startsWith("چک‌این روزانه")) { navigate("/app/checkin"); return; }
+                    navigate(`/app/tasks/${t.id}`);
+                  }}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    toggleTask(t);
+                  }}
+                >
                   <BidiText
                     as="p"
                     text={t.title}

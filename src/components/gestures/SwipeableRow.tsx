@@ -1,5 +1,5 @@
-import { ReactNode, useRef, useState, TouchEvent } from "react";
-import { Check, Trash2 } from "lucide-react";
+import { ReactNode, useRef, useState, TouchEvent, useEffect } from "react";
+import { Check, Trash2, Zap } from "lucide-react";
 import { haptic } from "@/lib/haptics";
 
 interface Props {
@@ -11,14 +11,16 @@ interface Props {
 }
 
 const ACTION_THRESHOLD = 96;     // px past which the action commits on release
-const REVEAL_MAX = 140;          // visual cap
+const FULL_RATIO = 0.6;          // % of width past which we commit instantly (full-swipe)
+const REVEAL_MAX_RATIO = 0.85;   // visual cap relative to row width
 
 /**
- * Touch-only horizontal swipe wrapper.
- * - Swipe LEFT  → delete (red)
- * - Swipe RIGHT → complete (green)
- * Works in RTL as well; direction is screen-relative.
- * Falls through to children for taps and vertical scrolling.
+ * Touch-only horizontal swipe wrapper (iOS-Mail-style).
+ * - Swipe past ACTION_THRESHOLD on release → run action.
+ * - Full-swipe past 60% of row width → instant commit (no release needed),
+ *   strong haptic, and the underlay color intensifies.
+ * - Swipe LEFT  → delete (red).
+ * - Swipe RIGHT → complete (green).
  */
 export default function SwipeableRow({
   children,
@@ -29,23 +31,32 @@ export default function SwipeableRow({
 }: Props) {
   const [dx, setDx] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [committedFull, setCommittedFull] = useState<"none" | "right" | "left">("none");
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const widthRef = useRef(0);
   const startX = useRef(0);
   const startY = useRef(0);
   const tracking = useRef(false);
   const decided = useRef<"h" | "v" | null>(null);
   const armed = useRef(false);
 
+  useEffect(() => {
+    if (wrapRef.current) widthRef.current = wrapRef.current.clientWidth;
+  });
+
   if (disabled) return <>{children}</>;
 
   const onTouchStart = (e: TouchEvent) => {
     const t = e.touches[0];
     if (!t) return;
+    if (wrapRef.current) widthRef.current = wrapRef.current.clientWidth;
     startX.current = t.clientX;
     startY.current = t.clientY;
     tracking.current = true;
     decided.current = null;
     armed.current = false;
     setAnimating(false);
+    setCommittedFull("none");
   };
 
   const onTouchMove = (e: TouchEvent) => {
@@ -58,13 +69,40 @@ export default function SwipeableRow({
       decided.current = Math.abs(ddx) > Math.abs(ddy) ? "h" : "v";
     }
     if (decided.current !== "h") return;
-    const clamped = Math.max(-REVEAL_MAX, Math.min(REVEAL_MAX, ddx));
+    const w = widthRef.current || 320;
+    const cap = w * REVEAL_MAX_RATIO;
+    const clamped = Math.max(-cap, Math.min(cap, ddx));
     setDx(clamped);
+
+    // Threshold haptic
     if (!armed.current && Math.abs(clamped) >= ACTION_THRESHOLD) {
       armed.current = true;
       haptic("light");
     } else if (armed.current && Math.abs(clamped) < ACTION_THRESHOLD) {
       armed.current = false;
+    }
+
+    // Full-swipe instant commit
+    const fullPx = w * FULL_RATIO;
+    if (committedFull === "none" && Math.abs(clamped) >= fullPx) {
+      if (clamped > 0 && onComplete) {
+        setCommittedFull("right");
+        haptic("success");
+        onComplete();
+        // animate out then reset
+        tracking.current = false;
+        setAnimating(true);
+        setDx(w);
+        window.setTimeout(() => { setAnimating(true); setDx(0); setCommittedFull("none"); }, 180);
+      } else if (clamped < 0 && onDelete) {
+        setCommittedFull("left");
+        haptic("warning");
+        onDelete();
+        tracking.current = false;
+        setAnimating(true);
+        setDx(-w);
+        window.setTimeout(() => { setAnimating(true); setDx(0); setCommittedFull("none"); }, 180);
+      }
     }
   };
 
@@ -94,35 +132,37 @@ export default function SwipeableRow({
     }
   };
 
-  const showRight = dx > 4; // user pulled right → complete action visible on left side
-  const showLeft = dx < -4; // user pulled left  → delete action visible on right side
+  const showRight = dx > 4;
+  const showLeft = dx < -4;
+  const w = widthRef.current || 320;
+  const isFull = Math.abs(dx) >= w * FULL_RATIO;
 
   return (
-    <div className="relative overflow-hidden rounded-lg" style={{ touchAction: "pan-y" }}>
-      {/* Underlay: complete (revealed when swiping right) */}
+    <div ref={wrapRef} className="relative overflow-hidden rounded-lg" style={{ touchAction: "pan-y" }}>
       {showRight && (
         <div
           className={`absolute inset-y-0 start-0 flex items-center gap-2 px-4 text-white ${
-            armed.current ? "bg-emerald-600" : "bg-emerald-500/80"
+            isFull ? "bg-emerald-700" : armed.current ? "bg-emerald-600" : "bg-emerald-500/80"
           }`}
           style={{ width: Math.abs(dx) + 16 }}
           aria-hidden
         >
-          <Check className="w-5 h-5" />
-          <span className="text-xs font-medium">{isCompleted ? "بازگشایی" : "تکمیل"}</span>
+          {isFull ? <Zap className="w-5 h-5" /> : <Check className="w-5 h-5" />}
+          <span className="text-xs font-medium">
+            {isFull ? "آنی!" : isCompleted ? "بازگشایی" : "تکمیل"}
+          </span>
         </div>
       )}
-      {/* Underlay: delete (revealed when swiping left) */}
       {showLeft && (
         <div
           className={`absolute inset-y-0 end-0 flex items-center justify-end gap-2 px-4 text-white ${
-            armed.current ? "bg-destructive" : "bg-destructive/80"
+            isFull ? "bg-red-700" : armed.current ? "bg-destructive" : "bg-destructive/80"
           }`}
           style={{ width: Math.abs(dx) + 16 }}
           aria-hidden
         >
-          <span className="text-xs font-medium">حذف</span>
-          <Trash2 className="w-5 h-5" />
+          <span className="text-xs font-medium">{isFull ? "حذف آنی!" : "حذف"}</span>
+          {isFull ? <Zap className="w-5 h-5" /> : <Trash2 className="w-5 h-5" />}
         </div>
       )}
       <div

@@ -1,39 +1,137 @@
-# ویرایش سریع روی کارت تسک + تو در تو کردن آسان
+# نقشه‌ی ژست‌های حرفه‌ای — Arshnaz
 
-دو بهبود روی صفحه‌ی لیست تسک‌ها (`TasksView`) بدون نیاز به باز کردن صفحه‌ی جزئیات:
+الهام‌گرفته از **Things 3, Todoist, TickTick, Notion, Apple Notes, Telegram, iOS Mail**.
+هدف: هر ژست یک معنای ثابت و قابل‌پیش‌بینی داشته باشد، با Haptic ظریف و بدون تداخل با اسکرول/سایدبار.
 
-## ۱) ویرایش درجا روی آیکون‌ها/بَجج‌ها
+---
 
-هم‌اکنون بَجج‌های اولویت / تاریخ / تکرار فقط نمایشی‌اند. آن‌ها را به دکمه تبدیل می‌کنیم تا با یک تپ روی خودشان قابل تغییر باشند:
+## 1) قانون‌های پایه (Gesture Grammar)
 
-- **بَجج اولویت (🚩)** → با تپ، یک Popover کوچک باز می‌شود با گزینه‌های فوق‌فوری/فوری/متوسط/پایین/بدون. انتخاب → `update tasks.priority`.
-- **بَجج تاریخ (📅)** → با تپ، `DueDatePicker` (همین که در TaskDetail استفاده می‌شود) باز می‌شود برای تغییر `due_date` و ساعت. اگر تسک تاریخ ندارد، یک دکمه‌ی کوچک «+ تاریخ» کنار بَجج‌ها اضافه می‌شود.
-- **بَجج تکرار (🔁)** → با تپ، `RecurrenceEditor` باز می‌شود.
-- **بَجج اولویت اگر `none` بود** → یک دکمه‌ی خاکستری «+ اولویت» نمایش داده می‌شود.
-- **عنوان تسک** → علاوه بر تپ که به صفحه‌ی جزئیات می‌برد، یک تپِ «طولانیِ کوتاه» (یا دکمه‌ی مدادِ کوچکی که در hover/active ظاهر شود) برای ویرایش inline عنوان اضافه می‌شود (Enter ذخیره، Esc لغو).
+| ژست | معنای ثابت در کل اپ |
+|---|---|
+| Tap | انتخاب / باز کردن |
+| Double-tap | اکشن سریعِ اصلی همان آیتم (مثل ❤ در اینستاگرام) |
+| Long-press (≥450ms) | منوی کانتکست (Action Sheet) |
+| Swipe → (راست) | اکشن مثبت (تکمیل/آرشیو) |
+| Swipe ← (چپ) | اکشن منفی (حذف/اسنوز) |
+| Swipe طولانی (full-swipe >60%) | اجرای فوری بدون تأیید |
+| Two-finger swipe | Undo/Redo (مثل Apple Notes) |
+| Pull down | Refresh |
+| Pull up (در تَه لیست) | بارگذاری بیشتر / ساخت آیتم جدید |
+| Edge-swipe | باز کردن منو (موجود) |
+| Pinch | Zoom محتوا (در نوت/تقویم) |
 
-تمام این تغییرات با همان `setAllTasks` خوش‌بینانه + `supabase.from("tasks").update(...)` اعمال می‌شوند و خطا را با toast نشان می‌دهیم.
+---
 
-## ۲) تبدیل یک تسک به زیرمجموعه‌ی تسک دیگر (راحت روی موبایل)
+## 2) روی **تسک‌ها** (TaskItem)
 
-الان آیکون `ChildDropZone` (↳) فقط با Drag & Drop دقیق کار می‌کند که روی موبایل سخت است. اضافه می‌کنیم:
+موجود: swipe complete/delete، long-press → action sheet. اضافه می‌شود:
 
-- **دکمه‌ی «تبدیل به زیرتسکِ…»** کنار آیکون انتقال (📂) روی هر کارت. تپ → دیالوگ `MakeChildDialog` با لیست جستجو-پذیر سایر تسک‌های همان کاربر (به جز خود تسک و فرزندانش — برای جلوگیری از سیکل).
-- انتخاب تسک مقصد → `update tasks set parent_id = <chosen>` و `expanded[chosen] = true` تا والد جدید باز شود.
-- یک گزینه‌ی «🔝 ریشه (top-level)» در بالای دیالوگ برای خارج کردن از حالت زیرتسک.
+- **Double-tap روی تسک** → باز کردن صفحه‌ی جزئیات (سریع‌تر از long-press → ویرایش)
+- **Swipe کوتاه راست (40-95px)** → نگه داشتن در حالت reveal با دکمه‌های "تکمیل / فردا / +۷ روز" (مثل iOS Mail)
+- **Swipe کوتاه چپ** → reveal "حذف / Snooze / تغییر اولویت"
+- **Full-swipe راست (>60% عرض)** → تکمیل آنی + Undo toast (۵ ثانیه)
+- **Full-swipe چپ** → حذف آنی + Undo toast
+- **Long-press + drag (روی هندل)** → Reorder درون لیست
+- **Long-press روی چک‌باکس** → باز کردن انتخاب چندتایی (Multi-select) — مثل Things
+- **Two-finger swipe چپ/راست** → Undo / Redo آخرین عملیات
 
-این کار همان قابلیت Drag & Drop را به‌صورت تپ‌محور هم در دسترس می‌گذارد، که با عکسی که فرستادی (موبایل) سازگار است.
+## 3) روی **نوت‌ها**
 
-## فایل‌های مؤثر
+- **Double-tap روی کارت نوت** → ورود به حالت ویرایش سریع
+- **Swipe راست** → Pin/Unpin
+- **Swipe چپ** → آرشیو (نه حذف؛ حذف فقط از long-press)
+- **Long-press** → Action sheet: اشتراک، کپی لینک، انتقال به فولدر، رنگ‌گذاری
+- **Pinch داخل نوت** → بزرگ/کوچک کردن متن (font-size موقت)
+- **Two-finger swipe** → Undo/Redo ویرایش
 
-- `src/pages/TasksView.tsx` — تبدیل بَجج‌ها به دکمه با Popover، اضافه کردن دکمه‌ی «زیرتسکِ…»، حالت ویرایش inline عنوان.
-- `src/components/MakeChildDialog.tsx` — **جدید**: دیالوگ انتخاب والد با Command/جستجو.
-- (در صورت نیاز) استفاده از کامپوننت‌های موجود `DueDatePicker` و `RecurrenceEditor` بدون تغییر.
+## 4) روی **عادت‌ها (Habits)**
 
-## جزییات فنی کوتاه
+- **Tap** روی روز → toggle انجام
+- **Double-tap** → ثبت با شمارش +۱ (برای عادت‌های شمارشی)
+- **Long-press روی روز** → یادداشت برای آن روز + تعیین مقدار دلخواه
+- **Swipe راست روی کارت عادت** → streak freeze (مرخصی یک‌روزه)
+- **Swipe چپ** → آرشیو
 
-- جلوگیری از سیکل: تابع کوچکی که فرزندان (recursive) `activeId` را جمع می‌کند و آن‌ها را از لیست انتخاب پدر فیلتر می‌کند.
-- جلوگیری از تداخل با ناوبری: روی بَجج‌ها از `e.stopPropagation()` استفاده می‌کنیم تا تپ آن‌ها به `navigate(/app/tasks/:id)` نرسد.
-- روی موبایل، Popover‌ها از `@/components/ui/popover` که در پروژه هست استفاده می‌کنند (RTL-friendly).
+## 5) روی **تقویم**
 
-پس از تأیید، پیاده‌سازی می‌کنم.
+- **Swipe افقی** → ماه/هفته‌ی بعد و قبل (موجود در ماهانه؛ به هفتگی/روزانه هم اضافه شود)
+- **Swipe عمودی روی Day view** → جابه‌جایی ساعت‌ها
+- **Double-tap روی یک slot ساعتی** → ساخت رویداد/تسک سریع در همان ساعت
+- **Long-press روی روز** → Day Detail Sheet (موجود) + گزینه‌ی "ساخت تسک برای این روز"
+- **Pinch روی Day/Week** → zoom ساعت‌ها (1h ↔ 30min ↔ 15min)
+- **Drag رویداد** → جابه‌جایی زمان
+
+## 6) روی **Pomodoro**
+
+- **Double-tap روی تایمر** → Start/Pause
+- **Long-press روی تایمر** → Reset
+- **Swipe راست** → Skip به استراحت
+- **Swipe چپ** → Skip به session بعد
+
+## 7) روی **Kanban**
+
+- **Long-press روی کارت** → پیکاپ برای drag بین ستون‌ها (موجود) + Haptic medium
+- **Double-tap روی کارت** → باز کردن جزئیات
+- **Swipe افقی روی ستون** → جابه‌جایی بین ستون‌ها وقتی صفحه باریک است
+
+## 8) **ناوبری سراسری**
+
+- **Swipe افقی روی صفحه** (موجود) → بین Home/Today/Inbox/...
+- **Swipe از پایین به بالا (در BottomTabBar)** → باز کردن Quick Capture
+- **Double-tap روی تَب فعال** → اسکرول به بالا (مثل Twitter/Instagram)
+- **Long-press روی تَب** → منوی میان‌بُر آن بخش (مثلاً روی Today: "ساخت تسک امروز / مشاهده‌ی فردا")
+- **Two-finger tap** → باز/بسته کردن AI Panel
+- **Swipe از لبه‌ی پایین به بالا** → نمایش Command Palette
+
+## 9) **Haptic Map** (همه ظریف، فقط روی اکشن‌های مهم)
+
+| رویداد | الگو |
+|---|---|
+| تکمیل تسک | success (۱۰ms) |
+| حذف | warning (۲۰ms) |
+| Long-press fired | medium (۱۵ms) |
+| Threshold reached هنگام swipe | light (۸ms) |
+| Undo | light |
+| Drag pickup | medium |
+| Snap به ستون Kanban | light |
+
+---
+
+## فازبندی پیاده‌سازی (پیشنهادی، قابل تیک‌زدن)
+
+**فاز ۱ — برد سریع (همین حالا)**
+1. Double-tap روی TaskItem → باز کردن جزئیات
+2. Double-tap روی تَب فعال در BottomTabBar → scroll-to-top
+3. Two-finger swipe → Undo/Redo (هوک سراسری)
+4. Full-swipe (>60%) → اجرای آنی + Undo toast
+5. Long-press روی چک‌باکس → multi-select mode
+
+**فاز ۲ — نوت‌ها و عادت‌ها**
+6. Swipe روی نوت‌ها (Pin/Archive) + double-tap edit
+7. Double-tap روی روز عادت = +۱، long-press = یادداشت
+
+**فاز ۳ — تقویم و پومودورو**
+8. Pinch zoom در Day/Week
+9. Double-tap slot → ساخت سریع
+10. Pomodoro double-tap/long-press/swipe
+
+**فاز ۴ — Kanban و micro-polish**
+11. Swipe بین ستون‌های Kanban در موبایل
+12. Long-press روی تَب‌های ناوبری → میان‌بُر
+13. هماهنگ‌سازی کامل Haptic Map
+
+---
+
+## نکات فنی (برای توسعه)
+
+- یک هوک واحد `useGestures` می‌سازیم که tap/double-tap/long-press/swipe را با state-machine مدیریت کند و از تداخل tap با double-tap (delay 250ms) جلوگیری کند.
+- Double-tap فقط روی موبایل فعال شود (`useIsMobile`).
+- Two-finger gestures با `e.touches.length === 2` تشخیص داده شوند و در `window` listener جداگانه.
+- Multi-select با Context سراسری `SelectionContext` (آرایه‌ی idهای انتخاب‌شده + اکشن‌بار شناور پایین).
+- Undo از `undoStack` موجود استفاده کند.
+- همه‌ی ژست‌های جدید با feature-flag در Settings قابل خاموش شدن باشند: `gestures.doubleTap`, `gestures.fullSwipe`, `gestures.twoFinger`.
+
+## بعد از تأیید
+
+به من بگو **کدام فاز(ها)** را اول بسازم — یا اگر همه‌ی فاز ۱ سبز است، مستقیم شروع می‌کنم.

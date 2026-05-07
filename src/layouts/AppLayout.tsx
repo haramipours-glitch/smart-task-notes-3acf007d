@@ -20,10 +20,12 @@ import Onboarding from "@/components/Onboarding";
 import HeaderBackButton from "@/components/HeaderBackButton";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useTwoFingerSwipe } from "@/lib/useTwoFingerSwipe";
 
 export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
   const loc = useLocation();
+  useTwoFingerSwipe();
   useEffect(() => {
     if (loc.pathname.startsWith("/app/")) {
       try { localStorage.setItem("last_route", loc.pathname); } catch {}
