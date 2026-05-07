@@ -67,6 +67,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [makeChildOf, setMakeChildOf] = useState<Task | null>(null);
   const [delFolderOpen, setDelFolderOpen] = useState(false);
+  const [actionTask, setActionTask] = useState<Task | null>(null);
   const navigate = useNavigate();
 
   // Patch a task field optimistically + persist
