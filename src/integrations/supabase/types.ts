@@ -369,18 +369,21 @@ export type Database = {
           habit_id: string
           id: string
           log_date: string
+          note: string | null
           user_id: string
         }
         Insert: {
           habit_id: string
           id?: string
           log_date?: string
+          note?: string | null
           user_id: string
         }
         Update: {
           habit_id?: string
           id?: string
           log_date?: string
+          note?: string | null
           user_id?: string
         }
         Relationships: [
