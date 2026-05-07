@@ -179,22 +179,35 @@ export default function NotesView() {
         </div>
         <div className="flex-1 overflow-y-auto">
           {filtered.map((n) => (
-            <div
+            <SwipeableRow
               key={n.id}
-              draggable
-              onDragStart={(e) => startItemDrag(e, { kind: "note", id: n.id, title: n.title })}
-              className="border-b"
-              title="Drag روی فولدر سایدبار برای انتقال"
+              onComplete={async () => {
+                await supabase.from("notes").update({ pinned: !n.pinned }).eq("id", n.id);
+                load();
+              }}
+              onDelete={() => del(n.id)}
+              isCompleted={n.pinned}
+              rightLabel="Pin"
+              rightLabelAlt="Unpin"
+              RightIcon={n.pinned ? PinOff : Pin}
+              rightColor="amber"
             >
-              <button onClick={() => { setSelected(n); setDraft({ html: markdownToHtml(n.content || ""), md: n.content || "" }); }}
-                className={`w-full text-end p-3 hover:bg-accent/40 transition cursor-grab active:cursor-grabbing ${selected?.id === n.id ? "bg-accent/60" : ""}`}>
-                <div className="flex items-center gap-1">
-                  {n.pinned && <Pin className="w-3 h-3 text-primary" />}
-                  <BidiText as="span" text={n.title} className="font-medium text-sm truncate flex-1" />
-                </div>
-                <BidiText as="p" text={stripMd(n.content)} className="text-xs text-muted-foreground mt-1 line-clamp-3 whitespace-pre-wrap break-words" />
-              </button>
-            </div>
+              <div
+                draggable
+                onDragStart={(e) => startItemDrag(e, { kind: "note", id: n.id, title: n.title })}
+                className="border-b bg-card"
+                title="Drag روی فولدر سایدبار برای انتقال"
+              >
+                <button onClick={() => { setSelected(n); setDraft({ html: markdownToHtml(n.content || ""), md: n.content || "" }); }}
+                  className={`w-full text-end p-3 hover:bg-accent/40 transition cursor-grab active:cursor-grabbing ${selected?.id === n.id ? "bg-accent/60" : ""}`}>
+                  <div className="flex items-center gap-1">
+                    {n.pinned && <Pin className="w-3 h-3 text-primary" />}
+                    <BidiText as="span" text={n.title} className="font-medium text-sm truncate flex-1" />
+                  </div>
+                  <BidiText as="p" text={stripMd(n.content)} className="text-xs text-muted-foreground mt-1 line-clamp-3 whitespace-pre-wrap break-words" />
+                </button>
+              </div>
+            </SwipeableRow>
           ))}
           {filtered.length === 0 && <p className="text-center text-muted-foreground p-6 text-sm">نوتی نیست</p>}
         </div>
