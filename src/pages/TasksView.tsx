@@ -34,6 +34,10 @@ import { TaskFilterSheet, DEFAULT_FILTERS, type TaskFilters, type SortLevel } fr
 import { QuickAddTask } from "@/components/QuickAddTask";
 import type { Task, ConfirmState } from "@/lib/taskTypes";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import SwipeableRow from "@/components/gestures/SwipeableRow";
+import PullToRefresh from "@/components/gestures/PullToRefresh";
+import TaskActionSheet from "@/components/TaskActionSheet";
+import { useLongPress } from "@/lib/useLongPress";
 import { DueDatePicker } from "@/components/DueDatePicker";
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { MakeChildDialog } from "@/components/MakeChildDialog";
@@ -63,6 +67,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [makeChildOf, setMakeChildOf] = useState<Task | null>(null);
   const [delFolderOpen, setDelFolderOpen] = useState(false);
+  const [actionTask, setActionTask] = useState<Task | null>(null);
   const navigate = useNavigate();
 
   // Patch a task field optimistically + persist
@@ -433,7 +438,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     ));
   };
 
-  const renderTask = (t: Task, depth = 0) => {
+  const TaskItem = ({ t, depth = 0 }: { t: Task; depth?: number }) => {
     const subs = childrenMap[t.id] || [];
     const open = expanded[t.id];
     const pm = PRIORITY_META[t.priority] || PRIORITY_META.none;
@@ -441,8 +446,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     const pct = prog.total > 0 ? Math.round((prog.done / prog.total) * 100) : 0;
     const parent = t.parent_id ? allTasks.find(x => x.id === t.parent_id) : null;
     const STEP = 18; // px per nesting level
+    const lp = useLongPress({ onLongPress: () => setActionTask(t) });
     return (
-      <div key={t.id} className="relative" style={{ paddingInlineStart: depth * STEP }}>
+      <div className="relative swipe-row" style={{ paddingInlineStart: depth * STEP }} {...lp.handlers}>
         {/* Vertical guide lines for each ancestor level */}
         {Array.from({ length: depth }).map((_, i) => (
           <span
@@ -462,6 +468,11 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
         )}
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
+            <SwipeableRow
+              onComplete={() => toggleTask(t)}
+              onDelete={() => askDeleteTask(t)}
+              isCompleted={t.completed}
+            >
             <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""} ${depth > 0 ? "bg-muted/20" : ""}`}>
               {depth > 0 && parent && (
                 <div className="flex items-center gap-1 mb-1 text-[10px] text-muted-foreground/80">
@@ -647,12 +658,13 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                 </Button>
               </div>
             </Card>
+            </SwipeableRow>
           )}
         </SortableTaskRow>
         {open && subs.length > 0 && (
           <div className="mt-2 space-y-2">
             <SortableContext items={subs.map(s => s.id)} strategy={verticalListSortingStrategy}>
-              {subs.map((s) => renderTask(s, depth + 1))}
+              {subs.map((s) => <TaskItem key={s.id} t={s} depth={depth + 1} />)}
             </SortableContext>
           </div>
         )}
@@ -663,7 +675,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   const isFolder = scope === "folder" && !!params.id;
 
   const listView = (
-    <>
+    <PullToRefresh onRefresh={load}>
       <div className="flex gap-2 mb-4 items-center">
         <div className="flex-1">
           <QuickAddTask
@@ -695,7 +707,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
             <Card className="p-8 text-center text-muted-foreground">هیچ تسکی نیست</Card>
           )}
           <SortableContext items={topLevel.map(t => t.id)} strategy={verticalListSortingStrategy}>
-            {topLevel.map((t) => renderTask(t))}
+            {topLevel.map((t) => <TaskItem key={t.id} t={t} />)}
           </SortableContext>
         </div>
         <DragOverlay>
@@ -708,7 +720,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
           ) : null}
         </DragOverlay>
       </DndContext>
-    </>
+    </PullToRefresh>
   );
 
   return (
@@ -801,6 +813,16 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
           onDone={() => { setDelFolderOpen(false); navigate("/app/inbox"); }}
         />
       )}
+
+      <TaskActionSheet
+        task={actionTask}
+        onOpenChange={(v) => !v && setActionTask(null)}
+        onComplete={() => actionTask && toggleTask(actionTask)}
+        onDelete={() => actionTask && askDeleteTask(actionTask)}
+        onMove={() => actionTask && setMoveTask(actionTask)}
+        onMakeChild={() => actionTask && setMakeChildOf(actionTask)}
+        onEdit={() => actionTask && navigate(`/app/tasks/${actionTask.id}`)}
+      />
     </div>
   );
 }
