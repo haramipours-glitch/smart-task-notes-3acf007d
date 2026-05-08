@@ -566,6 +566,21 @@ export function AppSidebar() {
           onDone={load}
         />
       )}
+      <SidebarItemSheet
+        item={sheetFolder}
+        kind="folder"
+        onOpenChange={(v) => !v && setSheetFolder(null)}
+        onDelete={() => sheetFolder && setDelFolder(sheetFolder)}
+        onAIChat={() => sheetFolder && setAiFolder(sheetFolder)}
+        onChanged={load}
+      />
+      <SidebarItemSheet
+        item={sheetTag}
+        kind="tag"
+        onOpenChange={(v) => !v && setSheetTag(null)}
+        onDelete={() => sheetTag && setDelTag(sheetTag)}
+        onChanged={load}
+      />
     </Sidebar>
   );
 }
