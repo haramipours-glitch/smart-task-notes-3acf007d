@@ -9,6 +9,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { AMBIENT_SOUNDS } from "@/lib/ambientSounds";
 import { END_BELLS, playEndBell, type EndBellId } from "@/lib/pomodoroSounds";
+import { useTapGestures } from "@/lib/useTapGestures";
+import { haptic } from "@/lib/haptics";
 
 type Props = {
   taskId?: string | null;
@@ -136,11 +138,20 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
     if (mode === "work") { setMinutes(v); setSeconds(0); totalSecRef.current = v * 60; }
   };
 
+  const { handlers: timerHandlers } = useTapGestures({
+    onDoubleTap: () => { haptic("light"); start(); },
+    onLongPress: () => { haptic("warning"); reset(); },
+  });
+
   return (
     <div className="space-y-4">
       <div className="text-center">
         <div className="text-xs text-muted-foreground mb-1">{mode === "work" ? "زمان تمرکز" : "استراحت"}</div>
-        <div className={`tabular-nums font-bold text-primary ${compact ? "text-5xl" : "text-7xl"} my-3`}>
+        <div
+          {...timerHandlers}
+          className={`tabular-nums font-bold text-primary ${compact ? "text-5xl" : "text-7xl"} my-3 select-none cursor-pointer`}
+          title="دابل‌تاچ: شروع/توقف • نگه‌داشتن: ریست"
+        >
           {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
         </div>
         <div className="flex gap-2 justify-center">
