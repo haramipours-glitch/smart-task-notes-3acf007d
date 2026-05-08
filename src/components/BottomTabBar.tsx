@@ -3,7 +3,7 @@ import { Menu, Plus, Home } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useTapGestures } from "@/lib/useTapGestures";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { haptic } from "@/lib/haptics";
 import RecentlyDeletedSheet from "@/components/RecentlyDeletedSheet";
 
