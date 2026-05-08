@@ -145,11 +145,11 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
 
   // Vertical swipe ±5min, horizontal swipe → toggle work/break
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
-  const onTimerTouchStart = (e: React.TouchEvent) => {
+  const onTimerTouchStart = (e: RTouchEvent) => {
     const t = e.touches[0]; if (!t) return;
     swipeStart.current = { x: t.clientX, y: t.clientY };
   };
-  const onTimerTouchEnd = (e: React.TouchEvent) => {
+  const onTimerTouchEnd = (e: RTouchEvent) => {
     const s = swipeStart.current; swipeStart.current = null;
     if (!s) return;
     const t = e.changedTouches[0]; if (!t) return;
