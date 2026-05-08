@@ -1,5 +1,10 @@
+import { useState, useRef } from "react";
 import { isSameDay, format, differenceInMinutes } from "date-fns";
 import { formatDate, toPersianDigits, type CalendarSystem } from "@/lib/jalali";
+import { useNavigate } from "react-router-dom";
+import { useTapGestures } from "@/lib/useTapGestures";
+import { usePinchZoom } from "@/lib/usePinchZoom";
+import { ZoomIn } from "lucide-react";
 
 type Task = {
   id: string;
@@ -13,7 +18,44 @@ type Task = {
 };
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
-const HOUR_HEIGHT = 56; // px
+const BASE_HEIGHT = 56;
+
+function HourSlot({
+  date, h, slotDue, onSlotClick, onTaskClick, onQuickCreate, height,
+}: {
+  date: Date; h: number; slotDue: Task[]; height: number;
+  onSlotClick?: (h: number) => void;
+  onTaskClick?: (id: string) => void;
+  onQuickCreate: (h: number) => void;
+}) {
+  const { handlers } = useTapGestures({
+    onSingleTap: () => onSlotClick?.(h),
+    onDoubleTap: () => onQuickCreate(h),
+  });
+  return (
+    <div
+      {...handlers}
+      onClick={() => onSlotClick?.(h)}
+      className="w-full grid grid-cols-[60px_1fr] gap-2 p-2 text-end hover:bg-accent/40 transition cursor-pointer select-none border-b"
+      style={{ height }}
+    >
+      <div className="text-xs text-muted-foreground tabular-nums">
+        {toPersianDigits(String(h).padStart(2, "0"))}:۰۰
+      </div>
+      <div className="space-y-1">
+        {slotDue.map((t) => (
+          <div
+            key={t.id}
+            onClick={(e) => { e.stopPropagation(); onTaskClick?.(t.id); }}
+            className="bg-muted text-foreground/80 text-xs rounded px-2 py-1 truncate border border-dashed border-border"
+          >
+            📌 {t.title}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function DayView({
   date, tasks, system, onSlotClick, onTaskClick,
@@ -24,13 +66,25 @@ export default function DayView({
   onSlotClick?: (hour: number) => void;
   onTaskClick?: (taskId: string) => void;
 }) {
-  // Tasks scheduled with start_at OR due_date for this day
+  const navigate = useNavigate();
+  const { scale, handlers: pinchHandlers } = usePinchZoom({ initial: 1, min: 0.6, max: 2.4 });
+  const [hint, setHint] = useState(false);
+  const hintTimer = useRef<number | null>(null);
+  const HOUR_HEIGHT = BASE_HEIGHT * scale;
+
+  const showHint = () => {
+    setHint(true);
+    if (hintTimer.current) window.clearTimeout(hintTimer.current);
+    hintTimer.current = window.setTimeout(() => setHint(false), 700);
+  };
+
+  const onPinchStart = (e: React.TouchEvent) => { if (e.touches.length === 2) showHint(); pinchHandlers.onTouchStart(e); };
+
   const dayTasks = tasks.filter((t) => {
     const ref = t.start_at || t.due_date;
     return ref && isSameDay(new Date(ref), date);
   });
 
-  // Time-blocked tasks (have start_at)
   const blocks = dayTasks
     .filter((t) => t.start_at)
     .map((t) => {
@@ -43,8 +97,13 @@ export default function DayView({
       return { task: t, top: (startMin / 60) * HOUR_HEIGHT, height: (dur / 60) * HOUR_HEIGHT, s, e };
     });
 
-  // Tasks with only due_date (no time-block) — show at the slot of due_date hour
   const dueOnly = dayTasks.filter((t) => !t.start_at && t.due_date);
+
+  const quickCreate = (hour: number) => {
+    const d = new Date(date);
+    d.setHours(hour, 0, 0, 0);
+    navigate(`/app/tasks/new?due_date=${encodeURIComponent(d.toISOString())}`);
+  };
 
   return (
     <div className="space-y-2">
@@ -57,38 +116,29 @@ export default function DayView({
         </div>
       </div>
 
-      <div className="relative border rounded-md overflow-hidden">
-        {/* Hour grid */}
-        <div className="divide-y">
+      <div
+        className="relative border rounded-md overflow-hidden touch-pan-y"
+        onTouchStart={onPinchStart}
+        onTouchMove={pinchHandlers.onTouchMove}
+        onTouchEnd={pinchHandlers.onTouchEnd}
+      >
+        {hint && (
+          <div className="absolute top-2 left-2 z-20 bg-background/90 backdrop-blur border rounded-full px-2 py-1 text-[10px] flex items-center gap-1 shadow">
+            <ZoomIn className="w-3 h-3" /> {Math.round(scale * 100)}%
+          </div>
+        )}
+        <div>
           {HOURS.map((h) => {
             const slotDue = dueOnly.filter((t) => new Date(t.due_date!).getHours() === h);
             return (
-              <button
-                key={h}
-                onClick={() => onSlotClick?.(h)}
-                className="w-full grid grid-cols-[60px_1fr] gap-2 p-2 text-end hover:bg-accent/40 transition"
-                style={{ height: HOUR_HEIGHT }}
-              >
-                <div className="text-xs text-muted-foreground tabular-nums">
-                  {toPersianDigits(String(h).padStart(2, "0"))}:۰۰
-                </div>
-                <div className="space-y-1">
-                  {slotDue.map((t) => (
-                    <div
-                      key={t.id}
-                      onClick={(e) => { e.stopPropagation(); onTaskClick?.(t.id); }}
-                      className="bg-muted text-foreground/80 text-xs rounded px-2 py-1 truncate border border-dashed border-border"
-                    >
-                      📌 {t.title}
-                    </div>
-                  ))}
-                </div>
-              </button>
+              <HourSlot
+                key={h} date={date} h={h} slotDue={slotDue} height={HOUR_HEIGHT}
+                onSlotClick={onSlotClick} onTaskClick={onTaskClick} onQuickCreate={quickCreate}
+              />
             );
           })}
         </div>
 
-        {/* Time-block overlays */}
         <div className="absolute inset-0 pointer-events-none pl-[68px] pr-2">
           {blocks.map(({ task, top, height, s, e }) => (
             <div
@@ -109,7 +159,7 @@ export default function DayView({
 
       {blocks.length === 0 && dueOnly.length === 0 && (
         <p className="text-center text-xs text-muted-foreground py-4">
-          هیچ تسکی برای این روز زمان‌بندی نشده. روی یک ساعت کلیک کن تا اضافه کنی.
+          هیچ تسکی برای این روز زمان‌بندی نشده. تک‌تاچ روی ساعت = جزئیات • دابل‌تاچ = ساخت سریع • Pinch = زوم.
         </p>
       )}
     </div>
