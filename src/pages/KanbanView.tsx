@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,10 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Flag, Calendar, Circle, Loader2, CheckCircle2 } from "lucide-react";
+import { Plus, Flag, Calendar, Circle, Loader2, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { PRIORITY_META, type Priority } from "@/lib/priority";
+import { haptic } from "@/lib/haptics";
 import {
   DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor,
   useSensor, useSensors, useDroppable, closestCorners,
@@ -28,6 +29,7 @@ const COLUMNS: { id: Status; label: string; icon: any; accent: string }[] = [
   { id: "in_progress", label: "In Progress", icon: Loader2, accent: "border-t-primary" },
   { id: "done", label: "Done", icon: CheckCircle2, accent: "border-t-emerald-500" },
 ];
+const COL_ORDER: Status[] = ["todo", "in_progress", "done"];
 
 export default function KanbanView() {
   const { user } = useAuth();
