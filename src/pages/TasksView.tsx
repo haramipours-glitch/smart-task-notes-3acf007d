@@ -21,6 +21,7 @@ import { PRIORITY_META } from "@/lib/priority";
 import { FolderKanban } from "@/components/FolderKanban";
 import { Countdown } from "@/components/Countdown";
 import { pushUndo } from "@/lib/undoStack";
+import { pushDeleted } from "@/lib/recentlyDeleted";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { describeRule, nextOccurrence } from "@/lib/recurrence";
 import {
@@ -307,14 +308,14 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     const { data: tagLinks } = await supabase.from("task_tags").select("*").in("task_id", ids);
     setAllTasks(prev => prev.filter(t => !ids.includes(t.id)));
     await supabase.from("tasks").delete().eq("id", id);
-    pushUndo({
-      label: `تسک «${snaps.find(s => s.id === id)?.title || ""}» حذف شد`,
-      undo: async () => {
-        await supabase.from("tasks").insert(snaps as any);
-        if (tagLinks?.length) await supabase.from("task_tags").insert(tagLinks as any);
-        load();
-      },
-    });
+    const title = snaps.find(s => s.id === id)?.title || "";
+    const restore = async () => {
+      await supabase.from("tasks").insert(snaps as any);
+      if (tagLinks?.length) await supabase.from("task_tags").insert(tagLinks as any);
+      load();
+    };
+    pushUndo({ label: `تسک «${title}» حذف شد`, undo: restore });
+    pushDeleted({ kind: "task", label: title, restore });
   };
 
   const askDeleteTask = (t: Task) => {
