@@ -65,11 +65,11 @@ export function BottomTabBar() {
         style={{ bottom: 0, paddingBottom: "env(safe-area-inset-bottom)" }}
         aria-label="نوار پایین"
       >
-        <button type="button" onClick={toggleSidebar} className={btnClass} aria-label="منو">
+        <button type="button" className={btnClass} aria-label="منو" {...menuTap.handlers} onClick={(e) => e.preventDefault()}>
           <Menu className="w-5 h-5" />
           <span>منو</span>
         </button>
-        <button type="button" onClick={openSearch} className={btnClass} aria-label="جستجو">
+        <button type="button" className={btnClass} aria-label="جستجو" {...searchTap.handlers} onClick={(e) => e.preventDefault()}>
           <Search className="w-5 h-5 text-primary" />
           <span>جستجو</span>
         </button>
