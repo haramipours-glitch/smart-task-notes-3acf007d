@@ -3,7 +3,7 @@ import { Menu, Plus, Home } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useTapGestures } from "@/lib/useTapGestures";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { haptic } from "@/lib/haptics";
 import RecentlyDeletedSheet from "@/components/RecentlyDeletedSheet";
 
@@ -29,6 +29,18 @@ export function BottomTabBar() {
   const { toggleSidebar } = useSidebar();
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
+
+  // Allow other parts of the app to open the trash/shortcuts via global events.
+  useEffect(() => {
+    const open = () => setTrashOpen(true);
+    const sc = () => setShortcutsOpen(true);
+    window.addEventListener("lov:open-trash", open);
+    window.addEventListener("lov:open-shortcuts", sc);
+    return () => {
+      window.removeEventListener("lov:open-trash", open);
+      window.removeEventListener("lov:open-shortcuts", sc);
+    };
+  }, []);
 
   if (!loc.pathname.startsWith("/app")) return null;
 

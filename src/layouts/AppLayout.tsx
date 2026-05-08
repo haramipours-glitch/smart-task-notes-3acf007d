@@ -8,6 +8,7 @@ import { Sparkles, Search } from "lucide-react";
 import OfflineIndicator from "@/components/OfflineIndicator";
 import InstallPrompt from "@/components/InstallPrompt";
 import EdgeSwipeHandler from "@/components/EdgeSwipeHandler";
+import EdgePanBack from "@/components/EdgePanBack";
 import SwipeNavigator from "@/components/gestures/SwipeNavigator";
 import ClinicalDisclaimer from "@/components/ClinicalDisclaimer";
 import RemindersRunner from "@/components/RemindersRunner";
@@ -21,11 +22,17 @@ import HeaderBackButton from "@/components/HeaderBackButton";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useTwoFingerSwipe } from "@/lib/useTwoFingerSwipe";
+import { useThreeFingerGestures } from "@/lib/useThreeFingerGestures";
 
 export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
   const loc = useLocation();
   useTwoFingerSwipe();
+  useThreeFingerGestures({
+    onQuickCapture: () => window.dispatchEvent(new KeyboardEvent("keydown", { key: "n", metaKey: true })),
+    onOpenTrash: () => window.dispatchEvent(new Event("lov:open-trash")),
+    onOpenSearch: () => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true })),
+  });
   useEffect(() => {
     if (loc.pathname.startsWith("/app/")) {
       try { localStorage.setItem("last_route", loc.pathname); } catch {}
@@ -66,6 +73,7 @@ export default function AppLayout() {
         <OfflineIndicator />
         <InstallPrompt />
         <EdgeSwipeHandler />
+        <EdgePanBack />
         <SwipeNavigator />
         <ClinicalDisclaimer />
         <RemindersRunner />
