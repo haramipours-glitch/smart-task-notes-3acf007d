@@ -28,6 +28,11 @@ export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
   const loc = useLocation();
   useTwoFingerSwipe();
+  useThreeFingerGestures({
+    onQuickCapture: () => window.dispatchEvent(new KeyboardEvent("keydown", { key: "n", metaKey: true })),
+    onOpenTrash: () => window.dispatchEvent(new Event("lov:open-trash")),
+    onOpenSearch: () => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true })),
+  });
   useEffect(() => {
     if (loc.pathname.startsWith("/app/")) {
       try { localStorage.setItem("last_route", loc.pathname); } catch {}
