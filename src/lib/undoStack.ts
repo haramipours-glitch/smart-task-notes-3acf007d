@@ -30,6 +30,7 @@ export function pushUndo(entry: UndoEntry, opts: { showToast?: boolean } = {}) {
   notify();
   if (opts.showToast !== false) {
     toast(entry.label, {
+      duration: 8000,
       action: {
         label: "↶ بازگردانی",
         onClick: () => undoLast(),
