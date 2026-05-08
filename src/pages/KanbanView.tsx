@@ -132,16 +132,20 @@ export default function KanbanView() {
 }
 
 function KanbanColumn({
-  column, tasks, newValue, setNewValue, onAdd,
+  column, tasks, newValue, setNewValue, onAdd, onMove,
 }: {
   column: typeof COLUMNS[number];
   tasks: Task[];
   newValue: string;
   setNewValue: (v: string) => void;
   onAdd: () => void;
+  onMove: (taskId: string, newStatus: Status) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const Icon = column.icon;
+  const colIdx = COL_ORDER.indexOf(column.id);
+  const prevCol = COL_ORDER[colIdx - 1];
+  const nextCol = COL_ORDER[colIdx + 1];
   return (
     <div
       ref={setNodeRef}
@@ -170,7 +174,15 @@ function KanbanColumn({
 
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-2">
-          {tasks.map(t => <SortableTaskCard key={t.id} task={t} />)}
+          {tasks.map(t => (
+            <SortableTaskCard
+              key={t.id}
+              task={t}
+              prevCol={prevCol}
+              nextCol={nextCol}
+              onMove={onMove}
+            />
+          ))}
           {tasks.length === 0 && (
             <div className="text-xs text-muted-foreground text-center py-6 border border-dashed rounded-lg">
               اینجا رها کن
@@ -182,7 +194,9 @@ function KanbanColumn({
   );
 }
 
-function SortableTaskCard({ task }: { task: Task }) {
+function SortableTaskCard({ task, prevCol, nextCol, onMove }: {
+  task: Task; prevCol?: Status; nextCol?: Status; onMove: (taskId: string, newStatus: Status) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
   const navigate = useNavigate();
   const style: React.CSSProperties = {
@@ -190,13 +204,70 @@ function SortableTaskCard({ task }: { task: Task }) {
     transition,
     opacity: isDragging ? 0.4 : 1,
   };
+  // Horizontal swipe: in RTL the visual "next column" is to the LEFT.
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const dxRef = useRef(0);
+  const tracking = useRef(false);
+  const [dx, setDx] = useState(0);
+  const THRESHOLD = 70;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    startX.current = t.clientX;
+    startY.current = t.clientY;
+    dxRef.current = 0;
+    tracking.current = true;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!tracking.current) return;
+    const t = e.touches[0];
+    const dxNow = t.clientX - startX.current;
+    const dyNow = Math.abs(t.clientY - startY.current);
+    if (dyNow > 24 && Math.abs(dxNow) < 24) { tracking.current = false; setDx(0); return; }
+    dxRef.current = dxNow;
+    setDx(Math.max(-120, Math.min(120, dxNow)));
+  };
+  const onTouchEnd = () => {
+    if (!tracking.current) { setDx(0); return; }
+    tracking.current = false;
+    const d = dxRef.current;
+    setDx(0);
+    if (Math.abs(d) < THRESHOLD) return;
+    // RTL: dx<0 (swipe left) → next column; dx>0 (swipe right) → prev column
+    if (d < 0 && nextCol) { haptic("success"); onMove(task.id, nextCol); }
+    else if (d > 0 && prevCol) { haptic("success"); onMove(task.id, prevCol); }
+  };
+
+  const showNext = dx < -10 && nextCol;
+  const showPrev = dx > 10 && prevCol;
+  const reachedThreshold = Math.abs(dx) >= THRESHOLD;
+
   return (
-    <div ref={setNodeRef} style={style}>
-      <TaskCard
-        task={task}
-        dragHandleProps={{ ...attributes, ...listeners }}
-        onOpen={() => navigate(`/app/tasks/${task.id}`)}
-      />
+    <div ref={setNodeRef} style={style} className="relative">
+      {/* Underlay hint */}
+      {(showNext || showPrev) && (
+        <div className={`absolute inset-0 rounded-lg flex items-center px-3 text-[11px] font-medium pointer-events-none ${
+          reachedThreshold ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+        } ${showNext ? "justify-start" : "justify-end"}`}>
+          {showNext ? <><ArrowLeft className="w-3.5 h-3.5 me-1" />{COLUMNS.find(c => c.id === nextCol)?.label}</>
+                    : <>{COLUMNS.find(c => c.id === prevCol)?.label}<ArrowRight className="w-3.5 h-3.5 ms-1" /></>}
+        </div>
+      )}
+      <div
+        style={{ transform: `translateX(${dx}px)`, transition: tracking.current ? "none" : "transform 180ms" }}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={() => { tracking.current = false; setDx(0); }}
+      >
+        <TaskCard
+          task={task}
+          dragHandleProps={{ ...attributes, ...listeners }}
+          onOpen={() => navigate(`/app/tasks/${task.id}`)}
+        />
+      </div>
     </div>
   );
 }
