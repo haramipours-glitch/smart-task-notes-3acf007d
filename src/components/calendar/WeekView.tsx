@@ -1,11 +1,43 @@
+import { useRef, useState } from "react";
 import { eachDayOfInterval, startOfWeek, endOfWeek, isSameDay, format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { formatDate, toPersianDigits, type CalendarSystem } from "@/lib/jalali";
 import { isHoliday, type Holiday } from "@/lib/holidays";
+import { useTapGestures } from "@/lib/useTapGestures";
+import { usePinchZoom } from "@/lib/usePinchZoom";
+import { ZoomIn } from "lucide-react";
 
 type Task = { id: string; title: string; due_date: string | null; priority: string };
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const BASE_ROW = 36;
+
+function Slot({
+  d, h, slotTasks, onClick, onDouble, height,
+}: {
+  d: Date; h: number; slotTasks: Task[]; onClick: () => void; onDouble: () => void; height: number;
+}) {
+  const navigate = useNavigate();
+  const { handlers } = useTapGestures({ onSingleTap: onClick, onDoubleTap: onDouble });
+  return (
+    <div
+      {...handlers}
+      onClick={onClick}
+      className="bg-card border-t p-0.5 text-end hover:bg-accent/30 transition cursor-pointer select-none"
+      style={{ minHeight: height }}
+    >
+      {slotTasks.map((t) => (
+        <div
+          key={t.id}
+          onClick={(e) => { e.stopPropagation(); navigate(`/app/tasks/${t.id}`); }}
+          className="bg-primary/20 text-primary text-[10px] truncate rounded px-1 mb-0.5 cursor-pointer hover:bg-primary/30"
+        >
+          {t.title}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function WeekView({
   date, tasks, holidays, system, onDayClick, onSlotClick,
@@ -19,11 +51,38 @@ export default function WeekView({
 }) {
   const navigate = useNavigate();
   const days = eachDayOfInterval({ start: startOfWeek(date), end: endOfWeek(date) });
+  const { scale, handlers: pinchHandlers } = usePinchZoom({ initial: 1, min: 0.6, max: 2.4 });
+  const [hint, setHint] = useState(false);
+  const hintTimer = useRef<number | null>(null);
+  const ROW_H = BASE_ROW * scale;
+
+  const onPinchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      setHint(true);
+      if (hintTimer.current) window.clearTimeout(hintTimer.current);
+      hintTimer.current = window.setTimeout(() => setHint(false), 700);
+    }
+    pinchHandlers.onTouchStart(e);
+  };
+
+  const quickCreate = (d: Date, h: number) => {
+    const dt = new Date(d); dt.setHours(h, 0, 0, 0);
+    navigate(`/app/tasks/new?due_date=${encodeURIComponent(dt.toISOString())}`);
+  };
 
   return (
-    <div className="overflow-x-auto">
+    <div
+      className="overflow-x-auto relative"
+      onTouchStart={onPinchStart}
+      onTouchMove={pinchHandlers.onTouchMove}
+      onTouchEnd={pinchHandlers.onTouchEnd}
+    >
+      {hint && (
+        <div className="absolute top-2 left-2 z-20 bg-background/90 backdrop-blur border rounded-full px-2 py-1 text-[10px] flex items-center gap-1 shadow">
+          <ZoomIn className="w-3 h-3" /> {Math.round(scale * 100)}%
+        </div>
+      )}
       <div className="min-w-[700px]">
-        {/* Header row */}
         <div className="grid grid-cols-[48px_repeat(7,1fr)] gap-px bg-border sticky top-0 z-10">
           <div className="bg-card" />
           {days.map((d) => {
@@ -44,11 +103,10 @@ export default function WeekView({
             );
           })}
         </div>
-        {/* Hour grid */}
         <div className="grid grid-cols-[48px_repeat(7,1fr)] gap-px bg-border">
           {HOURS.map((h) => (
             <div key={`row-${h}`} className="contents">
-              <div className="bg-card text-[10px] text-muted-foreground p-1 text-center border-t">
+              <div className="bg-card text-[10px] text-muted-foreground p-1 text-center border-t" style={{ minHeight: ROW_H }}>
                 {toPersianDigits(String(h).padStart(2, "0"))}
               </div>
               {days.map((d) => {
@@ -58,21 +116,12 @@ export default function WeekView({
                   return isSameDay(dt, d) && dt.getHours() === h;
                 });
                 return (
-                  <button
+                  <Slot
                     key={`${d.toISOString()}-${h}`}
+                    d={d} h={h} slotTasks={slotTasks} height={ROW_H}
                     onClick={() => onSlotClick?.(d, h)}
-                    className="bg-card border-t min-h-[36px] p-0.5 text-end hover:bg-accent/30 transition"
-                  >
-                    {slotTasks.map((t) => (
-                      <div
-                        key={t.id}
-                        onClick={(e) => { e.stopPropagation(); navigate(`/app/tasks/${t.id}`); }}
-                        className="bg-primary/20 text-primary text-[10px] truncate rounded px-1 mb-0.5 cursor-pointer hover:bg-primary/30"
-                      >
-                        {t.title}
-                      </div>
-                    ))}
-                  </button>
+                    onDouble={() => quickCreate(d, h)}
+                  />
                 );
               })}
             </div>
