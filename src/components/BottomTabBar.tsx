@@ -36,11 +36,26 @@ export function BottomTabBar() {
   const btnClass =
     "h-11 flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] text-foreground/80 active:scale-95 transition select-none";
 
+  const openQuickCapture = () => {
+    haptic("medium");
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "n", metaKey: true }));
+  };
+
   // Home tab: tap → home, double-tap → scroll-to-top, long-press → shortcuts
   const homeTap = useTapGestures({
     onSingleTap: () => navigate("/app/home"),
     onDoubleTap: () => { haptic("light"); scrollMainToTop(); },
     onLongPress: () => setShortcutsOpen(true),
+  });
+  // Menu tab: tap → toggle sidebar, long-press → shortcuts sheet
+  const menuTap = useTapGestures({
+    onSingleTap: () => toggleSidebar(),
+    onLongPress: () => setShortcutsOpen(true),
+  });
+  // Search tab: tap → search palette, long-press → Quick Capture (new task/note)
+  const searchTap = useTapGestures({
+    onSingleTap: () => openSearch(),
+    onLongPress: () => openQuickCapture(),
   });
 
   return (
@@ -50,11 +65,11 @@ export function BottomTabBar() {
         style={{ bottom: 0, paddingBottom: "env(safe-area-inset-bottom)" }}
         aria-label="نوار پایین"
       >
-        <button type="button" onClick={toggleSidebar} className={btnClass} aria-label="منو">
+        <button type="button" className={btnClass} aria-label="منو" {...menuTap.handlers} onClick={(e) => e.preventDefault()}>
           <Menu className="w-5 h-5" />
           <span>منو</span>
         </button>
-        <button type="button" onClick={openSearch} className={btnClass} aria-label="جستجو">
+        <button type="button" className={btnClass} aria-label="جستجو" {...searchTap.handlers} onClick={(e) => e.preventDefault()}>
           <Search className="w-5 h-5 text-primary" />
           <span>جستجو</span>
         </button>
