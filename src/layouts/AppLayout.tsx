@@ -8,6 +8,7 @@ import { Sparkles, Search } from "lucide-react";
 import OfflineIndicator from "@/components/OfflineIndicator";
 import InstallPrompt from "@/components/InstallPrompt";
 import EdgeSwipeHandler from "@/components/EdgeSwipeHandler";
+import EdgePanBack from "@/components/EdgePanBack";
 import SwipeNavigator from "@/components/gestures/SwipeNavigator";
 import ClinicalDisclaimer from "@/components/ClinicalDisclaimer";
 import RemindersRunner from "@/components/RemindersRunner";
@@ -21,6 +22,7 @@ import HeaderBackButton from "@/components/HeaderBackButton";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useTwoFingerSwipe } from "@/lib/useTwoFingerSwipe";
+import { useThreeFingerGestures } from "@/lib/useThreeFingerGestures";
 
 export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
