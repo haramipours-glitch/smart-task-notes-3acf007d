@@ -31,6 +31,8 @@ import { FolderDeleteDialog } from "@/components/FolderDeleteDialog";
 import { TagDeleteDialog } from "@/components/TagDeleteDialog";
 import { readItemDrag, moveItemToFolder } from "@/lib/dragToFolder";
 import { useTranslation } from "react-i18next";
+import SidebarItemSheet from "@/components/SidebarItemSheet";
+import { useLongPress } from "@/lib/useLongPress";
 
 // Map Persian labels (used in SECTIONS) → English equivalents.
 // Used only when the active app language is "en".
@@ -171,6 +173,8 @@ export function AppSidebar() {
   const [aiFolder, setAiFolder] = useState<Folder | null>(null);
   const [delFolder, setDelFolder] = useState<Folder | null>(null);
   const [delTag, setDelTag] = useState<TagT | null>(null);
+  const [sheetFolder, setSheetFolder] = useState<Folder | null>(null);
+  const [sheetTag, setSheetTag] = useState<TagT | null>(null);
   const [order, setOrder] = useState<string[]>(loadOrder);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
