@@ -119,6 +119,7 @@ export default function KanbanView() {
               newValue={newTitle[col.id]}
               setNewValue={(v) => setNewTitle(s => ({ ...s, [col.id]: v }))}
               onAdd={() => addCard(col.id)}
+              onMove={moveTask}
             />
           ))}
         </div>
