@@ -30,15 +30,17 @@ export function BottomTabBar() {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
 
-  // Allow other parts of the app to open the trash via a global event.
-  useState(() => {
-    if (typeof window === "undefined") return 0;
+  // Allow other parts of the app to open the trash/shortcuts via global events.
+  useEffect(() => {
     const open = () => setTrashOpen(true);
     const sc = () => setShortcutsOpen(true);
     window.addEventListener("lov:open-trash", open);
     window.addEventListener("lov:open-shortcuts", sc);
-    return 0;
-  });
+    return () => {
+      window.removeEventListener("lov:open-trash", open);
+      window.removeEventListener("lov:open-shortcuts", sc);
+    };
+  }, []);
 
   if (!loc.pathname.startsWith("/app")) return null;
 
