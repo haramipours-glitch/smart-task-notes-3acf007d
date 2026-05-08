@@ -260,59 +260,18 @@ export function AppSidebar() {
       const open = expanded[f.id] ?? true;
       return (
         <div key={f.id}>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <div
-                className="flex items-center w-full gap-1 rounded transition data-[drag-over=true]:bg-primary/15 data-[drag-over=true]:ring-1 data-[drag-over=true]:ring-primary"
-                style={{ paddingInlineStart: depth * 12 }}
-                onDragOver={(e) => {
-                  if (!e.dataTransfer.types.includes("application/x-taskflow-item")) return;
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = "move";
-                  (e.currentTarget as HTMLElement).dataset.dragOver = "true";
-                }}
-                onDragLeave={(e) => { delete (e.currentTarget as HTMLElement).dataset.dragOver; }}
-                onDrop={async (e) => {
-                  delete (e.currentTarget as HTMLElement).dataset.dragOver;
-                  const payload = readItemDrag(e);
-                  if (!payload) return;
-                  e.preventDefault();
-                  await moveItemToFolder(payload, f.id);
-                }}
-              >
-                {has ? (
-                  <button onClick={(e) => { e.preventDefault(); setExpanded((s) => ({ ...s, [f.id]: !open })); }}
-                    className="p-0.5 hover:bg-muted rounded">
-                    {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                  </button>
-                ) : <span className="w-4" />}
-                <NavLink to={`/app/folder/${f.id}`} onClick={closeOnMobile}
-                  className="flex items-center gap-2 flex-1 truncate"
-                  activeClassName="text-primary font-medium">
-                  <FolderTree className="w-4 h-4" style={{ color: f.color }} />
-                  {!collapsed && <span className="truncate">{f.name}</span>}
-                </NavLink>
-                {!collapsed && (
-                  <>
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAiFolder(f); }}
-                      className="p-1 hover:bg-muted rounded opacity-60 hover:opacity-100 transition"
-                      title="چت AI روی این فولدر"
-                    >
-                      <Sparkles className="w-3 h-3 text-primary" />
-                    </button>
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDelFolder(f); }}
-                      className="p-1 hover:bg-destructive/10 rounded opacity-40 hover:opacity-100 transition"
-                      title="حذف فولدر"
-                    >
-                      <Trash2 className="w-3 h-3 text-destructive" />
-                    </button>
-                  </>
-                )}
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <FolderRow
+            folder={f}
+            depth={depth}
+            hasChildren={has}
+            open={open}
+            collapsed={collapsed}
+            onToggle={() => setExpanded((s) => ({ ...s, [f.id]: !open }))}
+            onAI={() => setAiFolder(f)}
+            onDelete={() => setDelFolder(f)}
+            onLongPress={() => setSheetFolder(f)}
+            onNav={closeOnMobile}
+          />
           {has && open && renderTree(f.id, depth + 1)}
         </div>
       );
