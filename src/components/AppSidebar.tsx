@@ -477,27 +477,10 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {tags.map((t) => (
-                <SidebarMenuItem key={t.id}>
-                  <div className="flex items-center group">
-                    <SidebarMenuButton asChild className="flex-1">
-                      <NavLink to={`/app/tag/${t.id}`} onClick={closeOnMobile} className="flex items-center gap-2"
-                        activeClassName="bg-accent text-accent-foreground font-medium">
-                        <Tag className="w-4 h-4" style={{ color: t.color }} />
-                        {!collapsed && <span className="truncate">{t.name}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                    {!collapsed && (
-                      <button
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDelTag(t); }}
-                        className="p-1 opacity-0 group-hover:opacity-100 transition text-muted-foreground hover:text-destructive"
-                        title="حذف تگ"
-                        aria-label="حذف تگ"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
-                </SidebarMenuItem>
+                <TagRow key={t.id} tag={t} collapsed={collapsed}
+                  onDelete={() => setDelTag(t)}
+                  onLongPress={() => setSheetTag(t)}
+                  onNav={closeOnMobile} />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
