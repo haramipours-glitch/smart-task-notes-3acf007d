@@ -143,14 +143,46 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
     onLongPress: () => { haptic("warning"); reset(); },
   });
 
+  // Vertical swipe ±5min, horizontal swipe → toggle work/break
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const onTimerTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0]; if (!t) return;
+    swipeStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTimerTouchEnd = (e: React.TouchEvent) => {
+    const s = swipeStart.current; swipeStart.current = null;
+    if (!s) return;
+    const t = e.changedTouches[0]; if (!t) return;
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (Math.abs(dy) > 40 && Math.abs(dy) > Math.abs(dx)) {
+      if (running) return;
+      const delta = dy < 0 ? 5 : -5;
+      const next = Math.max(5, Math.min(90, prefs.minutes + delta));
+      onMinutesChange(next);
+      haptic("light");
+      toast.message(`${next} دقیقه`);
+    } else if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+      if (running) return;
+      const newMode = mode === "work" ? "break" : "work";
+      setMode(newMode);
+      const m = newMode === "work" ? prefs.minutes : 5;
+      setMinutes(m); setSeconds(0); totalSecRef.current = m * 60;
+      haptic("medium");
+      toast.message(newMode === "work" ? "حالت تمرکز" : "حالت استراحت");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="text-center">
         <div className="text-xs text-muted-foreground mb-1">{mode === "work" ? "زمان تمرکز" : "استراحت"}</div>
         <div
           {...timerHandlers}
+          onTouchStart={(e) => { timerHandlers.onTouchStart(e); onTimerTouchStart(e); }}
+          onTouchEnd={(e) => { timerHandlers.onTouchEnd(); onTimerTouchEnd(e); }}
           className={`tabular-nums font-bold text-primary ${compact ? "text-5xl" : "text-7xl"} my-3 select-none cursor-pointer`}
-          title="دابل‌تاچ: شروع/توقف • نگه‌داشتن: ریست"
+          title="دابل‌تاچ: شروع/توقف • نگه‌داشتن: ریست • سوایپ عمودی: ±۵د • سوایپ افقی: تمرکز/استراحت"
         >
           {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
         </div>
