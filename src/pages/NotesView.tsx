@@ -16,6 +16,7 @@ import { BidiText } from "@/components/BidiText";
 import { callAI, getAILanguage, type AILanguage } from "@/lib/ai";
 import { AILangToggle } from "@/components/AILangToggle";
 import { pushUndo } from "@/lib/undoStack";
+import { pushDeleted } from "@/lib/recentlyDeleted";
 
 import { GoalPicker } from "@/components/GoalPicker";
 
@@ -127,13 +128,12 @@ export default function NotesView() {
     await supabase.from("notes").delete().eq("id", id);
     if (selected?.id === id) { setSelected(null); setDraft(null); }
     if (note) {
-      pushUndo({
-        label: `نوت «${note.title || "بدون عنوان"}» حذف شد`,
-        undo: async () => {
-          await supabase.from("notes").insert(note as any);
-          load();
-        },
-      });
+      const restore = async () => {
+        await supabase.from("notes").insert(note as any);
+        load();
+      };
+      pushUndo({ label: `نوت «${note.title || "بدون عنوان"}» حذف شد`, undo: restore });
+      pushDeleted({ kind: "note", label: note.title || "بدون عنوان", restore });
     }
   };
 
