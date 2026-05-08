@@ -73,6 +73,7 @@ export default function AppLayout() {
         <OfflineIndicator />
         <InstallPrompt />
         <EdgeSwipeHandler />
+        <EdgePanBack />
         <SwipeNavigator />
         <ClinicalDisclaimer />
         <RemindersRunner />
