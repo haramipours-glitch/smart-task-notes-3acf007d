@@ -155,6 +155,91 @@ function SortableBlock({ id, children }: { id: string; children: (handleProps: a
   );
 }
 
+function FolderRow({ folder: f, depth, hasChildren, open, collapsed, onToggle, onAI, onDelete, onLongPress, onNav }: {
+  folder: Folder; depth: number; hasChildren: boolean; open: boolean; collapsed: boolean;
+  onToggle: () => void; onAI: () => void; onDelete: () => void; onLongPress: () => void; onNav: () => void;
+}) {
+  const lp = useLongPress({ onLongPress });
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild>
+        <div
+          className="flex items-center w-full gap-1 rounded transition data-[drag-over=true]:bg-primary/15 data-[drag-over=true]:ring-1 data-[drag-over=true]:ring-primary"
+          style={{ paddingInlineStart: depth * 12 }}
+          {...lp.handlers}
+          onDragOver={(e) => {
+            if (!e.dataTransfer.types.includes("application/x-taskflow-item")) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            (e.currentTarget as HTMLElement).dataset.dragOver = "true";
+          }}
+          onDragLeave={(e) => { delete (e.currentTarget as HTMLElement).dataset.dragOver; }}
+          onDrop={async (e) => {
+            delete (e.currentTarget as HTMLElement).dataset.dragOver;
+            const payload = readItemDrag(e);
+            if (!payload) return;
+            e.preventDefault();
+            await moveItemToFolder(payload, f.id);
+          }}
+        >
+          {hasChildren ? (
+            <button onClick={(e) => { e.preventDefault(); onToggle(); }} className="p-0.5 hover:bg-muted rounded">
+              {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            </button>
+          ) : <span className="w-4" />}
+          <NavLink to={`/app/folder/${f.id}`}
+            onClick={(e) => { if (lp.didFire()) { e.preventDefault(); return; } onNav(); }}
+            className="flex items-center gap-2 flex-1 truncate"
+            activeClassName="text-primary font-medium">
+            <FolderTree className="w-4 h-4" style={{ color: f.color }} />
+            {!collapsed && <span className="truncate">{f.name}</span>}
+          </NavLink>
+          {!collapsed && (
+            <>
+              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAI(); }}
+                className="p-1 hover:bg-muted rounded opacity-60 hover:opacity-100 transition" title="چت AI روی این فولدر">
+                <Sparkles className="w-3 h-3 text-primary" />
+              </button>
+              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }}
+                className="p-1 hover:bg-destructive/10 rounded opacity-40 hover:opacity-100 transition" title="حذف فولدر">
+                <Trash2 className="w-3 h-3 text-destructive" />
+              </button>
+            </>
+          )}
+        </div>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+function TagRow({ tag: t, collapsed, onDelete, onLongPress, onNav }: {
+  tag: TagT; collapsed: boolean; onDelete: () => void; onLongPress: () => void; onNav: () => void;
+}) {
+  const lp = useLongPress({ onLongPress });
+  return (
+    <SidebarMenuItem>
+      <div className="flex items-center group" {...lp.handlers}>
+        <SidebarMenuButton asChild className="flex-1">
+          <NavLink to={`/app/tag/${t.id}`}
+            onClick={(e) => { if (lp.didFire()) { e.preventDefault(); return; } onNav(); }}
+            className="flex items-center gap-2"
+            activeClassName="bg-accent text-accent-foreground font-medium">
+            <Tag className="w-4 h-4" style={{ color: t.color }} />
+            {!collapsed && <span className="truncate">{t.name}</span>}
+          </NavLink>
+        </SidebarMenuButton>
+        {!collapsed && (
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }}
+            className="p-1 opacity-0 group-hover:opacity-100 transition text-muted-foreground hover:text-destructive"
+            title="حذف تگ" aria-label="حذف تگ">
+            <Trash2 className="w-3 h-3" />
+          </button>
+        )}
+      </div>
+    </SidebarMenuItem>
+  );
+}
+
 export function AppSidebar() {
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
