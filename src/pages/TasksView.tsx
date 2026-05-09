@@ -525,7 +525,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               {/* Row 2: drag handle + badges + actions */}
               <div className="flex items-center justify-between gap-1 mt-1.5 ms-6 flex-wrap">
                 <div className="flex items-center gap-1 flex-wrap min-w-0">
-                  <button {...dragHandle} className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0 h-7 w-7 rounded-md bg-muted/40 hover:bg-muted flex items-center justify-center" aria-label="drag (long-press on mobile)" title="جابجایی (روی موبایل لمس طولانی)">
+                  <button {...dragHandle} data-drag-handle data-no-swipe-nav className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0 h-7 w-7 rounded-md bg-muted/40 hover:bg-muted flex items-center justify-center" aria-label="drag" title="جابجایی (روی موبایل لمس طولانی)">
                     <GripVertical className="w-4 h-4" />
                   </button>
                   <button onClick={() => moveSibling(t, -1)} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move up" title="بالا">
