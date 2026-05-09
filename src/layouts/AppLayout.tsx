@@ -17,6 +17,7 @@ import CommandPalette from "@/components/CommandPalette";
 import QuickCaptureDialog from "@/components/QuickCaptureDialog";
 import KeyboardShortcutsDialog from "@/components/KeyboardShortcutsDialog";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import { SelectionActionToolbar } from "@/components/SelectionActionToolbar";
 import Onboarding from "@/components/Onboarding";
 import HeaderBackButton from "@/components/HeaderBackButton";
 import { useLocation } from "react-router-dom";
@@ -83,6 +84,7 @@ export default function AppLayout() {
         <KeyboardShortcutsDialog />
         <BottomTabBar />
         <Onboarding />
+        <SelectionActionToolbar />
       </div>
     </SidebarProvider>
   );
