@@ -271,7 +271,7 @@ export default function GoalsView() {
           const ms = milestonesOf(g.id);
           const cd = countdown(g.deadline);
           const prog = computedProgress(g.id);
-          const ks = krsOf(id => id)(g.id) ?? krsOf(g.id);
+          const ks = krsOf(g.id);
           const linkedHabits = habitsOf(g.id);
           const lf = linkedFolders.filter(x => x.goal_id === g.id);
           const ln = linkedNotes.filter(x => x.goal_id === g.id);
