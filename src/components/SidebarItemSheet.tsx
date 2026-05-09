@@ -24,8 +24,12 @@ interface Props {
 const COLORS = ["#94a3b8", "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#a855f7", "#ec4899"];
 
 export default function SidebarItemSheet({ item, kind, onOpenChange, onDelete, onAIChat, onAddSubfolder, onChanged }: Props) {
+  const { i18n } = useTranslation();
+  const isEn = (i18n.language || "fa").startsWith("en");
+  const T = (fa: string, en: string) => (isEn ? en : fa);
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState("");
+  const [shareOpen, setShareOpen] = useState(false);
   if (!item) return null;
   const table = kind === "folder" ? "folders" : "tags";
 
@@ -44,7 +48,7 @@ export default function SidebarItemSheet({ item, kind, onOpenChange, onDelete, o
     if (!v) return;
     const { error } = await supabase.from(table).update({ name: v }).eq("id", item.id);
     if (error) toast.error(error.message);
-    else { toast.success("تغییر نام شد"); setRenaming(false); onChanged?.(); onOpenChange(false); }
+    else { toast.success(T("تغییر نام شد", "Renamed")); setRenaming(false); onChanged?.(); onOpenChange(false); }
   };
 
   const setColor = async (c: string) => {
@@ -54,7 +58,8 @@ export default function SidebarItemSheet({ item, kind, onOpenChange, onDelete, o
   };
 
   return (
-    <Sheet open={!!item} onOpenChange={onOpenChange}>
+    <>
+    <Sheet open={!!item && !shareOpen} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-2xl pb-6">
         <SheetHeader>
           <SheetTitle className="text-start text-base truncate flex items-center gap-2">
@@ -66,25 +71,29 @@ export default function SidebarItemSheet({ item, kind, onOpenChange, onDelete, o
         {renaming ? (
           <div className="mt-3 flex items-center gap-2">
             <Input autoFocus defaultValue={item.name} onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submitRename()} placeholder={`نام ${kind === "folder" ? "فولدر" : "تگ"}`} />
-            <Button onClick={submitRename} size="sm">ذخیره</Button>
+              onKeyDown={(e) => e.key === "Enter" && submitRename()}
+              placeholder={T(`نام ${kind === "folder" ? "فولدر" : "تگ"}`, `${kind === "folder" ? "Folder" : "Tag"} name`)} />
+            <Button onClick={submitRename} size="sm">{T("ذخیره", "Save")}</Button>
           </div>
         ) : (
           <div className="mt-3 space-y-1">
-            <Item icon={Pencil} label="تغییر نام" onClick={() => { setName(item.name); setRenaming(true); }} />
+            <Item icon={Pencil} label={T("تغییر نام", "Rename")} onClick={() => { setName(item.name); setRenaming(true); }} />
+            {kind === "folder" && (
+              <Item icon={Share2} label={T("اشتراک‌گذاری…", "Share…")} onClick={() => setShareOpen(true)} />
+            )}
             {kind === "folder" && onAIChat && (
-              <Item icon={Sparkles} label="چت AI روی این فولدر" onClick={() => { onAIChat(); onOpenChange(false); }} />
+              <Item icon={Sparkles} label={T("چت AI روی این فولدر", "AI chat on this folder")} onClick={() => { onAIChat(); onOpenChange(false); }} />
             )}
             {kind === "folder" && onAddSubfolder && (
-              <Item icon={FolderPlus} label="افزودن زیرفولدر" onClick={() => { onAddSubfolder(); onOpenChange(false); }} />
+              <Item icon={FolderPlus} label={T("افزودن زیرفولدر", "Add subfolder")} onClick={() => { onAddSubfolder(); onOpenChange(false); }} />
             )}
-            <Item icon={Copy} label="کپی نام" onClick={async () => {
-              try { await navigator.clipboard.writeText(item.name); toast.success("کپی شد"); } catch {}
+            <Item icon={Copy} label={T("کپی نام", "Copy name")} onClick={async () => {
+              try { await navigator.clipboard.writeText(item.name); toast.success(T("کپی شد", "Copied")); } catch {}
               onOpenChange(false);
             }} />
             <div className="px-3 py-3 rounded-lg">
               <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
-                <Palette className="w-4 h-4" /> رنگ
+                <Palette className="w-4 h-4" /> {T("رنگ", "Color")}
               </div>
               <div className="flex flex-wrap gap-2">
                 {COLORS.map((c) => (
@@ -94,10 +103,20 @@ export default function SidebarItemSheet({ item, kind, onOpenChange, onDelete, o
                 ))}
               </div>
             </div>
-            <Item icon={Trash2} label="حذف" danger onClick={() => { onOpenChange(false); onDelete(); }} />
+            <Item icon={Trash2} label={T("حذف", "Delete")} danger onClick={() => { onOpenChange(false); onDelete(); }} />
           </div>
         )}
       </SheetContent>
     </Sheet>
+    {kind === "folder" && (
+      <ShareDialog
+        open={shareOpen}
+        onOpenChange={(v) => { setShareOpen(v); if (!v) onOpenChange(false); }}
+        resourceType="folder"
+        resourceId={item.id}
+        resourceTitle={item.name}
+      />
+    )}
+    </>
   );
 }
