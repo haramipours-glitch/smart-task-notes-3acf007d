@@ -1,10 +1,18 @@
-// Hard-stop trigger phrases for crisis intervention
+// Hard-stop trigger phrases for crisis intervention.
+// \b word boundaries don't work reliably with Persian script; we rely on
+// substring/whitespace patterns instead.
 const HARD_STOPS = [
-  /\bخودکشی\b/i, /\bخودآزار/i, /\bبه (خودم|خود) آسیب/i,
-  /\bدیگر نمی‌?توانم\b/i, /\bدیگه نمیتونم\b/i,
-  /\bهیچ راهی نیست\b/i, /\bمی‌?خواهم بمیرم\b/i, /\bمیخوام بمیرم\b/i,
-  /\bتمام کنم زندگی\b/i, /\bبی‌?ارزش(م|ی|ه)?\b/i,
-  /\bبهتره نباشم\b/i, /\bبهتر است نباشم\b/i,
+  /خودکشی/i,
+  /خودآزار/i,
+  /به (خودم|خود)\s*آسیب/i,
+  /دیگر نمی‌?توانم/i,
+  /دیگه\s*نمی?تونم/i,
+  /هیچ\s*راهی\s*نیست/i,
+  /می‌?خواهم بمیرم/i,
+  /میخوام بمیرم/i,
+  /تمام کنم زندگی/i,
+  /بی‌?ارزش(م|ی|ه)?/i,
+  /بهتر(ه| است) نباشم/i,
 ];
 
 export function detectCrisis(text: string): boolean {
