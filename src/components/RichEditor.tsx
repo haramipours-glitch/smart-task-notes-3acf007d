@@ -196,7 +196,12 @@ export function RichEditor({
   if (!editor) return <div className="min-h-[50vh] animate-pulse bg-muted/30 rounded" />;
 
   return (
-    <div className="bg-background overflow-hidden relative w-full">
+    <div
+      className="bg-background overflow-hidden relative w-full rich-editor-surface"
+      data-rich-selection
+      onContextMenu={(e) => e.preventDefault()}
+      style={{ WebkitTouchCallout: "none" } as any}
+    >
       <input
         ref={fileRef} type="file" className="hidden"
         onChange={(e) => {
