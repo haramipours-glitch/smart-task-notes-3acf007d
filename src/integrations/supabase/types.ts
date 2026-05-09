@@ -722,6 +722,45 @@ export type Database = {
         }
         Relationships: []
       }
+      shares: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          id: string
+          owner_id: string
+          permission: Database["public"]["Enums"]["share_permission"]
+          recipient_email: string
+          recipient_id: string | null
+          resource_id: string
+          resource_type: Database["public"]["Enums"]["share_resource_type"]
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          owner_id: string
+          permission?: Database["public"]["Enums"]["share_permission"]
+          recipient_email: string
+          recipient_id?: string | null
+          resource_id: string
+          resource_type: Database["public"]["Enums"]["share_resource_type"]
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          owner_id?: string
+          permission?: Database["public"]["Enums"]["share_permission"]
+          recipient_email?: string
+          recipient_id?: string | null
+          resource_id?: string
+          resource_type?: Database["public"]["Enums"]["share_resource_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subtasks: {
         Row: {
           completed: boolean
@@ -1178,11 +1217,22 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_share_access: {
+        Args: {
+          _min_permission?: Database["public"]["Enums"]["share_permission"]
+          _resource_id: string
+          _resource_type: Database["public"]["Enums"]["share_resource_type"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
       recurrence_type: "none" | "daily" | "weekly" | "monthly"
+      share_permission: "view" | "comment" | "edit"
+      share_resource_type: "task" | "note" | "folder"
       task_priority: "none" | "low" | "medium" | "urgent" | "high"
       task_status: "todo" | "in_progress" | "done"
     }
@@ -1314,6 +1364,8 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       recurrence_type: ["none", "daily", "weekly", "monthly"],
+      share_permission: ["view", "comment", "edit"],
+      share_resource_type: ["task", "note", "folder"],
       task_priority: ["none", "low", "medium", "urgent", "high"],
       task_status: ["todo", "in_progress", "done"],
     },
