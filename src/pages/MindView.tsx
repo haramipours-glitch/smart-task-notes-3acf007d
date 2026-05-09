@@ -276,6 +276,39 @@ export default function MindView() {
         </div>
       )}
 
+      {/* Screeners */}
+      <div>
+        <h3 className="font-semibold mb-3 flex items-center gap-2">
+          <ClipboardCheck className="w-4 h-4 text-primary" /> غربالگرهای کوتاه
+          <span className="text-xs font-normal text-muted-foreground">— ردیابی شخصی، نه تشخیص بالینی</span>
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {SCREENER_LIST.map(({ type, gradient }) => {
+            const meta = SCREENERS[type];
+            const last = latestScreeners[type];
+            const sev = last?.analysis?.severity;
+            return (
+              <Link key={type} to={`/app/screener/${type}`}
+                className={`group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br ${gradient} text-white shadow-sm hover-scale transition-all`}>
+                <div className="text-[11px] opacity-80">{meta.title.split(" — ")[1] || meta.title}</div>
+                <div className="text-lg font-bold mt-1">{meta.title.split(" — ")[0]}</div>
+                {last ? (
+                  <div className="mt-2">
+                    <div className="text-2xl font-bold tabular-nums">{last.scores?.raw}</div>
+                    <div className="text-[10px] opacity-90">{last.analysis?.severityLabel}</div>
+                  </div>
+                ) : (
+                  <div className="text-[11px] opacity-80 mt-2">شروع تست</div>
+                )}
+                {sev && (
+                  <div className="absolute top-2 end-2 w-2 h-2 rounded-full" style={{ background: severityColor(sev) }} />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Tools grid */}
       <div>
         <h3 className="font-semibold mb-3 flex items-center gap-2"><Brain className="w-4 h-4 text-primary" /> ابزارهای ذهن</h3>
