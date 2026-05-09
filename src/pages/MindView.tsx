@@ -5,11 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   Activity, BookOpen, Zap, MessageCircleQuestion, Sparkles,
   TrendingUp, Heart, Brain, Flame, Calendar, ArrowLeft,
+  Compass, Wind, ClipboardCheck,
 } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Area, AreaChart,
 } from "recharts";
 import { DISTORTION_LABELS } from "@/lib/distortions";
+import { SCREENERS, severityColor, type ScreenerType } from "@/lib/assessments/screeners";
 
 type Checkin = {
   checkin_date: string; mood: number | null; energy: number | null;
@@ -30,13 +32,28 @@ const TOOLS = [
     icon: Zap, gradient: "from-amber-500 via-orange-500 to-red-500",
   },
   {
+    to: "/app/worry", title: "Worry / Problem-Solving", desc: "تفکیک نگرانی قابل‌حل از غیرقابل‌حل",
+    icon: Wind, gradient: "from-sky-500 via-blue-500 to-indigo-500",
+  },
+  {
+    to: "/app/values", title: "Values & Goals (ACT)", desc: "ارزش‌ها، شکاف‌ها و هدف‌های معنادار",
+    icon: Compass, gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+  },
+  {
     to: "/app/socratic", title: "چت سقراطی", desc: "گفت‌وگوی هدایت‌شده با AI برای چالش افکار",
     icon: MessageCircleQuestion, gradient: "from-cyan-500 via-sky-500 to-blue-500",
   },
   {
     to: "/app/decisions", title: "ژورنال تصمیم", desc: "ثبت، پیش‌بینی و مرور تصمیم‌ها",
-    icon: Sparkles, gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+    icon: Sparkles, gradient: "from-fuchsia-500 via-purple-500 to-violet-500",
   },
+];
+
+const SCREENER_LIST: { type: ScreenerType; gradient: string }[] = [
+  { type: "phq9", gradient: "from-rose-500 to-red-600" },
+  { type: "gad7", gradient: "from-amber-500 to-orange-600" },
+  { type: "who5", gradient: "from-emerald-500 to-teal-600" },
+  { type: "burnout", gradient: "from-slate-500 to-zinc-700" },
 ];
 
 function StatCard({ label, value, icon: Icon, tone }: { label: string; value: string | number; icon: any; tone: string }) {
