@@ -67,7 +67,9 @@ export default function AppLayout() {
             </div>
           </header>
           <main className="flex-1 overflow-auto pb-20 md:pb-4">
-            <Outlet />
+            <div key={loc.pathname} className="animate-fade-in motion-reduce:animate-none">
+              <Outlet />
+            </div>
           </main>
         </div>
         <AIPanel open={aiOpen} onOpenChange={setAiOpen} />
