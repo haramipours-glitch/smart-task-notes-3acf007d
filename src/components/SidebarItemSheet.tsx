@@ -1,10 +1,12 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Pencil, Trash2, Sparkles, FolderPlus, Copy, Palette } from "lucide-react";
+import { Pencil, Trash2, Sparkles, FolderPlus, Copy, Palette, Share2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import ShareDialog from "@/components/ShareDialog";
 
 type Item = { id: string; name: string; color?: string };
 type Kind = "folder" | "tag";
