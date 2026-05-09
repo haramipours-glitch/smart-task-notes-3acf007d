@@ -34,12 +34,12 @@ export default function WorryView() {
     }
     setAiBusy(true);
     try {
-      const res = await callAI({
-        mode: "general",
-        input: `یک نگرانی برای حل مسئله ساختاریافته آمده. ۵ راه‌حل عملی و متفاوت پیشنهاد کن، هر کدام در یک خط کوتاه. فقط فهرست بدون توضیح.\n\nمسئله: ${problem}`,
-        language: "fa",
-      });
-      const lines = (res || "").split("\n").map((s) => s.replace(/^[\d\-\.\)\*\s]+/, "").trim()).filter(Boolean).slice(0, 5);
+      const res = await callAI(
+        "general" as any,
+        `یک نگرانی برای حل مسئله ساختاریافته آمده. ۵ راه‌حل عملی و متفاوت پیشنهاد کن، هر کدام در یک خط کوتاه. فقط فهرست بدون توضیح.\n\nمسئله: ${problem}`,
+      );
+      const text = typeof res === "string" ? res : (res?.text || "");
+      const lines = text.split("\n").map((s) => s.replace(/^[\d\-\.\)\*\s]+/, "").trim()).filter(Boolean).slice(0, 5);
       if (lines.length) setSolutions([...lines, ""]);
       else toast.error("پاسخی دریافت نشد");
     } catch (e: any) {
