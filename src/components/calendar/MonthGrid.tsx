@@ -1,7 +1,8 @@
 import { format, eachDayOfInterval, isSameDay, isSameMonth, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
-type WeekStartsOn = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 import { formatDate, toPersianDigits, WEEKDAY_SHORT_FA, type CalendarSystem } from "@/lib/jalali";
 import { isHoliday, type Holiday } from "@/lib/holidays";
+import { computePhase, type CycleProfile, type CycleLog, PHASE_META } from "@/lib/cycle";
+type WeekStartsOn = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 type Task = { id: string; title: string; due_date: string | null; priority: string };
 
@@ -13,13 +14,15 @@ const PRIORITY_COLOR: Record<string, string> = {
 };
 
 export default function MonthGrid({
-  month, tasks, holidays, system, onDayClick,
+  month, tasks, holidays, system, onDayClick, cycleProfile, cycleLogs,
 }: {
   month: Date;
   tasks: Task[];
   holidays: Holiday[];
   system: CalendarSystem;
   onDayClick: (d: Date) => void;
+  cycleProfile?: CycleProfile | null;
+  cycleLogs?: CycleLog[];
 }) {
   const weekStartsOn: WeekStartsOn = system === "jalali" ? 6 : 0;
   const days = eachDayOfInterval({
