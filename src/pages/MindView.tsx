@@ -87,13 +87,14 @@ export default function MindView() {
   const [abcCount, setAbcCount] = useState(0);
   const [decisionCount, setDecisionCount] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [latestScreeners, setLatestScreeners] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       const since90 = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
       const since30iso = new Date(Date.now() - 30 * 86400000).toISOString();
-      const [{ data: ck }, { data: tr }, { count: ac }, { count: dc }] = await Promise.all([
+      const [{ data: ck }, { data: tr }, { count: ac }, { count: dc }, { data: scr }] = await Promise.all([
         supabase.from("daily_checkins").select("checkin_date,mood,energy,focus,stress,sleep_quality")
           .eq("user_id", user.id).gte("checkin_date", since90).order("checkin_date"),
         supabase.from("thought_records").select("distortions,created_at")
@@ -102,22 +103,30 @@ export default function MindView() {
           .eq("user_id", user.id).gte("created_at", since30iso),
         supabase.from("decision_journal").select("*", { count: "exact", head: true })
           .eq("user_id", user.id).gte("created_at", since30iso),
+        supabase.from("assessment_results")
+          .select("assessment_type, scores, analysis, completed_at")
+          .eq("user_id", user.id)
+          .in("assessment_type", ["phq9", "gad7", "who5", "burnout"])
+          .order("completed_at", { ascending: false }),
       ]);
       setCheckins((ck || []) as Checkin[]);
       setThoughtCount((tr || []).length);
       setAbcCount(ac || 0);
       setDecisionCount(dc || 0);
+      // Latest result per screener
+      const map: Record<string, any> = {};
+      (scr || []).forEach((r: any) => { if (!map[r.assessment_type]) map[r.assessment_type] = r; });
+      setLatestScreeners(map);
       // Top distortions
       const counts: Record<string, number> = {};
       (tr || []).forEach((r: any) => (r.distortions || []).forEach((d: string) => { counts[d] = (counts[d] || 0) + 1; }));
       setTopDistortions(Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([key, n]) => ({ key, n })));
-      // Streak: consecutive days with check-in ending today/yesterday
       const dates = new Set((ck || []).map((c: any) => c.checkin_date));
       let s = 0;
       for (let i = 0; i < 90; i++) {
         const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
         if (dates.has(d)) s++;
-        else if (i > 0) break; // allow today missing, break after first gap
+        else if (i > 0) break;
       }
       setStreak(s);
     })();
