@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { AMBIENT_SOUNDS } from "@/lib/ambientSounds";
+import { AMBIENT_SOUNDS, SOUND_CATEGORY_META, type SoundCategory } from "@/lib/ambientSounds";
+import { startSynth, stopSynth, setSynthVolume } from "@/lib/pomodoroSynth";
 import { END_BELLS, playEndBell, type EndBellId } from "@/lib/pomodoroSounds";
 import { useTapGestures } from "@/lib/useTapGestures";
 import { haptic } from "@/lib/haptics";
@@ -35,28 +36,25 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const [mode, setMode] = useState<"work" | "break">("work");
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedAtRef = useRef<number | null>(null);
   const totalSecRef = useRef<number>((defaultMinutes ?? prefs.minutes) * 60);
 
   // sync prefs to storage
   useEffect(() => { savePrefs(prefs); }, [prefs]);
 
-  // Ambient audio: create on mount/change
+  // Ambient/music: switch instantly when running (offline synth)
   useEffect(() => {
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-    const sound = AMBIENT_SOUNDS.find(s => s.id === prefs.ambient);
-    if (sound) {
-      const a = new Audio(sound.url);
-      a.loop = true;
-      a.volume = prefs.ambientVol / 100;
-      audioRef.current = a;
+    if (!running) { stopSynth(); return; }
+    if (prefs.ambient && prefs.ambient !== "none") {
+      startSynth(prefs.ambient, prefs.ambientVol);
+    } else {
+      stopSynth();
     }
-    return () => { audioRef.current?.pause(); audioRef.current = null; };
-  }, [prefs.ambient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefs.ambient, running]);
 
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = prefs.ambientVol / 100;
+    setSynthVolume(prefs.ambientVol);
   }, [prefs.ambientVol]);
 
   // Tick
