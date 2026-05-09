@@ -27,6 +27,9 @@ export function useLongPress({ onLongPress, delay = 480, moveTolerance = 10 }: O
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
     if (!t) return;
+    // Skip long-press if user started on a drag handle or interactive control we want to keep "pure".
+    const tgt = e.target as HTMLElement | null;
+    if (tgt?.closest("[data-drag-handle], [data-no-longpress]")) return;
     startX.current = t.clientX;
     startY.current = t.clientY;
     fired.current = false;
