@@ -79,7 +79,7 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
 
   const finishSession = async () => {
     setRunning(false);
-    audioRef.current?.pause();
+    stopSynth();
     playEndBell(prefs.bell);
     if (mode === "work") {
       const dur = Math.round(totalSecRef.current / 60);
@@ -115,16 +115,16 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
         totalSecRef.current = minutes * 60 + seconds;
       }
       startedAtRef.current = Date.now();
-      audioRef.current?.play().catch(() => {});
+      prefs.ambient && prefs.ambient !== "none" && startSynth(prefs.ambient, prefs.ambientVol);
     } else {
-      audioRef.current?.pause();
+      stopSynth();
     }
     setRunning(!running);
   };
 
   const reset = () => {
     setRunning(false);
-    audioRef.current?.pause();
+    stopSynth();
     const m = mode === "work" ? prefs.minutes : 5;
     setMinutes(m); setSeconds(0);
     totalSecRef.current = m * 60;
