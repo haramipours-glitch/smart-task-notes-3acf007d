@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Plus, X, Sparkles, Brain, BookOpen, Loader2 } from "lucide-react";
+import { Plus, X, Sparkles, Brain, BookOpen, Loader2, ListPlus } from "lucide-react";
 import { DISTORTION_LABELS, DISTORTION_HINTS, type Distortion } from "@/lib/distortions";
 import { callAI } from "@/lib/ai";
+import { createTaskFromMind } from "@/lib/taskFromMind";
 
 const EMOTIONS = ["اضطراب", "خشم", "غم", "شرم", "گناه", "ترس", "نومیدی", "سرخوردگی"];
 
