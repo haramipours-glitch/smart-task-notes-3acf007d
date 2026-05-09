@@ -9,6 +9,7 @@ const SYSTEM_PROMPT = `You are a goal-decomposition expert. Given a high-level g
 1. Monthly milestones (3-6 major milestones, distributed evenly between today and the deadline)
 2. For EACH milestone: 2-4 weekly tasks
 3. For EACH weekly task: 2-5 small daily action items
+4. 2-4 numeric Key Results (OKR-style measurable outcomes with target value and unit)
 
 Each item must be concrete, actionable, and time-boxed.
 Use the user's specified language. Always return through the tool call.`;
@@ -50,8 +51,22 @@ const PLAN_TOOL = {
             additionalProperties: false,
           },
         },
+        key_results: {
+          type: "array",
+          description: "2-4 measurable Key Results (OKR-style)",
+          items: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "What is being measured" },
+              target: { type: "number", description: "Numeric target value" },
+              unit: { type: "string", description: "Unit (e.g. hours, kg, sessions)" },
+            },
+            required: ["title", "target", "unit"],
+            additionalProperties: false,
+          },
+        },
       },
-      required: ["milestones"],
+      required: ["milestones", "key_results"],
       additionalProperties: false,
     },
   },
