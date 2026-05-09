@@ -289,6 +289,21 @@ export default function ThoughtRecordsView() {
                 {r.emotion_intensity_after != null && <span className="text-primary">→ بعد: {r.emotion_intensity_after}</span>}
                 {(r.distortions || []).map((d: string) => <Badge key={d} variant="outline" className="text-xs">{DISTORTION_LABELS[d as Distortion]}</Badge>)}
               </div>
+              {r.alternative_thought && (
+                <Button size="sm" variant="outline" className="mt-1"
+                  onClick={async () => {
+                    const res = await createTaskFromMind({
+                      user_id: user!.id,
+                      title: `تمرین فکر جایگزین: ${r.alternative_thought}`.slice(0, 120),
+                      description: `موقعیت: ${r.situation}\nفکر خودکار: ${r.automatic_thought}\nفکر جایگزین: ${r.alternative_thought}`,
+                      due_in_days: 1,
+                    });
+                    if (res.ok) toast.success("به Task فردا اضافه شد");
+                    else toast.error(res.error || "خطا");
+                  }}>
+                  <ListPlus className="w-3.5 h-3.5 ms-1" /> به Task تبدیل کن
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}
