@@ -140,6 +140,107 @@ export type Database = {
         }
         Relationships: []
       }
+      cycle_logs: {
+        Row: {
+          created_at: string
+          energy: number | null
+          event: string | null
+          flow: number | null
+          id: string
+          log_date: string
+          mood: number | null
+          notes: string | null
+          pain: number | null
+          profile_id: string
+          symptoms: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          energy?: number | null
+          event?: string | null
+          flow?: number | null
+          id?: string
+          log_date: string
+          mood?: number | null
+          notes?: string | null
+          pain?: number | null
+          profile_id: string
+          symptoms?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          energy?: number | null
+          event?: string | null
+          flow?: number | null
+          id?: string
+          log_date?: string
+          mood?: number | null
+          notes?: string | null
+          pain?: number | null
+          profile_id?: string
+          symptoms?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycle_logs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "cycle_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cycle_profiles: {
+        Row: {
+          avg_cycle_length: number
+          avg_period_length: number
+          color: string
+          created_at: string
+          id: string
+          is_self: boolean
+          label: string
+          luteal_length: number
+          notify_ovulation: boolean
+          notify_period: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_cycle_length?: number
+          avg_period_length?: number
+          color?: string
+          created_at?: string
+          id?: string
+          is_self?: boolean
+          label: string
+          luteal_length?: number
+          notify_ovulation?: boolean
+          notify_period?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_cycle_length?: number
+          avg_period_length?: number
+          color?: string
+          created_at?: string
+          id?: string
+          is_self?: boolean
+          label?: string
+          luteal_length?: number
+          notify_ovulation?: boolean
+          notify_period?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_checkins: {
         Row: {
           checkin_date: string
@@ -1097,10 +1198,12 @@ export type Database = {
       }
       user_settings: {
         Row: {
+          active_cycle_profile_id: string | null
           auto_create_daily_tasks: boolean
           checkin_reminder_enabled: boolean
           checkin_reminder_time: string
           created_at: string
+          cycle_overlay_enabled: boolean
           default_landing: string
           font_size: string
           micro_prompt_enabled: boolean
@@ -1112,10 +1215,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          active_cycle_profile_id?: string | null
           auto_create_daily_tasks?: boolean
           checkin_reminder_enabled?: boolean
           checkin_reminder_time?: string
           created_at?: string
+          cycle_overlay_enabled?: boolean
           default_landing?: string
           font_size?: string
           micro_prompt_enabled?: boolean
@@ -1127,10 +1232,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          active_cycle_profile_id?: string | null
           auto_create_daily_tasks?: boolean
           checkin_reminder_enabled?: boolean
           checkin_reminder_time?: string
           created_at?: string
+          cycle_overlay_enabled?: boolean
           default_landing?: string
           font_size?: string
           micro_prompt_enabled?: boolean
