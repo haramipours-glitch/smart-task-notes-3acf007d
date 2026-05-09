@@ -76,6 +76,22 @@ export default function QuickCaptureDialog() {
         <DialogHeader>
           <DialogTitle className="text-base">ثبت سریع</DialogTitle>
         </DialogHeader>
+        <div
+          onTouchStart={(e) => {
+            (e.currentTarget as any)._sx = e.touches[0].clientX;
+            (e.currentTarget as any)._sy = e.touches[0].clientY;
+          }}
+          onTouchEnd={(e) => {
+            const sx = (e.currentTarget as any)._sx ?? 0;
+            const sy = (e.currentTarget as any)._sy ?? 0;
+            const dx = e.changedTouches[0].clientX - sx;
+            const dy = Math.abs(e.changedTouches[0].clientY - sy);
+            if (dy > 60 || Math.abs(dx) < 50) return;
+            // RTL: swipe left → next (note), swipe right → previous (task)
+            if (dx < 0) setTab("note");
+            else setTab("task");
+          }}
+        >
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
           <TabsList className="grid grid-cols-2 w-full">
             <TabsTrigger value="task" className="gap-2">
@@ -108,6 +124,7 @@ export default function QuickCaptureDialog() {
             />
           </TabsContent>
         </Tabs>
+        </div>
         <div className="flex justify-between items-center pt-2">
           <span className="text-[10px] text-muted-foreground ltr">⌘N • Enter = ثبت</span>
           <Button onClick={submit} disabled={busy || !title.trim()} size="sm">
