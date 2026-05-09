@@ -298,14 +298,23 @@ export default function NotesView() {
       </AlertDialog>
 
       {selected && (
-        <MoveToDialog
-          open={moveOpen}
-          onOpenChange={setMoveOpen}
-          kind="note"
-          itemId={selected.id}
-          currentFolderId={selected.folder_id ?? null}
-          onMoved={(fid) => { setSelected({ ...selected, folder_id: fid } as any); load(); }}
-        />
+        <>
+          <MoveToDialog
+            open={moveOpen}
+            onOpenChange={setMoveOpen}
+            kind="note"
+            itemId={selected.id}
+            currentFolderId={selected.folder_id ?? null}
+            onMoved={(fid) => { setSelected({ ...selected, folder_id: fid } as any); load(); }}
+          />
+          <ShareDialog
+            open={shareOpen}
+            onOpenChange={setShareOpen}
+            resourceType="note"
+            resourceId={selected.id}
+            resourceTitle={selected.title}
+          />
+        </>
       )}
     </div>
   );
