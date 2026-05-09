@@ -63,6 +63,7 @@ const EN_LABELS: Record<string, string> = {
   "جابجا کن": "Drag",
   "فولدرها": "Folders",
   "تگ‌ها": "Tags",
+  "اشتراک‌ها": "Shared with me",
 };
 
 function useLabel() {
