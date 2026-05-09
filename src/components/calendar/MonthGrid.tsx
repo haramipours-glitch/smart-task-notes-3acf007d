@@ -45,14 +45,17 @@ export default function MonthGrid({
           const dayLabel = system === "jalali"
             ? toPersianDigits(formatDate(d, "d", "jalali"))
             : format(d, "d");
+          const phase = cycleProfile && cycleLogs ? computePhase(d, cycleLogs, cycleProfile) : null;
+          const phaseColor = phase && phase.phase !== "unknown" ? PHASE_META[phase.phase].color : null;
           return (
             <button
               key={d.toISOString()}
               onClick={() => onDayClick(d)}
+              style={phaseColor ? { borderColor: `${phaseColor}55`, background: `${phaseColor}${phase?.predicted ? "10" : "20"}` } : undefined}
               className={`aspect-square border rounded-md p-1 text-xs flex flex-col text-end transition hover:bg-accent/50 hover:border-primary/40
                 ${isSameMonth(d, month) ? "" : "opacity-30"}
                 ${isSameDay(d, new Date()) ? "ring-2 ring-primary" : ""}
-                ${isOff ? "bg-rose-500/5 border-rose-500/30" : ""}`}
+                ${isOff && !phaseColor ? "bg-rose-500/5 border-rose-500/30" : ""}`}
             >
               <div className={`font-medium flex items-center justify-between ${isOff ? "text-rose-500" : ""}`}>
                 <span>{dayLabel}</span>

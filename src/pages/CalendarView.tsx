@@ -14,6 +14,7 @@ import WeekView from "@/components/calendar/WeekView";
 import DayView from "@/components/calendar/DayView";
 import AgendaView from "@/components/calendar/AgendaView";
 import DayDetailSheet from "@/components/calendar/DayDetailSheet";
+import type { CycleProfile, CycleLog } from "@/lib/cycle";
 
 type ViewMode = "month" | "week" | "day" | "agenda";
 
@@ -27,6 +28,29 @@ export default function CalendarView() {
   const [system, setSystem] = useState<CalendarSystem>(getCalendarSystem());
   const [detailDate, setDetailDate] = useState<Date | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [cycleProfile, setCycleProfile] = useState<CycleProfile | null>(null);
+  const [cycleLogs, setCycleLogs] = useState<CycleLog[]>([]);
+
+  // Load active cycle profile + logs (if overlay enabled)
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data: s } = await supabase
+        .from("user_settings")
+        .select("cycle_overlay_enabled, active_cycle_profile_id")
+        .eq("user_id", user.id).maybeSingle();
+      if (!(s as any)?.cycle_overlay_enabled || !(s as any)?.active_cycle_profile_id) {
+        setCycleProfile(null); setCycleLogs([]); return;
+      }
+      const pid = (s as any).active_cycle_profile_id;
+      const [{ data: prof }, { data: logs }] = await Promise.all([
+        supabase.from("cycle_profiles").select("*").eq("id", pid).maybeSingle(),
+        supabase.from("cycle_logs").select("*").eq("profile_id", pid).order("log_date", { ascending: false }),
+      ]);
+      setCycleProfile(prof as any);
+      setCycleLogs((logs || []) as any);
+    })();
+  }, [user]);
 
   const persistSystem = (s: CalendarSystem) => { setCalendarSystem(s); setSystem(s); };
 
