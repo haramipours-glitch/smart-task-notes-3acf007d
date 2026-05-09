@@ -121,6 +121,7 @@ export default function CalendarView() {
         <TabsContent value="month">
           <Card className="p-2">
             <MonthGrid month={date} tasks={tasks} holidays={holidays} system={system}
+              cycleProfile={cycleProfile} cycleLogs={cycleLogs}
               onDayClick={(d) => setDetailDate(d)} />
           </Card>
         </TabsContent>
