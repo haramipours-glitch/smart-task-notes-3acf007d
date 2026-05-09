@@ -38,6 +38,7 @@ const HomeView = lazy(() => import("./pages/HomeView"));
 const ScreenerView = lazy(() => import("./pages/ScreenerView"));
 const ValuesGoalsView = lazy(() => import("./pages/ValuesGoalsView"));
 const WorryView = lazy(() => import("./pages/WorryView"));
+const CycleView = lazy(() => import("./pages/CycleView"));
 
 const NewTaskView = lazy(() => import("./pages/NewTaskView"));
 const NewNoteView = lazy(() => import("./pages/NewNoteView"));
@@ -102,6 +103,7 @@ const App = () => {
                 <Route path="screener/:type" element={<ScreenerView />} />
                 <Route path="values" element={<ValuesGoalsView />} />
                 <Route path="worry" element={<WorryView />} />
+                <Route path="cycle" element={<CycleView />} />
                 <Route path="about-me" element={<AboutMeView />} />
                 <Route path="settings" element={<SettingsView />} />
                 <Route path="admin" element={<AdminView />} />

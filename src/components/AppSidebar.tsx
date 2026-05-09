@@ -97,6 +97,7 @@ const SECTIONS: Section[] = [
     items: [
       { url: "/app/habits", icon: Target, label: "عادت‌ها" },
       { url: "/app/notes", icon: FileText, label: "نوت‌ها" },
+      { url: "/app/cycle", icon: Calendar, label: "سیکل پریود" },
     ],
   },
   {
