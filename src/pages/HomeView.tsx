@@ -42,7 +42,7 @@ const ALL_QUICK: { key: string; icon: any; to: string; label: string; color: str
   { key: "calendar", icon: Calendar, to: "/app/calendar", label: "تقویم", color: "text-emerald-500" },
   { key: "pomodoro", icon: Timer, to: "/app/pomodoro", label: "Pomodoro", color: "text-amber-500" },
   { key: "habits", icon: Repeat, to: "/app/habits", label: "عادت‌ها", color: "text-pink-500" },
-  { key: "goals", icon: Target, to: "/app/goals", label: "اهداف", color: "text-orange-500" },
+  
   { key: "checkin", icon: Heart, to: "/app/checkin", label: "چک‌این", color: "text-rose-500" },
   { key: "thoughts", icon: Brain, to: "/app/thoughts", label: "ثبت افکار", color: "text-purple-500" },
   { key: "abc", icon: Lightbulb, to: "/app/abc", label: "ABC", color: "text-yellow-500" },

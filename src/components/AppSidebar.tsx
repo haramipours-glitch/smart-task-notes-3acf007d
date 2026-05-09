@@ -94,7 +94,6 @@ const SECTIONS: Section[] = [
   {
     id: "grow", title: "رشد", icon: TrendingUp, defaultOpen: false,
     items: [
-      { url: "/app/goals", icon: Target, label: "اهداف" },
       { url: "/app/habits", icon: Target, label: "عادت‌ها" },
       { url: "/app/notes", icon: FileText, label: "نوت‌ها" },
     ],

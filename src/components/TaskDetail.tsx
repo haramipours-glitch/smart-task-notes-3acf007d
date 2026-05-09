@@ -20,7 +20,7 @@ import { TaskStepLists } from "@/components/TaskStepLists";
 import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
 import { DueDatePicker } from "@/components/DueDatePicker";
-import { GoalPicker } from "@/components/GoalPicker";
+
 import { Switch } from "@/components/ui/switch";
 import { pushUndo } from "@/lib/undoStack";
 import type { Task, TaskNote, ConfirmState } from "@/lib/taskTypes";

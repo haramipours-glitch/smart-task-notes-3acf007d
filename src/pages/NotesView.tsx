@@ -19,9 +19,9 @@ import { AILangToggle } from "@/components/AILangToggle";
 import { pushUndo } from "@/lib/undoStack";
 import { pushDeleted } from "@/lib/recentlyDeleted";
 
-import { GoalPicker } from "@/components/GoalPicker";
 
-type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null; folder_id?: string | null; goal_id?: string | null };
+
+type Note = { id: string; title: string; content: string; pinned: boolean; updated_at: string; task_id?: string | null; folder_id?: string | null };
 
 const AI_GROUPS: { label: string; items: { key: string; label: string }[] }[] = [
   {

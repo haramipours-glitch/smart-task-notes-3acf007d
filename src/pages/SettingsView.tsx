@@ -177,7 +177,7 @@ export default function SettingsView() {
     try {
       const tables = [
         "profiles", "tasks", "subtasks", "folders", "tags", "task_tags", "notes", "note_tags",
-        "habits", "habit_logs", "goals", "pomodoro_sessions", "folder_columns",
+        "habits", "habit_logs", "pomodoro_sessions", "folder_columns",
         "daily_checkins", "thought_records", "abc_records",
         "assessment_responses", "assessment_results", "mh_profile",
       ];
@@ -207,7 +207,7 @@ export default function SettingsView() {
     try {
       const tables = [
         "task_tags", "note_tags", "subtasks", "habit_logs", "folder_columns",
-        "tasks", "notes", "habits", "goals", "folders", "tags", "pomodoro_sessions",
+        "tasks", "notes", "habits", "folders", "tags", "pomodoro_sessions",
         "daily_checkins", "thought_records", "abc_records",
         "assessment_responses", "assessment_results", "mh_profile",
       ];
