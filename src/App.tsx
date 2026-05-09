@@ -24,8 +24,6 @@ const CalendarView = lazy(() => import("./pages/CalendarView"));
 const SettingsView = lazy(() => import("./pages/SettingsView"));
 const KanbanView = lazy(() => import("./pages/KanbanView"));
 const GoalsView = lazy(() => import("./pages/GoalsView"));
-const ReviewView = lazy(() => import("./pages/ReviewView"));
-const InsightsView = lazy(() => import("./pages/InsightsView"));
 const SelfKnowledgeView = lazy(() => import("./pages/SelfKnowledgeView"));
 const AssessmentRunner = lazy(() => import("./pages/AssessmentRunner"));
 const AssessmentResult = lazy(() => import("./pages/AssessmentResult"));
@@ -36,7 +34,7 @@ const SocraticView = lazy(() => import("./pages/SocraticView"));
 const DecisionJournalView = lazy(() => import("./pages/DecisionJournalView"));
 const AboutMeView = lazy(() => import("./pages/AboutMeView"));
 const HomeView = lazy(() => import("./pages/HomeView"));
-const WeeklyReviewView = lazy(() => import("./pages/WeeklyReviewView"));
+
 const NewTaskView = lazy(() => import("./pages/NewTaskView"));
 const NewNoteView = lazy(() => import("./pages/NewNoteView"));
 const TaskDetailView = lazy(() => import("./pages/TaskDetailView"));
@@ -74,7 +72,7 @@ const App = () => {
               <Route path="/app" element={<ProtectedRoute><ErrorBoundary><AppLayout /></ErrorBoundary></ProtectedRoute>}>
                 <Route index element={<Navigate to="home" replace />} />
                 <Route path="home" element={<HomeView />} />
-                <Route path="weekly-review" element={<WeeklyReviewView />} />
+                
                 <Route path="inbox" element={<TasksView scope="inbox" />} />
                 <Route path="today" element={<TasksView scope="today" />} />
                 <Route path="tomorrow" element={<TasksView scope="tomorrow" />} />
@@ -88,8 +86,6 @@ const App = () => {
                 <Route path="calendar" element={<CalendarView />} />
                 <Route path="kanban" element={<KanbanView />} />
                 <Route path="goals" element={<GoalsView />} />
-                <Route path="review" element={<ReviewView />} />
-                <Route path="insights" element={<InsightsView />} />
                 <Route path="self" element={<SelfKnowledgeView />} />
                 <Route path="self/test/:type" element={<AssessmentRunner />} />
                 <Route path="self/result/:type" element={<AssessmentResult />} />

@@ -141,14 +141,16 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
     <div className="space-y-4 mt-4">
             <Input value={t.title} onChange={(e) => setT({ ...t, title: e.target.value })}
               onBlur={() => save({ title: t.title })} className="text-lg font-semibold" dir="auto" />
-            <AutoTextarea
-              placeholder="توضیحات..."
-              value={t.description || ""}
-              onChange={(e) => setT({ ...t, description: e.target.value })}
-              onBlur={() => save({ description: t.description })}
-              minHeight={72}
-              maxHeight={360}
-            />
+            <div data-rich-selection onContextMenu={(e) => e.preventDefault()} style={{ WebkitTouchCallout: "none" } as any}>
+              <AutoTextarea
+                placeholder="توضیحات..."
+                value={t.description || ""}
+                onChange={(e) => setT({ ...t, description: e.target.value })}
+                onBlur={() => save({ description: t.description })}
+                minHeight={72}
+                maxHeight={360}
+              />
+            </div>
 
             {/* Priority accordion + inline avoidance toggle */}
             <div className="rounded-lg border">

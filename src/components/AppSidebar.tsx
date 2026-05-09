@@ -97,9 +97,6 @@ const SECTIONS: Section[] = [
       { url: "/app/goals", icon: Target, label: "اهداف" },
       { url: "/app/habits", icon: Target, label: "عادت‌ها" },
       { url: "/app/notes", icon: FileText, label: "نوت‌ها" },
-      { url: "/app/review", icon: Brain, label: "مرور (SR)" },
-      { url: "/app/weekly-review", icon: CalendarDays, label: "بازنگری هفتگی" },
-      { url: "/app/insights", icon: TrendingUp, label: "بینش هفتگی" },
     ],
   },
   {

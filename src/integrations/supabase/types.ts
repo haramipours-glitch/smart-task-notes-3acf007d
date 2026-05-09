@@ -325,6 +325,106 @@ export type Database = {
           },
         ]
       }
+      goal_key_results: {
+        Row: {
+          created_at: string
+          current_value: number
+          goal_id: string
+          id: string
+          position: number
+          start_value: number
+          target_value: number
+          title: string
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_value?: number
+          goal_id: string
+          id?: string
+          position?: number
+          start_value?: number
+          target_value?: number
+          title: string
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number
+          goal_id?: string
+          id?: string
+          position?: number
+          start_value?: number
+          target_value?: number
+          title?: string
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_key_results_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_milestones: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          goal_id: string
+          id: string
+          position: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          goal_id: string
+          id?: string
+          position?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          goal_id?: string
+          id?: string
+          position?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_milestones_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           color: string | null
@@ -401,6 +501,7 @@ export type Database = {
           color: string | null
           created_at: string
           frequency: string
+          goal_id: string | null
           icon: string | null
           id: string
           name: string
@@ -411,6 +512,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           frequency?: string
+          goal_id?: string | null
           icon?: string | null
           id?: string
           name: string
@@ -421,6 +523,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           frequency?: string
+          goal_id?: string | null
           icon?: string | null
           id?: string
           name?: string
