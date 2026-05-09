@@ -221,15 +221,36 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
         </div>
 
         <div className="flex items-center gap-2">
-          <Label className="text-xs flex-1">صدای محیطی</Label>
+          <Label className="text-xs flex-1">صدای محیطی / موسیقی</Label>
           <Select value={prefs.ambient} onValueChange={(v) => setPrefs(p => ({ ...p, ambient: v }))}>
-            <SelectTrigger className="h-8 w-40 text-xs"><SelectValue placeholder="بدون صدا" /></SelectTrigger>
-            <SelectContent>
+            <SelectTrigger className="h-8 w-44 text-xs"><SelectValue placeholder="بدون صدا" /></SelectTrigger>
+            <SelectContent className="max-h-80">
               <SelectItem value="none">🔇 بدون صدا</SelectItem>
-              {AMBIENT_SOUNDS.map(s => <SelectItem key={s.id} value={s.id}>{s.emoji} {s.name}</SelectItem>)}
+              {(Object.keys(SOUND_CATEGORY_META) as SoundCategory[]).map((cat) => {
+                const items = AMBIENT_SOUNDS.filter(s => s.category === cat);
+                if (!items.length) return null;
+                const meta = SOUND_CATEGORY_META[cat];
+                return (
+                  <div key={cat}>
+                    <div className="px-2 py-1 text-[10px] text-muted-foreground border-t mt-1">
+                      {meta.emoji} {meta.label}
+                    </div>
+                    {items.map(s => (
+                      <SelectItem key={s.id} value={s.id}>{s.emoji} {s.name}</SelectItem>
+                    ))}
+                  </div>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
+
+        {(() => {
+          const cur = AMBIENT_SOUNDS.find(s => s.id === prefs.ambient);
+          if (cur?.hint) return <div className="text-[10px] text-amber-600 dark:text-amber-400 ms-1">⚠️ {cur.hint}</div>;
+          return null;
+        })()}
+
 
         {prefs.ambient !== "none" && (
           <div className="flex items-center gap-2">
