@@ -4,18 +4,9 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { useTapGestures } from "@/lib/useTapGestures";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { haptic } from "@/lib/haptics";
 import RecentlyDeletedSheet from "@/components/RecentlyDeletedSheet";
-
-const HOME_SHORTCUTS: { label: string; to: string }[] = [
-  { label: "خانه", to: "/app/home" },
-  { label: "امروز", to: "/app/today" },
-  { label: "فردا", to: "/app/tomorrow" },
-  { label: "۷ روز آینده", to: "/app/next7" },
-  { label: "Inbox", to: "/app/inbox" },
-  { label: "نوت‌ها", to: "/app/notes" },
-  { label: "تقویم", to: "/app/calendar" },
-];
 
 function scrollMainToTop() {
   const main = document.querySelector("main");
@@ -27,8 +18,22 @@ export function BottomTabBar() {
   const loc = useLocation();
   const navigate = useNavigate();
   const { toggleSidebar } = useSidebar();
+  const { t, i18n } = useTranslation();
+  const isEn = (i18n.language || "fa").startsWith("en");
+  const T = (fa: string, en: string) => (isEn ? en : fa);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
+
+  const HOME_SHORTCUTS: { label: string; to: string }[] = [
+    { label: T("خانه", "Home"), to: "/app/home" },
+    { label: T("امروز", "Today"), to: "/app/today" },
+    { label: T("فردا", "Tomorrow"), to: "/app/tomorrow" },
+    { label: T("۷ روز آینده", "Next 7 days"), to: "/app/next7" },
+    { label: "Inbox", to: "/app/inbox" },
+    { label: T("نوت‌ها", "Notes"), to: "/app/notes" },
+    { label: T("تقویم", "Calendar"), to: "/app/calendar" },
+    { label: T("اشتراک‌ها", "Shared with me"), to: "/app/shared" },
+  ];
 
   // Allow other parts of the app to open the trash/shortcuts via global events.
   useEffect(() => {
@@ -54,19 +59,16 @@ export function BottomTabBar() {
   const btnClass =
     "h-11 flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] text-foreground/80 active:scale-95 transition select-none";
 
-  // Home tab: tap → home, double-tap → scroll-to-top, long-press → shortcuts
   const homeTap = useTapGestures({
     onSingleTap: () => navigate("/app/home"),
     onDoubleTap: () => { haptic("light"); scrollMainToTop(); },
     onLongPress: () => setShortcutsOpen(true),
   });
-  // Menu tab: tap → toggle sidebar, double-tap → trash, long-press → shortcuts
   const menuTap = useTapGestures({
     onSingleTap: () => toggleSidebar(),
     onDoubleTap: () => { haptic("light"); setTrashOpen(true); },
     onLongPress: () => setShortcutsOpen(true),
   });
-  // Add tab (replaces Search): tap → Quick Capture, long-press → Search, double-tap → trash
   const addTap = useTapGestures({
     onSingleTap: () => openQuickCapture(),
     onDoubleTap: () => { haptic("light"); setTrashOpen(true); },
@@ -78,26 +80,26 @@ export function BottomTabBar() {
       <nav
         className="md:hidden fixed inset-x-0 z-50 bg-card/95 backdrop-blur border-t border-border flex items-stretch"
         style={{ bottom: 0, paddingBottom: "env(safe-area-inset-bottom)" }}
-        aria-label="نوار پایین"
+        aria-label={T("نوار پایین", "Bottom bar")}
       >
-        <button type="button" className={btnClass} aria-label="منو" {...menuTap.handlers} onClick={(e) => e.preventDefault()}>
+        <button type="button" className={btnClass} aria-label={T("منو", "Menu")} {...menuTap.handlers} onClick={(e) => e.preventDefault()}>
           <Menu className="w-5 h-5" />
-          <span>منو</span>
+          <span>{T("منو", "Menu")}</span>
         </button>
-        <button type="button" className={btnClass} aria-label="افزودن سریع" {...addTap.handlers} onClick={(e) => e.preventDefault()}>
+        <button type="button" className={btnClass} aria-label={T("افزودن سریع", "Quick add")} {...addTap.handlers} onClick={(e) => e.preventDefault()}>
           <Plus className="w-5 h-5 text-primary" />
-          <span>افزودن</span>
+          <span>{T("افزودن", "Add")}</span>
         </button>
-        <button type="button" className={btnClass} aria-label="خانه" {...homeTap.handlers} onClick={(e) => e.preventDefault()}>
+        <button type="button" className={btnClass} aria-label={T("خانه", "Home")} {...homeTap.handlers} onClick={(e) => e.preventDefault()}>
           <Home className="w-5 h-5" />
-          <span>خانه</span>
+          <span>{T("خانه", "Home")}</span>
         </button>
       </nav>
 
       <Sheet open={shortcutsOpen} onOpenChange={setShortcutsOpen}>
         <SheetContent side="bottom" className="rounded-t-2xl pb-6">
           <SheetHeader>
-            <SheetTitle className="text-start text-base">میان‌بُر سریع</SheetTitle>
+            <SheetTitle className="text-start text-base">{T("میان‌بُر سریع", "Quick shortcuts")}</SheetTitle>
           </SheetHeader>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {HOME_SHORTCUTS.map((s) => (
@@ -113,7 +115,7 @@ export function BottomTabBar() {
               onClick={() => { setShortcutsOpen(false); setTrashOpen(true); }}
               className="px-3 py-3 rounded-lg bg-muted/40 hover:bg-accent text-sm text-start active:scale-[0.98] transition col-span-2"
             >
-              🗑️ حذف‌شده‌های اخیر
+              {T("🗑️ حذف‌شده‌های اخیر", "🗑️ Recently deleted")}
             </button>
           </div>
         </SheetContent>
