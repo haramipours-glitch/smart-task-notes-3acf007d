@@ -362,17 +362,26 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   // Drag & drop: drop a task onto another → set as child; drop in same parent zone → reorder
   const onDragEnd = async (e: DragEndEvent) => {
     setActiveDragId(null);
-    const { active, over } = e;
+    const { active, over, delta } = e;
     if (!over || active.id === over.id) return;
     const activeId = String(active.id);
     const overId = String(over.id);
     const activeTask = allTasks.find(t => t.id === activeId);
     if (!activeTask) return;
 
-    // Drop targets we support:
-    //  - "child:<taskId>"   → make activeTask a child of <taskId>
-    //  - "root"             → make activeTask top-level (in current scope)
-    //  - "<taskId>"         → reorder above this sibling (or move to same parent if different)
+    // Helper: when promoting a task to top-level, also fill scope-defining fields
+    // so it doesn't disappear from the current view.
+    const scopeRootPatch = (): Record<string, any> => {
+      const patch: Record<string, any> = { parent_id: null };
+      const today = startOfDay(new Date()).toISOString();
+      const tomorrowIso = addDays(new Date(), 1).toISOString();
+      if (scope === "today") patch.due_date = today;
+      else if (scope === "tomorrow") patch.due_date = tomorrowIso;
+      else if (scope === "next7" && !activeTask.due_date) patch.due_date = tomorrowIso;
+      else if (scope === "folder") patch.folder_id = params.id || null;
+      return patch;
+    };
+
     if (overId.startsWith("child:")) {
       const newParent = overId.slice(6);
       if (newParent === activeId) return;
@@ -390,28 +399,51 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
       return;
     }
     if (overId === "root") {
-      setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, parent_id: null } : t));
-      const { error } = await supabase.from("tasks").update({ parent_id: null }).eq("id", activeId);
+      const patch = scopeRootPatch();
+      setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, ...patch } as Task : t));
+      const { error } = await supabase.from("tasks").update(patch as any).eq("id", activeId);
       if (error) toast.error(error.message);
       return;
     }
-    // Reorder: find sibling list of overId
+    // Dropped on another task row
     const overTask = allTasks.find(t => t.id === overId);
     if (!overTask) return;
+
+    // TickTick-style: if user dragged horizontally significantly, treat as INDENT
+    // (make active a subtask of over) instead of reorder.
+    const HORIZONTAL_INDENT = 40;
+    if (delta && Math.abs(delta.x) > HORIZONTAL_INDENT && Math.abs(delta.x) > Math.abs(delta.y)) {
+      // prevent cycles
+      let p: string | null = overId;
+      while (p) {
+        if (p === activeId) { toast.error("نمی‌توان داخل خودش انداخت"); return; }
+        const pt = allTasks.find(x => x.id === p);
+        p = pt?.parent_id || null;
+      }
+      setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, parent_id: overId } : t));
+      setExpanded(s => ({ ...s, [overId]: true }));
+      const { error } = await supabase.from("tasks").update({ parent_id: overId }).eq("id", activeId);
+      if (error) toast.error(error.message);
+      return;
+    }
+
+    // Otherwise: reorder among siblings (or move to over's parent if different)
     const siblings = overTask.parent_id
       ? (childrenMap[overTask.parent_id] || [])
       : topLevel;
     const fromIdx = siblings.findIndex(s => s.id === activeId);
     const toIdx = siblings.findIndex(s => s.id === overId);
-    // Move into siblings parent if different
     if (activeTask.parent_id !== overTask.parent_id) {
-      setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, parent_id: overTask.parent_id } : t));
-      await supabase.from("tasks").update({ parent_id: overTask.parent_id }).eq("id", activeId);
+      // Moving across parents. If target is top-level (no parent), inherit scope.
+      const patch: Record<string, any> = overTask.parent_id
+        ? { parent_id: overTask.parent_id }
+        : scopeRootPatch();
+      setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, ...patch } as Task : t));
+      await supabase.from("tasks").update(patch as any).eq("id", activeId);
       return;
     }
     if (fromIdx < 0 || toIdx < 0) return;
     const reordered = arrayMove(siblings, fromIdx, toIdx);
-    // Persist new positions
     const updates = reordered.map((s, i) =>
       supabase.from("tasks").update({ position: i }).eq("id", s.id)
     );
@@ -470,6 +502,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
             <SwipeableRow
+              disabled
               onComplete={() => toggleTask(t)}
               onDelete={() => askDeleteTask(t)}
               isCompleted={t.completed}
@@ -525,7 +558,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               {/* Row 2: drag handle + badges + actions */}
               <div className="flex items-center justify-between gap-1 mt-1.5 ms-6 flex-wrap">
                 <div className="flex items-center gap-1 flex-wrap min-w-0">
-                  <button {...dragHandle} className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0 h-7 w-7 rounded-md bg-muted/40 hover:bg-muted flex items-center justify-center" aria-label="drag (long-press on mobile)" title="جابجایی (روی موبایل لمس طولانی)">
+                  <button {...dragHandle} data-drag-handle data-no-swipe-nav className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0 h-7 w-7 rounded-md bg-muted/40 hover:bg-muted flex items-center justify-center" aria-label="drag" title="جابجایی (روی موبایل لمس طولانی)">
                     <GripVertical className="w-4 h-4" />
                   </button>
                   <button onClick={() => moveSibling(t, -1)} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move up" title="بالا">
