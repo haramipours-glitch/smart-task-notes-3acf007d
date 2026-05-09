@@ -11,7 +11,8 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Plus, TrendingUp, BookOpen } from "lucide-react";
+import { Plus, TrendingUp, BookOpen, ListPlus } from "lucide-react";
+import { createTaskFromMind } from "@/lib/taskFromMind";
 
 const TRIGGERS = ["دریافت پیام", "خستگی فیزیکی", "گیر کردن روی مسئله", "گرسنگی", "نویز", "فکر مزاحم", "کافئین", "کمبود خواب", "سایر"];
 const CONSEQUENCES = ["باز کردن شبکه اجتماعی", "خوردن ناسالم", "تعویق", "خشم", "گریه", "ترک میز", "خوابیدن بی‌موقع", "سایر"];
