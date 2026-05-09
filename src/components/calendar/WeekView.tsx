@@ -50,7 +50,8 @@ export default function WeekView({
   onSlotClick?: (d: Date, hour: number) => void;
 }) {
   const navigate = useNavigate();
-  const days = eachDayOfInterval({ start: startOfWeek(date), end: endOfWeek(date) });
+  const weekStartsOn: 0 | 6 = system === "jalali" ? 6 : 0;
+  const days = eachDayOfInterval({ start: startOfWeek(date, { weekStartsOn }), end: endOfWeek(date, { weekStartsOn }) });
   const { scale, handlers: pinchHandlers } = usePinchZoom({ initial: 1, min: 0.6, max: 2.4 });
   const [hint, setHint] = useState(false);
   const hintTimer = useRef<number | null>(null);

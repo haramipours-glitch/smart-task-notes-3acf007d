@@ -1,4 +1,5 @@
 import { format, eachDayOfInterval, isSameDay, isSameMonth, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
+type WeekStartsOn = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 import { formatDate, toPersianDigits, WEEKDAY_SHORT_FA, type CalendarSystem } from "@/lib/jalali";
 import { isHoliday, type Holiday } from "@/lib/holidays";
 
@@ -20,7 +21,11 @@ export default function MonthGrid({
   system: CalendarSystem;
   onDayClick: (d: Date) => void;
 }) {
-  const days = eachDayOfInterval({ start: startOfWeek(startOfMonth(month)), end: endOfWeek(endOfMonth(month)) });
+  const weekStartsOn: WeekStartsOn = system === "jalali" ? 6 : 0;
+  const days = eachDayOfInterval({
+    start: startOfWeek(startOfMonth(month), { weekStartsOn }),
+    end: endOfWeek(endOfMonth(month), { weekStartsOn }),
+  });
   return (
     <div>
       <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-2">

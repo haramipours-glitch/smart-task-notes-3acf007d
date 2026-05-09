@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AutoTextarea } from "@/components/ui/auto-textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, ListTree } from "lucide-react";
 import { toast } from "sonner";
@@ -93,15 +94,17 @@ export function TaskSubtasksInline({
 
       <ul className="space-y-1">
         {subs.map((s) => (
-          <li key={s.id} className="flex items-center gap-2 group">
-            <Checkbox checked={s.completed} onCheckedChange={() => toggle(s)} />
-            <Input
+          <li key={s.id} className="flex items-start gap-2 group">
+            <div className="pt-1.5"><Checkbox checked={s.completed} onCheckedChange={() => toggle(s)} /></div>
+            <AutoTextarea
               value={s.title}
               onChange={(e) => updateTitle(s.id, e.target.value)}
-              className={`h-7 text-sm flex-1 border-none bg-transparent focus-visible:ring-1 px-1 ${
+              minHeight={28}
+              maxHeight={240}
+              rows={1}
+              className={`text-sm flex-1 min-w-0 border-none bg-transparent focus-visible:ring-1 px-1 py-1 leading-snug break-words whitespace-pre-wrap ${
                 s.completed ? "line-through text-muted-foreground" : ""
               }`}
-              dir="auto"
             />
             {onOpenSubtask && (
               <Button
