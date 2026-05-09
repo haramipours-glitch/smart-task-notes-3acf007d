@@ -249,6 +249,9 @@ export default function NotesView() {
               <Button size="icon" variant="ghost" onClick={() => setMoveOpen(true)} title="انتقال به فولدر">
                 <FolderInput className="w-4 h-4" />
               </Button>
+              <Button size="icon" variant="ghost" onClick={() => setShareOpen(true)} title="اشتراک‌گذاری">
+                <Share2 className="w-4 h-4" />
+              </Button>
               <Button size="icon" variant="ghost" onClick={() => setConfirmDel(selected)}>
                 <Trash2 className="w-4 h-4" />
               </Button>
