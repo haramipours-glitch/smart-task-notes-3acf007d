@@ -3,7 +3,7 @@ import {
   Inbox, Calendar as CalIcon, CalendarDays, Filter, FolderTree, Tag, FileText,
   Target, Timer, Calendar, Plus, ChevronRight, ChevronDown, LogOut, Sparkles, Settings, LayoutGrid,
   Brain, TrendingUp, Moon, HeartPulse, Activity, MessageCircleQuestion, Zap, Clock4, Heart, ShieldAlert, BookOpen, Sun,
-  ListTodo, BrainCircuit, Wrench, GripVertical, RotateCcw, User, Trash2, Shield,
+  ListTodo, BrainCircuit, Wrench, GripVertical, RotateCcw, User, Trash2, Shield, Users,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
