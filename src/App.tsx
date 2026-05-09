@@ -35,6 +35,9 @@ const SocraticView = lazy(() => import("./pages/SocraticView"));
 const DecisionJournalView = lazy(() => import("./pages/DecisionJournalView"));
 const AboutMeView = lazy(() => import("./pages/AboutMeView"));
 const HomeView = lazy(() => import("./pages/HomeView"));
+const ScreenerView = lazy(() => import("./pages/ScreenerView"));
+const ValuesGoalsView = lazy(() => import("./pages/ValuesGoalsView"));
+const WorryView = lazy(() => import("./pages/WorryView"));
 
 const NewTaskView = lazy(() => import("./pages/NewTaskView"));
 const NewNoteView = lazy(() => import("./pages/NewNoteView"));
