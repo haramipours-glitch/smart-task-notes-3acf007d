@@ -1,37 +1,44 @@
-// Ambient + focus music tracks (CC0 / royalty-free)
-// Pixabay direct hot-linking is blocked; using Mixkit (ambient) + Incompetech (music, CC-BY Kevin MacLeod).
+// Offline ambient + focus music catalog.
+// All sounds are generated in real-time via Web Audio API (see pomodoroSynth.ts).
+// No downloads, instant playback.
+export type SoundCategory = "ambient" | "study" | "relax" | "binaural";
+
 export type AmbientSound = {
   id: string;
   name: string;
   emoji: string;
-  url: string;
+  category: SoundCategory;
   beta?: boolean;
-  category?: "ambient" | "music";
-  credit?: string;
+  hint?: string;
 };
 
 export const AMBIENT_SOUNDS: AmbientSound[] = [
-  // Ambient (Mixkit, royalty-free)
-  { id: "rain",   name: "باران",       emoji: "🌧️", category: "ambient", url: "https://assets.mixkit.co/active_storage/sfx/2515/2515-preview.mp3" },
-  { id: "forest", name: "جنگل",        emoji: "🌲", category: "ambient", url: "https://assets.mixkit.co/active_storage/sfx/1210/1210-preview.mp3" },
-  { id: "waves",  name: "امواج دریا",  emoji: "🌊", category: "ambient", url: "https://assets.mixkit.co/active_storage/sfx/1196/1196-preview.mp3" },
-  { id: "cafe",   name: "کافه",        emoji: "☕", category: "ambient", url: "https://assets.mixkit.co/active_storage/sfx/2435/2435-preview.mp3" },
-  { id: "fire",   name: "شومینه",       emoji: "🔥", category: "ambient", url: "https://assets.mixkit.co/active_storage/sfx/2515/2515-preview.mp3" },
+  // Nature ambience
+  { id: "rain",   name: "باران",        emoji: "🌧️", category: "ambient" },
+  { id: "waves",  name: "امواج دریا",   emoji: "🌊", category: "ambient" },
+  { id: "wind",   name: "باد",          emoji: "🍃", category: "ambient" },
+  { id: "fire",   name: "شومینه",       emoji: "🔥", category: "ambient" },
+  { id: "forest", name: "جنگل",         emoji: "🌲", category: "ambient" },
+  { id: "cafe",   name: "کافه",         emoji: "☕", category: "ambient" },
 
-  // Focus music — BETA (Kevin MacLeod / incompetech, CC-BY 4.0)
-  { id: "meditation_1", name: "Meditation 1 (BETA)", emoji: "🧘",  beta: true, category: "music",
-    credit: "Kevin MacLeod • CC-BY",
-    url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Meditation%20Impromptu%2001.mp3" },
-  { id: "meditation_2", name: "Meditation 2 (BETA)", emoji: "🪷",  beta: true, category: "music",
-    credit: "Kevin MacLeod • CC-BY",
-    url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Meditation%20Impromptu%2003.mp3" },
-  { id: "tranquility",  name: "Tranquility (BETA)",  emoji: "🌌",  beta: true, category: "music",
-    credit: "Kevin MacLeod • CC-BY",
-    url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Tranquility.mp3" },
-  { id: "floating",     name: "Floating Cities (BETA)", emoji: "🏙️", beta: true, category: "music",
-    credit: "Kevin MacLeod • CC-BY",
-    url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Floating%20Cities.mp3" },
-  { id: "inspired",     name: "Inspired (BETA)",     emoji: "✨",  beta: true, category: "music",
-    credit: "Kevin MacLeod • CC-BY",
-    url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Inspired.mp3" },
+  // Study music (offline synth pads)
+  { id: "study_pad", name: "پد مطالعه",  emoji: "📚", category: "study" },
+  { id: "dream_pad", name: "رؤیا",       emoji: "✨", category: "study" },
+  { id: "lofi_pad",  name: "Lo-fi گرم",  emoji: "🎶", category: "study" },
+
+  // Relaxation
+  { id: "calm_pad", name: "آرامش",       emoji: "🧘", category: "relax" },
+
+  // Binaural beats — headphones REQUIRED
+  { id: "binaural_beta",  name: "Beta — تمرکز عمیق",   emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
+  { id: "binaural_alpha", name: "Alpha — تمرکز آرام",  emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
+  { id: "binaural_theta", name: "Theta — مدیتیشن",     emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
+  { id: "binaural_delta", name: "Delta — خواب عمیق",   emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
 ];
+
+export const SOUND_CATEGORY_META: Record<SoundCategory, { label: string; emoji: string }> = {
+  ambient:  { label: "محیطی",    emoji: "🌿" },
+  study:    { label: "مطالعه",   emoji: "📚" },
+  relax:    { label: "آرامش",    emoji: "🧘" },
+  binaural: { label: "امواج مغزی (هندزفری)", emoji: "🎧" },
+};
