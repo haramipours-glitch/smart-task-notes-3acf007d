@@ -245,13 +245,26 @@ export default function ABCView() {
       <div className="space-y-2">
         {records.map((r) => (
           <Card key={r.id}>
-            <CardContent className="p-3 text-sm flex justify-between gap-4">
+            <CardContent className="p-3 text-sm flex justify-between gap-4 items-start">
               <div className="flex-1">
                 <div><strong>{r.trigger}</strong> → {(r.consequences || []).join(", ")}</div>
                 <div className="text-muted-foreground text-xs mt-1">«{r.belief}»</div>
               </div>
-              <div className="text-xs text-muted-foreground shrink-0">
-                {new Date(r.created_at).toLocaleDateString("fa-IR")}
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("fa-IR")}</div>
+                <Button size="sm" variant="outline"
+                  onClick={async () => {
+                    const res = await createTaskFromMind({
+                      user_id: user!.id,
+                      title: `جایگزین رفتاری برای «${r.trigger}»`,
+                      description: `محرک: ${r.trigger}\nباور: ${r.belief}\nنتیجه: ${(r.consequences || []).join(", ")}\n\nقدم بعدی: یک رفتار جایگزین برای دفعه بعد طراحی کن.`,
+                      due_in_days: 1,
+                    });
+                    if (res.ok) toast.success("به Task اضافه شد");
+                    else toast.error(res.error || "خطا");
+                  }}>
+                  <ListPlus className="w-3.5 h-3.5 ms-1" /> Task
+                </Button>
               </div>
             </CardContent>
           </Card>
