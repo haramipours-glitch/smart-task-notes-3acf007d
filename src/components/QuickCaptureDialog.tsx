@@ -124,6 +124,7 @@ export default function QuickCaptureDialog() {
             />
           </TabsContent>
         </Tabs>
+        </div>
         <div className="flex justify-between items-center pt-2">
           <span className="text-[10px] text-muted-foreground ltr">⌘N • Enter = ثبت</span>
           <Button onClick={submit} disabled={busy || !title.trim()} size="sm">
