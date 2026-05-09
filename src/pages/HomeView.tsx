@@ -48,7 +48,7 @@ const ALL_QUICK: { key: string; icon: any; to: string; label: string; color: str
   { key: "abc", icon: Lightbulb, to: "/app/abc", label: "ABC", color: "text-yellow-500" },
   { key: "decisions", icon: Compass, to: "/app/decisions", label: "ژورنال تصمیم", color: "text-teal-500" },
   { key: "self", icon: BookOpen, to: "/app/self", label: "خودشناسی", color: "text-fuchsia-500" },
-  { key: "insights", icon: BarChart3, to: "/app/insights", label: "بینش‌ها", color: "text-green-500" },
+  
   { key: "settings", icon: Settings, to: "/app/settings", label: "تنظیمات", color: "text-muted-foreground" },
 ];
 
