@@ -43,6 +43,7 @@ const ALL_QUICK: { key: string; icon: any; to: string; label: string; color: str
   { key: "pomodoro", icon: Timer, to: "/app/pomodoro", label: "Pomodoro", color: "text-amber-500" },
   { key: "habits", icon: Repeat, to: "/app/habits", label: "عادت‌ها", color: "text-pink-500" },
   
+  { key: "mind", icon: Brain, to: "/app/mind", label: "ذهن", color: "text-purple-500" },
   { key: "checkin", icon: Heart, to: "/app/checkin", label: "چک‌این", color: "text-rose-500" },
   { key: "thoughts", icon: Brain, to: "/app/thoughts", label: "ثبت افکار", color: "text-purple-500" },
   { key: "abc", icon: Lightbulb, to: "/app/abc", label: "ABC", color: "text-yellow-500" },

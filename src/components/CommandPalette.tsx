@@ -22,6 +22,7 @@ const NAV = [
   
   { label: "عادات", to: "/app/habits", icon: Heart, keywords: "habits عادت" },
   { label: "Pomodoro", to: "/app/pomodoro", icon: Timer, keywords: "pomodoro تمرکز" },
+  { label: "داشبورد ذهن", to: "/app/mind", icon: Brain, keywords: "mind ذهن داشبورد" },
   { label: "خودشناسی", to: "/app/self", icon: Brain, keywords: "self شخصیت" },
   { label: "چک‌این روزانه", to: "/app/checkin", icon: Heart, keywords: "checkin checkin روزانه" },
   { label: "ثبت افکار CBT", to: "/app/thoughts", icon: Brain, keywords: "thought cbt افکار" },
