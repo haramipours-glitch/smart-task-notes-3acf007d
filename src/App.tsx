@@ -99,6 +99,9 @@ const App = () => {
                 <Route path="abc" element={<ABCView />} />
                 <Route path="socratic" element={<SocraticView />} />
                 <Route path="decisions" element={<DecisionJournalView />} />
+                <Route path="screener/:type" element={<ScreenerView />} />
+                <Route path="values" element={<ValuesGoalsView />} />
+                <Route path="worry" element={<WorryView />} />
                 <Route path="about-me" element={<AboutMeView />} />
                 <Route path="settings" element={<SettingsView />} />
                 <Route path="admin" element={<AdminView />} />
