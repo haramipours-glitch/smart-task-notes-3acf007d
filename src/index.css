@@ -242,3 +242,13 @@
 .prose-note blockquote { @apply border-l-4 border-primary pl-4 italic my-2 text-muted-foreground; }
 .prose-note a { @apply text-primary underline; }
 .prose-note input[type="checkbox"] { @apply mr-2; }
+
+/* Smooth, snappy global transitions for buttons / cards / interactive surfaces */
+@media (prefers-reduced-motion: no-preference) {
+  button, a, [role="button"], .card, [data-radix-popper-content-wrapper] > * {
+    transition-property: transform, background-color, border-color, color, box-shadow, opacity;
+    transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+    transition-duration: 160ms;
+  }
+  button:active, [role="button"]:active { transform: scale(0.97); }
+}
