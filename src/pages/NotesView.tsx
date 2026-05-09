@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Plus, Pin, Trash2, Search, Sparkles, Loader2, FolderInput, PinOff } from "lucide-react";
+import { Plus, Pin, Trash2, Search, Sparkles, Loader2, FolderInput, PinOff, Share2 } from "lucide-react";
+import ShareDialog from "@/components/ShareDialog";
 import SwipeableRow from "@/components/gestures/SwipeableRow";
 import { MoveToDialog } from "@/components/MoveToDialog";
 import { startItemDrag } from "@/lib/dragToFolder";
@@ -79,6 +80,7 @@ export default function NotesView() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiLang, setAiLang] = useState<AILanguage>(getAILanguage());
   const [moveOpen, setMoveOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const load = async () => {
     if (!user) return;
@@ -247,6 +249,9 @@ export default function NotesView() {
               <Button size="icon" variant="ghost" onClick={() => setMoveOpen(true)} title="انتقال به فولدر">
                 <FolderInput className="w-4 h-4" />
               </Button>
+              <Button size="icon" variant="ghost" onClick={() => setShareOpen(true)} title="اشتراک‌گذاری">
+                <Share2 className="w-4 h-4" />
+              </Button>
               <Button size="icon" variant="ghost" onClick={() => setConfirmDel(selected)}>
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -293,14 +298,23 @@ export default function NotesView() {
       </AlertDialog>
 
       {selected && (
-        <MoveToDialog
-          open={moveOpen}
-          onOpenChange={setMoveOpen}
-          kind="note"
-          itemId={selected.id}
-          currentFolderId={selected.folder_id ?? null}
-          onMoved={(fid) => { setSelected({ ...selected, folder_id: fid } as any); load(); }}
-        />
+        <>
+          <MoveToDialog
+            open={moveOpen}
+            onOpenChange={setMoveOpen}
+            kind="note"
+            itemId={selected.id}
+            currentFolderId={selected.folder_id ?? null}
+            onMoved={(fid) => { setSelected({ ...selected, folder_id: fid } as any); load(); }}
+          />
+          <ShareDialog
+            open={shareOpen}
+            onOpenChange={setShareOpen}
+            resourceType="note"
+            resourceId={selected.id}
+            resourceTitle={selected.title}
+          />
+        </>
       )}
     </div>
   );

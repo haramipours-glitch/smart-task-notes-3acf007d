@@ -1,137 +1,58 @@
-# نقشه‌ی ژست‌های حرفه‌ای — Arshnaz
+# پلن: اشتراک‌گذاری + تقویت زبان انگلیسی
 
-الهام‌گرفته از **Things 3, Todoist, TickTick, Notion, Apple Notes, Telegram, iOS Mail**.
-هدف: هر ژست یک معنای ثابت و قابل‌پیش‌بینی داشته باشد، با Haptic ظریف و بدون تداخل با اسکرول/سایدبار.
-
----
-
-## 1) قانون‌های پایه (Gesture Grammar)
-
-| ژست | معنای ثابت در کل اپ |
-|---|---|
-| Tap | انتخاب / باز کردن |
-| Double-tap | اکشن سریعِ اصلی همان آیتم (مثل ❤ در اینستاگرام) |
-| Long-press (≥450ms) | منوی کانتکست (Action Sheet) |
-| Swipe → (راست) | اکشن مثبت (تکمیل/آرشیو) |
-| Swipe ← (چپ) | اکشن منفی (حذف/اسنوز) |
-| Swipe طولانی (full-swipe >60%) | اجرای فوری بدون تأیید |
-| Two-finger swipe | Undo/Redo (مثل Apple Notes) |
-| Pull down | Refresh |
-| Pull up (در تَه لیست) | بارگذاری بیشتر / ساخت آیتم جدید |
-| Edge-swipe | باز کردن منو (موجود) |
-| Pinch | Zoom محتوا (در نوت/تقویم) |
+دو فیچر بزرگ که هرکدام چند مرحله دارد. پایین خلاصهٔ کاربری + بخش فنی.
 
 ---
 
-## 2) روی **تسک‌ها** (TaskItem)
+## بخش ۱ — اشتراک‌گذاری Task / Note / Folder
 
-موجود: swipe complete/delete، long-press → action sheet. اضافه می‌شود:
+### رفتار کاربر
+- روی هر تسک/نوت/فولدر دکمهٔ **Share** اضافه می‌شود (در منوی action sheet موبایل و در صفحهٔ جزئیات).
+- کاربر ایمیل شخص مقابل را وارد می‌کند و یکی از سه سطح مجوز را انتخاب می‌کند:
+  - **View** — فقط دیدن
+  - **Comment/Complete** — می‌تواند تسک را تکمیل/زیرتسک اضافه کند، اما حذف/ویرایش عنوان نه
+  - **Edit** — دسترسی کامل به‌جز حذف اصلی و تغییر مالک
+- اگر طرف مقابل هنوز در سیستم نیست، یک **invite** ساخته می‌شود و پس از ثبت‌نام با همان ایمیل، خودکار به آیتم‌های share شده وصل می‌شود.
+- در سایدبار بخش جدید **"Shared with me"** اضافه می‌شود که آیتم‌های دریافتی را گروه‌بندی می‌کند (Tasks / Notes / Folders).
+- در سطر هر آیتم share شده، آیکن کوچک 👥 + آواتار افراد نمایش داده می‌شود.
+- صاحب آیتم می‌تواند هر زمان مجوز را تغییر دهد یا اشتراک را لغو کند (از همان sheet).
+- برای فولدر: اشتراک به‌صورت **cascading** است — همهٔ تسک/نوت‌های داخل فولدر هم share می‌شوند.
 
-- **Double-tap روی تسک** → باز کردن صفحه‌ی جزئیات (سریع‌تر از long-press → ویرایش)
-- **Swipe کوتاه راست (40-95px)** → نگه داشتن در حالت reveal با دکمه‌های "تکمیل / فردا / +۷ روز" (مثل iOS Mail)
-- **Swipe کوتاه چپ** → reveal "حذف / Snooze / تغییر اولویت"
-- **Full-swipe راست (>60% عرض)** → تکمیل آنی + Undo toast (۵ ثانیه)
-- **Full-swipe چپ** → حذف آنی + Undo toast
-- **Long-press + drag (روی هندل)** → Reorder درون لیست
-- **Long-press روی چک‌باکس** → باز کردن انتخاب چندتایی (Multi-select) — مثل Things
-- **Two-finger swipe چپ/راست** → Undo / Redo آخرین عملیات
-
-## 3) روی **نوت‌ها**
-
-- **Double-tap روی کارت نوت** → ورود به حالت ویرایش سریع
-- **Swipe راست** → Pin/Unpin
-- **Swipe چپ** → آرشیو (نه حذف؛ حذف فقط از long-press)
-- **Long-press** → Action sheet: اشتراک، کپی لینک، انتقال به فولدر، رنگ‌گذاری
-- **Pinch داخل نوت** → بزرگ/کوچک کردن متن (font-size موقت)
-- **Two-finger swipe** → Undo/Redo ویرایش
-
-## 4) روی **عادت‌ها (Habits)**
-
-- **Tap** روی روز → toggle انجام
-- **Double-tap** → ثبت با شمارش +۱ (برای عادت‌های شمارشی)
-- **Long-press روی روز** → یادداشت برای آن روز + تعیین مقدار دلخواه
-- **Swipe راست روی کارت عادت** → streak freeze (مرخصی یک‌روزه)
-- **Swipe چپ** → آرشیو
-
-## 5) روی **تقویم**
-
-- **Swipe افقی** → ماه/هفته‌ی بعد و قبل (موجود در ماهانه؛ به هفتگی/روزانه هم اضافه شود)
-- **Swipe عمودی روی Day view** → جابه‌جایی ساعت‌ها
-- **Double-tap روی یک slot ساعتی** → ساخت رویداد/تسک سریع در همان ساعت
-- **Long-press روی روز** → Day Detail Sheet (موجود) + گزینه‌ی "ساخت تسک برای این روز"
-- **Pinch روی Day/Week** → zoom ساعت‌ها (1h ↔ 30min ↔ 15min)
-- **Drag رویداد** → جابه‌جایی زمان
-
-## 6) روی **Pomodoro**
-
-- **Double-tap روی تایمر** → Start/Pause
-- **Long-press روی تایمر** → Reset
-- **Swipe راست** → Skip به استراحت
-- **Swipe چپ** → Skip به session بعد
-
-## 7) روی **Kanban**
-
-- **Long-press روی کارت** → پیکاپ برای drag بین ستون‌ها (موجود) + Haptic medium
-- **Double-tap روی کارت** → باز کردن جزئیات
-- **Swipe افقی روی ستون** → جابه‌جایی بین ستون‌ها وقتی صفحه باریک است
-
-## 8) **ناوبری سراسری**
-
-- **Swipe افقی روی صفحه** (موجود) → بین Home/Today/Inbox/...
-- **Swipe از پایین به بالا (در BottomTabBar)** → باز کردن Quick Capture
-- **Double-tap روی تَب فعال** → اسکرول به بالا (مثل Twitter/Instagram)
-- **Long-press روی تَب** → منوی میان‌بُر آن بخش (مثلاً روی Today: "ساخت تسک امروز / مشاهده‌ی فردا")
-- **Two-finger tap** → باز/بسته کردن AI Panel
-- **Swipe از لبه‌ی پایین به بالا** → نمایش Command Palette
-
-## 9) **Haptic Map** (همه ظریف، فقط روی اکشن‌های مهم)
-
-| رویداد | الگو |
-|---|---|
-| تکمیل تسک | success (۱۰ms) |
-| حذف | warning (۲۰ms) |
-| Long-press fired | medium (۱۵ms) |
-| Threshold reached هنگام swipe | light (۸ms) |
-| Undo | light |
-| Drag pickup | medium |
-| Snap به ستون Kanban | light |
+### بخش فنی
+- جدول جدید `shares`:
+  - `id`, `owner_id`, `recipient_id (nullable)`, `recipient_email`, `resource_type` (`task|note|folder`), `resource_id`, `permission` (`view|comment|edit`), `accepted_at`, `created_at`.
+- RLS: مالک کنترل کامل؛ گیرنده فقط share های خودش را می‌بیند.
+- توسعهٔ RLS روی `tasks`, `notes`, `folders` با security-definer function `has_share_access(resource_id, resource_type, level)` تا گیرنده‌ها بتوانند براساس مجوزشان CRUD کنند.
+- برای فولدر: تابع helper بازگشتی که تسک/نوت‌های داخل فولدرهای shared را هم پوشش دهد.
+- وقتی کاربر جدید با ایمیل مطابق ثبت‌نام کرد، در trigger `handle_new_user` رکوردهای `shares` با `recipient_email` ست می‌شوند روی `recipient_id`.
+- UI:
+  - `src/components/ShareDialog.tsx` (دیالوگ مدیریت اشتراک + لیست افراد + انتخاب permission)
+  - دکمهٔ Share در `TaskActionSheet`, `SidebarItemSheet`, `NotesView` toolbar, `TaskDetail`
+  - بخش "Shared with me" در `AppSidebar`
+  - فچ shared items در queryهای موجود tasks/notes/folders با union
 
 ---
 
-## فازبندی پیاده‌سازی (پیشنهادی، قابل تیک‌زدن)
+## بخش ۲ — تقویت کامل English (i18n)
 
-**فاز ۱ — برد سریع (همین حالا)**
-1. Double-tap روی TaskItem → باز کردن جزئیات
-2. Double-tap روی تَب فعال در BottomTabBar → scroll-to-top
-3. Two-finger swipe → Undo/Redo (هوک سراسری)
-4. Full-swipe (>60%) → اجرای آنی + Undo toast
-5. Long-press روی چک‌باکس → multi-select mode
+### رفتار کاربر
+- LanguageSwitcher موجود است ولی فقط بخش کوچکی از UI ترجمه شده. همه‌جا به فارسی hardcoded است.
+- بعد از این کار، با تغییر زبان به English، کل برنامه (تب‌بار، sidebar، toolbarها، dialogها، toastها، action sheetها، فرم‌ها، صفحات Settings/Insights/Pomodoro/Habits/Goals/...) به انگلیسی روان تبدیل می‌شود.
+- جهت متن (RTL/LTR) خودکار با زبان عوض می‌شود.
 
-**فاز ۲ — نوت‌ها و عادت‌ها**
-6. Swipe روی نوت‌ها (Pin/Archive) + double-tap edit
-7. Double-tap روی روز عادت = +۱، long-press = یادداشت
-
-**فاز ۳ — تقویم و پومودورو**
-8. Pinch zoom در Day/Week
-9. Double-tap slot → ساخت سریع
-10. Pomodoro double-tap/long-press/swipe
-
-**فاز ۴ — Kanban و micro-polish**
-11. Swipe بین ستون‌های Kanban در موبایل
-12. Long-press روی تَب‌های ناوبری → میان‌بُر
-13. هماهنگ‌سازی کامل Haptic Map
+### بخش فنی
+- گسترش `src/i18n/locales/en.ts` و `fa.ts` با ~۲۵۰+ کلید جدید زیر namespaceهای: `tasks`, `notes`, `folders`, `tags`, `share`, `pomodoro`, `habits`, `goals`, `calendar`, `insights`, `review`, `checkin`, `cbt`, `settings`, `actions`, `gestures`, `sidebar`, `toasts`, `dialogs`, `placeholders`, `errors`.
+- جایگزینی stringهای فارسی hardcoded در فایل‌های پرکاربرد با `t("namespace.key")`:
+  - `BottomTabBar`, `AppSidebar`, `TaskActionSheet`, `SidebarItemSheet`, `RecentlyDeletedSheet`, `QuickCaptureDialog`, `MoveToDialog`, `KeyboardShortcutsDialog`, `TasksView`, `NotesView`, `KanbanView`, `HomeView`, `PomodoroTimer`, `HabitsView`, `GoalsView`, `CalendarView`, `SettingsView`, `InsightsView`, دیالوگ‌های confirm.
+- تنظیم `dir` در `<html>` خودکار براساس `i18n.language` در `i18n/index.ts` (اگر هنوز نیست).
+- همهٔ `toast.success/error` ها از طریق helper `tToast(key)` که زبان فعلی را می‌خواند.
 
 ---
 
-## نکات فنی (برای توسعه)
+## ترتیب پیاده‌سازی پیشنهادی
+1. اول **بخش ۲ (i18n)** — چون پایه‌ای است و در stringهای دیالوگ Share هم استفاده می‌شود.
+2. سپس **بخش ۱ (Sharing)** — مهاجرت دیتابیس، helper function، RLS، UI، sidebar section.
 
-- یک هوک واحد `useGestures` می‌سازیم که tap/double-tap/long-press/swipe را با state-machine مدیریت کند و از تداخل tap با double-tap (delay 250ms) جلوگیری کند.
-- Double-tap فقط روی موبایل فعال شود (`useIsMobile`).
-- Two-finger gestures با `e.touches.length === 2` تشخیص داده شوند و در `window` listener جداگانه.
-- Multi-select با Context سراسری `SelectionContext` (آرایه‌ی idهای انتخاب‌شده + اکشن‌بار شناور پایین).
-- Undo از `undoStack` موجود استفاده کند.
-- همه‌ی ژست‌های جدید با feature-flag در Settings قابل خاموش شدن باشند: `gestures.doubleTap`, `gestures.fullSwipe`, `gestures.twoFinger`.
+---
 
-## بعد از تأیید
-
-به من بگو **کدام فاز(ها)** را اول بسازم — یا اگر همه‌ی فاز ۱ سبز است، مستقیم شروع می‌کنم.
+**سوال قبل از شروع:** چون این دو فیچر بزرگ‌اند، آیا می‌خواهی **هر دو را در همین مرحله** کامل کنم، یا اول **فقط i18n** و در پیام بعدی Sharing؟ همچنین برای Sharing، **سطوح مجوز سه‌گانه (View/Comment/Edit)** درست است یا فقط **View/Edit** کافی است؟
