@@ -80,6 +80,7 @@ export default function NotesView() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiLang, setAiLang] = useState<AILanguage>(getAILanguage());
   const [moveOpen, setMoveOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const load = async () => {
     if (!user) return;
