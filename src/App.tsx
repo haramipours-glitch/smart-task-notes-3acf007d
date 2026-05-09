@@ -101,6 +101,7 @@ const App = () => {
                 <Route path="about-me" element={<AboutMeView />} />
                 <Route path="settings" element={<SettingsView />} />
                 <Route path="admin" element={<AdminView />} />
+                <Route path="shared" element={<SharedWithMeView />} />
                 <Route path="new/task" element={<NewTaskView />} />
                 <Route path="new/note" element={<NewNoteView />} />
                 <Route path="tasks/:id" element={<TaskDetailView />} />
