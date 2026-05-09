@@ -57,9 +57,10 @@ export default function NewTaskView() {
     })();
   }, [user]);
 
-  // Cleanup: if user leaves without giving the task a real title, delete it.
+  // Cleanup: if user leaves without giving the task a real title AND didn't press save, delete it.
   useEffect(() => {
     return () => {
+      if (savedRef.current) return;
       const d = draftRef.current;
       if (!d) return;
       const isEmpty = !d.title?.trim() || d.title.trim() === "تسک جدید";
@@ -79,8 +80,7 @@ export default function NewTaskView() {
       return;
     }
     setBusy(true);
-    // mark as not-empty so cleanup won't delete it
-    draftRef.current = { ...draft, title: draft.title || "بدون عنوان" };
+    savedRef.current = true;
     setBusy(false);
     toast.success("تسک ذخیره شد");
     navigate(-1);
