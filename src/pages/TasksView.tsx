@@ -401,7 +401,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     if (overId === "root") {
       const patch = scopeRootPatch();
       setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, ...patch } as Task : t));
-      const { error } = await supabase.from("tasks").update(patch).eq("id", activeId);
+      const { error } = await supabase.from("tasks").update(patch as any).eq("id", activeId);
       if (error) toast.error(error.message);
       return;
     }
@@ -439,7 +439,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
         ? { parent_id: overTask.parent_id }
         : scopeRootPatch();
       setAllTasks(prev => prev.map(t => t.id === activeId ? { ...t, ...patch } as Task : t));
-      await supabase.from("tasks").update(patch).eq("id", activeId);
+      await supabase.from("tasks").update(patch as any).eq("id", activeId);
       return;
     }
     if (fromIdx < 0 || toIdx < 0) return;
