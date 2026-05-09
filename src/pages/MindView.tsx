@@ -5,11 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   Activity, BookOpen, Zap, MessageCircleQuestion, Sparkles,
   TrendingUp, Heart, Brain, Flame, Calendar, ArrowLeft,
+  Compass, Wind, ClipboardCheck,
 } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Area, AreaChart,
 } from "recharts";
 import { DISTORTION_LABELS } from "@/lib/distortions";
+import { SCREENERS, severityColor, type ScreenerType } from "@/lib/assessments/screeners";
 
 type Checkin = {
   checkin_date: string; mood: number | null; energy: number | null;
@@ -30,13 +32,28 @@ const TOOLS = [
     icon: Zap, gradient: "from-amber-500 via-orange-500 to-red-500",
   },
   {
+    to: "/app/worry", title: "Worry / Problem-Solving", desc: "تفکیک نگرانی قابل‌حل از غیرقابل‌حل",
+    icon: Wind, gradient: "from-sky-500 via-blue-500 to-indigo-500",
+  },
+  {
+    to: "/app/values", title: "Values & Goals (ACT)", desc: "ارزش‌ها، شکاف‌ها و هدف‌های معنادار",
+    icon: Compass, gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+  },
+  {
     to: "/app/socratic", title: "چت سقراطی", desc: "گفت‌وگوی هدایت‌شده با AI برای چالش افکار",
     icon: MessageCircleQuestion, gradient: "from-cyan-500 via-sky-500 to-blue-500",
   },
   {
     to: "/app/decisions", title: "ژورنال تصمیم", desc: "ثبت، پیش‌بینی و مرور تصمیم‌ها",
-    icon: Sparkles, gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+    icon: Sparkles, gradient: "from-fuchsia-500 via-purple-500 to-violet-500",
   },
+];
+
+const SCREENER_LIST: { type: ScreenerType; gradient: string }[] = [
+  { type: "phq9", gradient: "from-rose-500 to-red-600" },
+  { type: "gad7", gradient: "from-amber-500 to-orange-600" },
+  { type: "who5", gradient: "from-emerald-500 to-teal-600" },
+  { type: "burnout", gradient: "from-slate-500 to-zinc-700" },
 ];
 
 function StatCard({ label, value, icon: Icon, tone }: { label: string; value: string | number; icon: any; tone: string }) {
@@ -70,13 +87,14 @@ export default function MindView() {
   const [abcCount, setAbcCount] = useState(0);
   const [decisionCount, setDecisionCount] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [latestScreeners, setLatestScreeners] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       const since90 = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
       const since30iso = new Date(Date.now() - 30 * 86400000).toISOString();
-      const [{ data: ck }, { data: tr }, { count: ac }, { count: dc }] = await Promise.all([
+      const [{ data: ck }, { data: tr }, { count: ac }, { count: dc }, { data: scr }] = await Promise.all([
         supabase.from("daily_checkins").select("checkin_date,mood,energy,focus,stress,sleep_quality")
           .eq("user_id", user.id).gte("checkin_date", since90).order("checkin_date"),
         supabase.from("thought_records").select("distortions,created_at")
@@ -85,22 +103,30 @@ export default function MindView() {
           .eq("user_id", user.id).gte("created_at", since30iso),
         supabase.from("decision_journal").select("*", { count: "exact", head: true })
           .eq("user_id", user.id).gte("created_at", since30iso),
+        supabase.from("assessment_results")
+          .select("assessment_type, scores, analysis, completed_at")
+          .eq("user_id", user.id)
+          .in("assessment_type", ["phq9", "gad7", "who5", "burnout"])
+          .order("completed_at", { ascending: false }),
       ]);
       setCheckins((ck || []) as Checkin[]);
       setThoughtCount((tr || []).length);
       setAbcCount(ac || 0);
       setDecisionCount(dc || 0);
+      // Latest result per screener
+      const map: Record<string, any> = {};
+      (scr || []).forEach((r: any) => { if (!map[r.assessment_type]) map[r.assessment_type] = r; });
+      setLatestScreeners(map);
       // Top distortions
       const counts: Record<string, number> = {};
       (tr || []).forEach((r: any) => (r.distortions || []).forEach((d: string) => { counts[d] = (counts[d] || 0) + 1; }));
       setTopDistortions(Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([key, n]) => ({ key, n })));
-      // Streak: consecutive days with check-in ending today/yesterday
       const dates = new Set((ck || []).map((c: any) => c.checkin_date));
       let s = 0;
       for (let i = 0; i < 90; i++) {
         const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
         if (dates.has(d)) s++;
-        else if (i > 0) break; // allow today missing, break after first gap
+        else if (i > 0) break;
       }
       setStreak(s);
     })();
@@ -249,6 +275,39 @@ export default function MindView() {
           </div>
         </div>
       )}
+
+      {/* Screeners */}
+      <div>
+        <h3 className="font-semibold mb-3 flex items-center gap-2">
+          <ClipboardCheck className="w-4 h-4 text-primary" /> غربالگرهای کوتاه
+          <span className="text-xs font-normal text-muted-foreground">— ردیابی شخصی، نه تشخیص بالینی</span>
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {SCREENER_LIST.map(({ type, gradient }) => {
+            const meta = SCREENERS[type];
+            const last = latestScreeners[type];
+            const sev = last?.analysis?.severity;
+            return (
+              <Link key={type} to={`/app/screener/${type}`}
+                className={`group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br ${gradient} text-white shadow-sm hover-scale transition-all`}>
+                <div className="text-[11px] opacity-80">{meta.title.split(" — ")[1] || meta.title}</div>
+                <div className="text-lg font-bold mt-1">{meta.title.split(" — ")[0]}</div>
+                {last ? (
+                  <div className="mt-2">
+                    <div className="text-2xl font-bold tabular-nums">{last.scores?.raw}</div>
+                    <div className="text-[10px] opacity-90">{last.analysis?.severityLabel}</div>
+                  </div>
+                ) : (
+                  <div className="text-[11px] opacity-80 mt-2">شروع تست</div>
+                )}
+                {sev && (
+                  <div className="absolute top-2 end-2 w-2 h-2 rounded-full" style={{ background: severityColor(sev) }} />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Tools grid */}
       <div>
