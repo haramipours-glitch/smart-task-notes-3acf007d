@@ -50,6 +50,7 @@ const EN_LABELS: Record<string, string> = {
   "نوت‌ها": "Notes",
   "مرور (SR)": "Review (SR)",
   "خودشناسی": "Self-Knowledge",
+  "داشبورد ذهن": "Mind Dashboard",
   "بینش هفتگی": "Weekly Insights",
   "بازنگری هفتگی": "Weekly Review",
   "Check-in روزانه": "Daily Check-in",
@@ -94,7 +95,6 @@ const SECTIONS: Section[] = [
   {
     id: "grow", title: "رشد", icon: TrendingUp, defaultOpen: false,
     items: [
-      { url: "/app/goals", icon: Target, label: "اهداف" },
       { url: "/app/habits", icon: Target, label: "عادت‌ها" },
       { url: "/app/notes", icon: FileText, label: "نوت‌ها" },
     ],
@@ -102,6 +102,7 @@ const SECTIONS: Section[] = [
   {
     id: "mind", title: "ذهن", icon: BrainCircuit, defaultOpen: false,
     items: [
+      { url: "/app/mind", icon: BrainCircuit, label: "داشبورد ذهن" },
       { url: "/app/checkin", icon: Activity, label: "Check-in روزانه" },
       { url: "/app/thoughts", icon: BookOpen, label: "ثبت افکار (CBT)" },
       { url: "/app/abc", icon: Zap, label: "مدل ABC" },

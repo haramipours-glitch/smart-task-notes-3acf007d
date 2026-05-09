@@ -19,9 +19,10 @@ const NAV = [
   { label: "هفت روز آینده", to: "/app/next7", icon: Calendar, keywords: "week 7" },
   { label: "تقویم", to: "/app/calendar", icon: Calendar, keywords: "calendar تقویم" },
   { label: "نوت‌ها", to: "/app/notes", icon: FileText, keywords: "notes نوت یادداشت" },
-  { label: "اهداف", to: "/app/goals", icon: Target, keywords: "goals اهداف" },
+  
   { label: "عادات", to: "/app/habits", icon: Heart, keywords: "habits عادت" },
   { label: "Pomodoro", to: "/app/pomodoro", icon: Timer, keywords: "pomodoro تمرکز" },
+  { label: "داشبورد ذهن", to: "/app/mind", icon: Brain, keywords: "mind ذهن داشبورد" },
   { label: "خودشناسی", to: "/app/self", icon: Brain, keywords: "self شخصیت" },
   { label: "چک‌این روزانه", to: "/app/checkin", icon: Heart, keywords: "checkin checkin روزانه" },
   { label: "ثبت افکار CBT", to: "/app/thoughts", icon: Brain, keywords: "thought cbt افکار" },
