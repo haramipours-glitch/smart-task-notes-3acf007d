@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { AMBIENT_SOUNDS } from "@/lib/ambientSounds";
+import { AMBIENT_SOUNDS, SOUND_CATEGORY_META, type SoundCategory } from "@/lib/ambientSounds";
+import { startSynth, stopSynth, setSynthVolume } from "@/lib/pomodoroSynth";
 import { END_BELLS, playEndBell, type EndBellId } from "@/lib/pomodoroSounds";
 import { useTapGestures } from "@/lib/useTapGestures";
 import { haptic } from "@/lib/haptics";
@@ -35,28 +36,25 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const [mode, setMode] = useState<"work" | "break">("work");
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedAtRef = useRef<number | null>(null);
   const totalSecRef = useRef<number>((defaultMinutes ?? prefs.minutes) * 60);
 
   // sync prefs to storage
   useEffect(() => { savePrefs(prefs); }, [prefs]);
 
-  // Ambient audio: create on mount/change
+  // Ambient/music: switch instantly when running (offline synth)
   useEffect(() => {
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-    const sound = AMBIENT_SOUNDS.find(s => s.id === prefs.ambient);
-    if (sound) {
-      const a = new Audio(sound.url);
-      a.loop = true;
-      a.volume = prefs.ambientVol / 100;
-      audioRef.current = a;
+    if (!running) { stopSynth(); return; }
+    if (prefs.ambient && prefs.ambient !== "none") {
+      startSynth(prefs.ambient, prefs.ambientVol);
+    } else {
+      stopSynth();
     }
-    return () => { audioRef.current?.pause(); audioRef.current = null; };
-  }, [prefs.ambient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefs.ambient, running]);
 
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = prefs.ambientVol / 100;
+    setSynthVolume(prefs.ambientVol);
   }, [prefs.ambientVol]);
 
   // Tick
@@ -81,7 +79,7 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
 
   const finishSession = async () => {
     setRunning(false);
-    audioRef.current?.pause();
+    stopSynth();
     playEndBell(prefs.bell);
     if (mode === "work") {
       const dur = Math.round(totalSecRef.current / 60);
@@ -117,16 +115,16 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
         totalSecRef.current = minutes * 60 + seconds;
       }
       startedAtRef.current = Date.now();
-      audioRef.current?.play().catch(() => {});
+      prefs.ambient && prefs.ambient !== "none" && startSynth(prefs.ambient, prefs.ambientVol);
     } else {
-      audioRef.current?.pause();
+      stopSynth();
     }
     setRunning(!running);
   };
 
   const reset = () => {
     setRunning(false);
-    audioRef.current?.pause();
+    stopSynth();
     const m = mode === "work" ? prefs.minutes : 5;
     setMinutes(m); setSeconds(0);
     totalSecRef.current = m * 60;
@@ -223,15 +221,36 @@ export default function PomodoroTimer({ taskId = null, defaultMinutes, compact =
         </div>
 
         <div className="flex items-center gap-2">
-          <Label className="text-xs flex-1">صدای محیطی</Label>
+          <Label className="text-xs flex-1">صدای محیطی / موسیقی</Label>
           <Select value={prefs.ambient} onValueChange={(v) => setPrefs(p => ({ ...p, ambient: v }))}>
-            <SelectTrigger className="h-8 w-40 text-xs"><SelectValue placeholder="بدون صدا" /></SelectTrigger>
-            <SelectContent>
+            <SelectTrigger className="h-8 w-44 text-xs"><SelectValue placeholder="بدون صدا" /></SelectTrigger>
+            <SelectContent className="max-h-80">
               <SelectItem value="none">🔇 بدون صدا</SelectItem>
-              {AMBIENT_SOUNDS.map(s => <SelectItem key={s.id} value={s.id}>{s.emoji} {s.name}</SelectItem>)}
+              {(Object.keys(SOUND_CATEGORY_META) as SoundCategory[]).map((cat) => {
+                const items = AMBIENT_SOUNDS.filter(s => s.category === cat);
+                if (!items.length) return null;
+                const meta = SOUND_CATEGORY_META[cat];
+                return (
+                  <div key={cat}>
+                    <div className="px-2 py-1 text-[10px] text-muted-foreground border-t mt-1">
+                      {meta.emoji} {meta.label}
+                    </div>
+                    {items.map(s => (
+                      <SelectItem key={s.id} value={s.id}>{s.emoji} {s.name}</SelectItem>
+                    ))}
+                  </div>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
+
+        {(() => {
+          const cur = AMBIENT_SOUNDS.find(s => s.id === prefs.ambient);
+          if (cur?.hint) return <div className="text-[10px] text-amber-600 dark:text-amber-400 ms-1">⚠️ {cur.hint}</div>;
+          return null;
+        })()}
+
 
         {prefs.ambient !== "none" && (
           <div className="flex items-center gap-2">
