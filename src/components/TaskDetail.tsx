@@ -269,12 +269,6 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               </Popover>
             </div>
 
-            {/* Goal link */}
-            <GoalPicker
-              value={(t as any).goal_id ?? null}
-              onChange={(id) => save({ goal_id: id } as any)}
-            />
-
             {/* Due date + reminder (compact, integrated) */}
             <DueDatePicker
               label="سررسید"

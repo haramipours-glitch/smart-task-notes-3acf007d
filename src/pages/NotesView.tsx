@@ -257,13 +257,6 @@ export default function NotesView() {
               </Button>
             </div>
 
-            <div className="mb-3 max-w-xs">
-              <GoalPicker
-                value={selected.goal_id ?? null}
-                onChange={(id) => save({ goal_id: id } as any)}
-              />
-            </div>
-
             <NoteEditorTabs
               noteId={selected.id}
               markdown={draft?.md ?? selected.content ?? ""}
