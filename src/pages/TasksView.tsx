@@ -470,6 +470,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
         <SortableTaskRow id={t.id}>
           {(dragHandle) => (
             <SwipeableRow
+              disabled
               onComplete={() => toggleTask(t)}
               onDelete={() => askDeleteTask(t)}
               isCompleted={t.completed}
