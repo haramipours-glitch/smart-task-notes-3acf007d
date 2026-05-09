@@ -22,6 +22,7 @@ export default function NewTaskView() {
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState<ConfirmState>(null);
   const createdRef = useRef(false);
+  const savedRef = useRef(false);
 
   // Create the draft once
   useEffect(() => {
