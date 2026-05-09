@@ -41,6 +41,7 @@ const NewTaskView = lazy(() => import("./pages/NewTaskView"));
 const NewNoteView = lazy(() => import("./pages/NewNoteView"));
 const TaskDetailView = lazy(() => import("./pages/TaskDetailView"));
 const AdminView = lazy(() => import("./pages/AdminView"));
+const SharedWithMeView = lazy(() => import("./pages/SharedWithMeView"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
