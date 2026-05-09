@@ -25,6 +25,7 @@ const SettingsView = lazy(() => import("./pages/SettingsView"));
 const KanbanView = lazy(() => import("./pages/KanbanView"));
 
 const SelfKnowledgeView = lazy(() => import("./pages/SelfKnowledgeView"));
+const MindView = lazy(() => import("./pages/MindView"));
 const AssessmentRunner = lazy(() => import("./pages/AssessmentRunner"));
 const AssessmentResult = lazy(() => import("./pages/AssessmentResult"));
 const CheckinView = lazy(() => import("./pages/CheckinView"));
@@ -86,6 +87,7 @@ const App = () => {
                 <Route path="calendar" element={<CalendarView />} />
                 <Route path="kanban" element={<KanbanView />} />
                 
+                <Route path="mind" element={<MindView />} />
                 <Route path="self" element={<SelfKnowledgeView />} />
                 <Route path="self/test/:type" element={<AssessmentRunner />} />
                 <Route path="self/result/:type" element={<AssessmentResult />} />
