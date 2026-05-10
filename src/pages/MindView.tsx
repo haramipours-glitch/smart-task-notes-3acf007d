@@ -198,7 +198,7 @@ export default function MindView() {
         <StatCard label="استریک Check-in" value={`${streak} روز`} icon={Flame} tone="from-orange-500 to-red-500" />
         <StatCard label="ثبت افکار · ۳۰ روز" value={thoughtCount} icon={BookOpen} tone="from-violet-500 to-purple-600" />
         <StatCard label="ABC · ۳۰ روز" value={abcCount} icon={Zap} tone="from-amber-500 to-orange-600" />
-        <StatCard label="تصمیم · ۳۰ روز" value={decisionCount} icon={Sparkles} tone="from-emerald-500 to-teal-600" />
+        <StatCard label="ابزارهای ذهن" value={4} icon={Brain} tone="from-emerald-500 to-teal-600" />
       </div>
 
       {/* Trend chart */}
