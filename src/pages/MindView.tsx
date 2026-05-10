@@ -40,12 +40,12 @@ const TOOLS = [
     icon: Compass, gradient: "from-emerald-500 via-teal-500 to-cyan-500",
   },
   {
-    to: "/app/socratic", title: "چت سقراطی", desc: "گفت‌وگوی هدایت‌شده با AI برای چالش افکار",
-    icon: MessageCircleQuestion, gradient: "from-cyan-500 via-sky-500 to-blue-500",
+    to: "/app/breathing", title: "تمرین تنفس ۳بعدی", desc: "۵ الگوی تنفس با راهنمای بصری ۳ بعدی",
+    icon: Wind, gradient: "from-teal-500 via-cyan-500 to-sky-500",
   },
   {
-    to: "/app/decisions", title: "ژورنال تصمیم", desc: "ثبت، پیش‌بینی و مرور تصمیم‌ها",
-    icon: Sparkles, gradient: "from-fuchsia-500 via-purple-500 to-violet-500",
+    to: "/app/socratic", title: "چت سقراطی", desc: "گفت‌وگوی هدایت‌شده با AI برای چالش افکار",
+    icon: MessageCircleQuestion, gradient: "from-cyan-500 via-sky-500 to-blue-500",
   },
 ];
 
