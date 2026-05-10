@@ -127,16 +127,20 @@ export default function SocraticView() {
           <div dir="rtl" className="space-y-4">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div dir="rtl" className={`rounded-2xl px-4 py-2 max-w-[80%] text-sm leading-7 text-end ${
-                  m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-                }`}>{m.content}</div>
+                <div
+                  dir="auto"
+                  style={{ unicodeBidi: "plaintext" }}
+                  className={`rounded-2xl px-4 py-2 max-w-[80%] text-sm leading-7 whitespace-pre-wrap break-words ${
+                    m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                  }`}
+                >{m.content}</div>
               </div>
             ))}
             {loading && <div className="text-xs text-muted-foreground">در حال فکر کردن…</div>}
           </div>
         </ScrollArea>
         <div className="border-t p-3 flex gap-2">
-          <Input dir="rtl" value={input} onChange={(e) => setInput(e.target.value)}
+          <Input dir="auto" style={{ unicodeBidi: "plaintext" } as any} value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()} placeholder="پاسخ تو…" disabled={loading} />
           <Button onClick={send} disabled={loading || !input.trim()} size="icon"><Send className="w-4 h-4" /></Button>
         </div>

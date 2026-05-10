@@ -28,7 +28,7 @@ const NAV = [
   { label: "ثبت افکار CBT", to: "/app/thoughts", icon: Brain, keywords: "thought cbt افکار" },
   { label: "مدل ABC", to: "/app/abc", icon: Brain, keywords: "abc الگو" },
   { label: "چت سقراطی", to: "/app/socratic", icon: Brain, keywords: "socratic سقراط" },
-  { label: "ژورنال تصمیم", to: "/app/decisions", icon: Sparkles, keywords: "decision تصمیم" },
+  { label: "تمرین تنفس", to: "/app/breathing", icon: Heart, keywords: "breath breathing تنفس مدیتیشن" },
   { label: "درباره من", to: "/app/about-me", icon: Sparkles, keywords: "about me من" },
   { label: "تنظیمات", to: "/app/settings", icon: Settings, keywords: "settings تنظیمات" },
 ];

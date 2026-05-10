@@ -158,6 +158,33 @@ function binaural(c: AudioContext, m: GainNode, base: number, beat: number): Voi
   return { stop: () => { try { oL.stop(); oR.stop(); } catch {} } };
 }
 
+// Meditation: Om-like sustained drone (low fundamentals + harmonic stack)
+const medOm = (c: AudioContext, m: GainNode) =>
+  pad(c, m, [110, 165, 220, 330], "sine", 2);
+// Tibetan singing bowl: bell-ish overtones, very slow LFO
+const medSinging = (c: AudioContext, m: GainNode) =>
+  pad(c, m, [196, 293.66, 392, 587.33, 783.99], "triangle", 2);
+const medDrone = (c: AudioContext, m: GainNode) =>
+  pad(c, m, [82.4, 110, 164.8], "sine", 1);
+
+// Sleep
+function sleepWhite(c: AudioContext, m: GainNode): Voice {
+  const src = c.createBufferSource(); src.buffer = noiseBuffer(c, 4, "white"); src.loop = true;
+  const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 6000;
+  const g = c.createGain(); g.gain.value = 0.35;
+  src.connect(lp); lp.connect(g); g.connect(m); src.start();
+  return { stop: () => { try { src.stop(); } catch {} } };
+}
+function sleepBrown(c: AudioContext, m: GainNode): Voice {
+  const src = c.createBufferSource(); src.buffer = noiseBuffer(c, 6, "brown"); src.loop = true;
+  const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 700;
+  const g = c.createGain(); g.gain.value = 0.55;
+  src.connect(lp); lp.connect(g); g.connect(m); src.start();
+  return { stop: () => { try { src.stop(); } catch {} } };
+}
+const sleepLullaby = (c: AudioContext, m: GainNode) =>
+  pad(c, m, [130.81, 196, 261.63, 329.63], "sine", 3);
+
 type Factory = (c: AudioContext, m: GainNode) => Voice;
 const FACTORIES: Record<string, Factory> = {
   rain, waves, wind, fire, forest, cafe,
@@ -165,15 +192,56 @@ const FACTORIES: Record<string, Factory> = {
   dream_pad: dreamPad,
   calm_pad: calmPad,
   lofi_pad: lofiPad,
-  binaural_beta:  (c, m) => binaural(c, m, 200, 16),  // 13–30Hz: focus / alertness
-  binaural_alpha: (c, m) => binaural(c, m, 200, 10),  // 8–13Hz: relaxed focus
-  binaural_theta: (c, m) => binaural(c, m, 200, 6),   // 4–8Hz: deep relax / meditation
-  binaural_delta: (c, m) => binaural(c, m, 150, 2.5), // 0.5–4Hz: sleep
+  med_om: medOm,
+  med_singing: medSinging,
+  med_drone: medDrone,
+  sleep_white: sleepWhite,
+  sleep_brown: sleepBrown,
+  sleep_lullaby: sleepLullaby,
+  binaural_beta:       (c, m) => binaural(c, m, 200, 16),
+  binaural_alpha:      (c, m) => binaural(c, m, 200, 10),
+  binaural_theta:      (c, m) => binaural(c, m, 200, 6),
+  binaural_theta_deep: (c, m) => binaural(c, m, 150, 4.5),
+  binaural_delta:      (c, m) => binaural(c, m, 150, 2.5),
 };
 
 let active: Voice | null = null;
 let activeId: string | null = null;
 let masterGain: GainNode | null = null;
+
+// --- Background-keepalive: a silent <audio> element + Media Session.
+// Browsers (esp. mobile Safari/Chrome) suspend AudioContexts when the tab is
+// hidden, but a playing <audio> element keeps the audio session active.
+let bgAudio: HTMLAudioElement | null = null;
+function ensureBackgroundKeepalive() {
+  if (bgAudio) return;
+  // 0.5s of silent WAV data, base64-encoded (44.1kHz mono).
+  const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
+  const a = document.createElement("audio");
+  a.src = SILENT_WAV;
+  a.loop = true;
+  a.volume = 0.0001;        // effectively silent but counts as "playing"
+  a.preload = "auto";
+  a.setAttribute("playsinline", "true");
+  a.style.display = "none";
+  document.body.appendChild(a);
+  bgAudio = a;
+  try {
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: "Focus Mode",
+        artist: "ARSHNAZ",
+        album: "Pomodoro Ambient",
+      });
+      navigator.mediaSession.setActionHandler?.("play", () => { /* noop */ });
+      navigator.mediaSession.setActionHandler?.("pause", () => stopSynth());
+      navigator.mediaSession.setActionHandler?.("stop", () => stopSynth());
+    }
+  } catch { /* ignore */ }
+}
+function stopBackgroundKeepalive() {
+  try { bgAudio?.pause(); } catch {}
+}
 
 export function startSynth(id: string, volumePct: number) {
   if (!id || id === "none" || !FACTORIES[id]) { stopSynth(); return; }
@@ -183,6 +251,8 @@ export function startSynth(id: string, volumePct: number) {
     return;
   }
   stopSynth();
+  ensureBackgroundKeepalive();
+  try { bgAudio?.play().catch(() => {}); } catch {}
   masterGain = c.createGain();
   masterGain.gain.value = 0;
   masterGain.connect(c.destination);
@@ -204,6 +274,7 @@ export function stopSynth() {
     try { a?.stop(); } catch {}
     try { mg?.disconnect(); } catch {}
   }, 200);
+  stopBackgroundKeepalive();
 }
 
 export function setSynthVolume(volumePct: number) {

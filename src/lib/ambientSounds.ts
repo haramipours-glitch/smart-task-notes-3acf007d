@@ -1,7 +1,7 @@
 // Offline ambient + focus music catalog.
 // All sounds are generated in real-time via Web Audio API (see pomodoroSynth.ts).
-// No downloads, instant playback.
-export type SoundCategory = "ambient" | "study" | "relax" | "binaural";
+// No downloads, instant playback, keeps playing in background (Media Session + silent <audio>).
+export type SoundCategory = "ambient" | "study" | "meditation" | "sleep" | "relax" | "binaural";
 
 export type AmbientSound = {
   id: string;
@@ -26,6 +26,16 @@ export const AMBIENT_SOUNDS: AmbientSound[] = [
   { id: "dream_pad", name: "رؤیا",       emoji: "✨", category: "study" },
   { id: "lofi_pad",  name: "Lo-fi گرم",  emoji: "🎶", category: "study" },
 
+  // Meditation tracks
+  { id: "med_om",       name: "اوم — مدیتیشن", emoji: "🕉️", category: "meditation" },
+  { id: "med_singing",  name: "کاسه تبتی",     emoji: "🔔", category: "meditation" },
+  { id: "med_drone",    name: "درون آرام",     emoji: "🪷", category: "meditation" },
+
+  // Sleep
+  { id: "sleep_white",   name: "نویز سفید",      emoji: "🌫️", category: "sleep" },
+  { id: "sleep_brown",   name: "نویز قهوه‌ای",  emoji: "🛏️", category: "sleep" },
+  { id: "sleep_lullaby", name: "لالایی",         emoji: "🌙", category: "sleep" },
+
   // Relaxation
   { id: "calm_pad", name: "آرامش",       emoji: "🧘", category: "relax" },
 
@@ -33,12 +43,15 @@ export const AMBIENT_SOUNDS: AmbientSound[] = [
   { id: "binaural_beta",  name: "Beta — تمرکز عمیق",   emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
   { id: "binaural_alpha", name: "Alpha — تمرکز آرام",  emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
   { id: "binaural_theta", name: "Theta — مدیتیشن",     emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
+  { id: "binaural_theta_deep", name: "Theta عمیق — خلسه", emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
   { id: "binaural_delta", name: "Delta — خواب عمیق",   emoji: "🎧", category: "binaural", beta: true, hint: "حتماً با هندزفری" },
 ];
 
 export const SOUND_CATEGORY_META: Record<SoundCategory, { label: string; emoji: string }> = {
-  ambient:  { label: "محیطی",    emoji: "🌿" },
-  study:    { label: "مطالعه",   emoji: "📚" },
-  relax:    { label: "آرامش",    emoji: "🧘" },
-  binaural: { label: "امواج مغزی (هندزفری)", emoji: "🎧" },
+  ambient:    { label: "محیطی",                          emoji: "🌿" },
+  study:      { label: "مطالعه",                         emoji: "📚" },
+  meditation: { label: "مدیتیشن",                       emoji: "🪷" },
+  sleep:      { label: "خواب",                           emoji: "🌙" },
+  relax:      { label: "آرامش",                          emoji: "🧘" },
+  binaural:   { label: "امواج مغزی (هندزفری)",           emoji: "🎧" },
 };

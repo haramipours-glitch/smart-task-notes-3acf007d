@@ -40,12 +40,12 @@ const TOOLS = [
     icon: Compass, gradient: "from-emerald-500 via-teal-500 to-cyan-500",
   },
   {
-    to: "/app/socratic", title: "چت سقراطی", desc: "گفت‌وگوی هدایت‌شده با AI برای چالش افکار",
-    icon: MessageCircleQuestion, gradient: "from-cyan-500 via-sky-500 to-blue-500",
+    to: "/app/breathing", title: "تمرین تنفس ۳بعدی", desc: "۵ الگوی تنفس با راهنمای بصری ۳ بعدی",
+    icon: Wind, gradient: "from-teal-500 via-cyan-500 to-sky-500",
   },
   {
-    to: "/app/decisions", title: "ژورنال تصمیم", desc: "ثبت، پیش‌بینی و مرور تصمیم‌ها",
-    icon: Sparkles, gradient: "from-fuchsia-500 via-purple-500 to-violet-500",
+    to: "/app/socratic", title: "چت سقراطی", desc: "گفت‌وگوی هدایت‌شده با AI برای چالش افکار",
+    icon: MessageCircleQuestion, gradient: "from-cyan-500 via-sky-500 to-blue-500",
   },
 ];
 
@@ -85,7 +85,7 @@ export default function MindView() {
   const [thoughtCount, setThoughtCount] = useState(0);
   const [topDistortions, setTopDistortions] = useState<{ key: string; n: number }[]>([]);
   const [abcCount, setAbcCount] = useState(0);
-  const [decisionCount, setDecisionCount] = useState(0);
+  
   const [streak, setStreak] = useState(0);
   const [latestScreeners, setLatestScreeners] = useState<Record<string, any>>({});
 
@@ -94,14 +94,12 @@ export default function MindView() {
     (async () => {
       const since90 = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
       const since30iso = new Date(Date.now() - 30 * 86400000).toISOString();
-      const [{ data: ck }, { data: tr }, { count: ac }, { count: dc }, { data: scr }] = await Promise.all([
+      const [{ data: ck }, { data: tr }, { count: ac }, { data: scr }] = await Promise.all([
         supabase.from("daily_checkins").select("checkin_date,mood,energy,focus,stress,sleep_quality")
           .eq("user_id", user.id).gte("checkin_date", since90).order("checkin_date"),
         supabase.from("thought_records").select("distortions,created_at")
           .eq("user_id", user.id).gte("created_at", since30iso),
         supabase.from("abc_records").select("*", { count: "exact", head: true })
-          .eq("user_id", user.id).gte("created_at", since30iso),
-        supabase.from("decision_journal").select("*", { count: "exact", head: true })
           .eq("user_id", user.id).gte("created_at", since30iso),
         supabase.from("assessment_results")
           .select("assessment_type, scores, analysis, completed_at")
@@ -112,7 +110,6 @@ export default function MindView() {
       setCheckins((ck || []) as Checkin[]);
       setThoughtCount((tr || []).length);
       setAbcCount(ac || 0);
-      setDecisionCount(dc || 0);
       // Latest result per screener
       const map: Record<string, any> = {};
       (scr || []).forEach((r: any) => { if (!map[r.assessment_type]) map[r.assessment_type] = r; });
@@ -201,7 +198,7 @@ export default function MindView() {
         <StatCard label="استریک Check-in" value={`${streak} روز`} icon={Flame} tone="from-orange-500 to-red-500" />
         <StatCard label="ثبت افکار · ۳۰ روز" value={thoughtCount} icon={BookOpen} tone="from-violet-500 to-purple-600" />
         <StatCard label="ABC · ۳۰ روز" value={abcCount} icon={Zap} tone="from-amber-500 to-orange-600" />
-        <StatCard label="تصمیم · ۳۰ روز" value={decisionCount} icon={Sparkles} tone="from-emerald-500 to-teal-600" />
+        <StatCard label="ابزارهای ذهن" value={4} icon={Brain} tone="from-emerald-500 to-teal-600" />
       </div>
 
       {/* Trend chart */}

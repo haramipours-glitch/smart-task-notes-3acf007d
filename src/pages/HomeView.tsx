@@ -47,7 +47,7 @@ const ALL_QUICK: { key: string; icon: any; to: string; label: string; color: str
   { key: "checkin", icon: Heart, to: "/app/checkin", label: "چک‌این", color: "text-rose-500" },
   { key: "thoughts", icon: Brain, to: "/app/thoughts", label: "ثبت افکار", color: "text-purple-500" },
   { key: "abc", icon: Lightbulb, to: "/app/abc", label: "ABC", color: "text-yellow-500" },
-  { key: "decisions", icon: Compass, to: "/app/decisions", label: "ژورنال تصمیم", color: "text-teal-500" },
+  { key: "breathing", icon: Heart, to: "/app/breathing", label: "تنفس", color: "text-teal-500" },
   { key: "self", icon: BookOpen, to: "/app/self", label: "خودشناسی", color: "text-fuchsia-500" },
   
   { key: "settings", icon: Settings, to: "/app/settings", label: "تنظیمات", color: "text-muted-foreground" },
