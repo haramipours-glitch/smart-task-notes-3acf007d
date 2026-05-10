@@ -228,20 +228,28 @@
 
 
 
-/* Markdown preview */
-.prose-note { max-width: none !important; width: 100%; }
+/* Markdown preview — bidi-safe so Persian + English mix correctly per paragraph */
+.prose-note { max-width: none !important; width: 100%; unicode-bidi: plaintext; }
+.prose-note h1, .prose-note h2, .prose-note h3, .prose-note h4,
+.prose-note p, .prose-note li, .prose-note blockquote, .prose-note td, .prose-note th {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
 .prose-note h1 { @apply text-2xl font-bold mt-4 mb-2; }
 .prose-note h2 { @apply text-xl font-semibold mt-3 mb-2; }
 .prose-note h3 { @apply text-lg font-semibold mt-2 mb-1; }
 .prose-note p { @apply my-2 leading-relaxed; }
-.prose-note ul { @apply list-disc pl-6 my-2; }
-.prose-note ol { @apply list-decimal pl-6 my-2; }
+.prose-note ul { @apply list-disc ps-6 my-2; }
+.prose-note ol { @apply list-decimal ps-6 my-2; }
 .prose-note code { @apply bg-muted px-1.5 py-0.5 rounded text-sm; }
 .prose-note pre { @apply bg-muted p-3 rounded-md overflow-x-auto my-2; }
 .prose-note pre code { @apply bg-transparent p-0; }
-.prose-note blockquote { @apply border-l-4 border-primary pl-4 italic my-2 text-muted-foreground; }
+.prose-note blockquote { @apply border-s-4 border-primary ps-4 italic my-2 text-muted-foreground; }
 .prose-note a { @apply text-primary underline; }
-.prose-note input[type="checkbox"] { @apply mr-2; }
+.prose-note input[type="checkbox"] { @apply me-2; }
+
+/* Generic mixed-direction text helper */
+.bidi-auto { unicode-bidi: plaintext; text-align: start; }
 
 /* Smooth, snappy global transitions for buttons / cards / interactive surfaces */
 @media (prefers-reduced-motion: no-preference) {
