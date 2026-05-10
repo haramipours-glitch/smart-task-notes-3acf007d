@@ -32,8 +32,8 @@ const CheckinView = lazy(() => import("./pages/CheckinView"));
 const ThoughtRecordsView = lazy(() => import("./pages/ThoughtRecordsView"));
 const ABCView = lazy(() => import("./pages/ABCView"));
 const SocraticView = lazy(() => import("./pages/SocraticView"));
-const DecisionJournalView = lazy(() => import("./pages/DecisionJournalView"));
 const AboutMeView = lazy(() => import("./pages/AboutMeView"));
+const BreathingView = lazy(() => import("./pages/BreathingView"));
 const HomeView = lazy(() => import("./pages/HomeView"));
 const ScreenerView = lazy(() => import("./pages/ScreenerView"));
 const ValuesGoalsView = lazy(() => import("./pages/ValuesGoalsView"));
@@ -99,7 +99,7 @@ const App = () => {
                 <Route path="thoughts" element={<ThoughtRecordsView />} />
                 <Route path="abc" element={<ABCView />} />
                 <Route path="socratic" element={<SocraticView />} />
-                <Route path="decisions" element={<DecisionJournalView />} />
+                <Route path="breathing" element={<BreathingView />} />
                 <Route path="screener/:type" element={<ScreenerView />} />
                 <Route path="values" element={<ValuesGoalsView />} />
                 <Route path="worry" element={<WorryView />} />

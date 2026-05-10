@@ -108,7 +108,7 @@ const SECTIONS: Section[] = [
       { url: "/app/thoughts", icon: BookOpen, label: "ثبت افکار (CBT)" },
       { url: "/app/abc", icon: Zap, label: "مدل ABC" },
       { url: "/app/socratic", icon: MessageCircleQuestion, label: "چت سقراطی" },
-      { url: "/app/decisions", icon: BookOpen, label: "ژورنال تصمیم" },
+      { url: "/app/breathing", icon: HeartPulse, label: "تمرین تنفس ۳بعدی" },
     ],
   },
   {
