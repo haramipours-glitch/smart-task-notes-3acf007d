@@ -85,7 +85,7 @@ export default function MindView() {
   const [thoughtCount, setThoughtCount] = useState(0);
   const [topDistortions, setTopDistortions] = useState<{ key: string; n: number }[]>([]);
   const [abcCount, setAbcCount] = useState(0);
-  const [decisionCount, setDecisionCount] = useState(0);
+  
   const [streak, setStreak] = useState(0);
   const [latestScreeners, setLatestScreeners] = useState<Record<string, any>>({});
 
@@ -94,14 +94,12 @@ export default function MindView() {
     (async () => {
       const since90 = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
       const since30iso = new Date(Date.now() - 30 * 86400000).toISOString();
-      const [{ data: ck }, { data: tr }, { count: ac }, { count: dc }, { data: scr }] = await Promise.all([
+      const [{ data: ck }, { data: tr }, { count: ac }, { data: scr }] = await Promise.all([
         supabase.from("daily_checkins").select("checkin_date,mood,energy,focus,stress,sleep_quality")
           .eq("user_id", user.id).gte("checkin_date", since90).order("checkin_date"),
         supabase.from("thought_records").select("distortions,created_at")
           .eq("user_id", user.id).gte("created_at", since30iso),
         supabase.from("abc_records").select("*", { count: "exact", head: true })
-          .eq("user_id", user.id).gte("created_at", since30iso),
-        supabase.from("decision_journal").select("*", { count: "exact", head: true })
           .eq("user_id", user.id).gte("created_at", since30iso),
         supabase.from("assessment_results")
           .select("assessment_type, scores, analysis, completed_at")
@@ -112,7 +110,6 @@ export default function MindView() {
       setCheckins((ck || []) as Checkin[]);
       setThoughtCount((tr || []).length);
       setAbcCount(ac || 0);
-      setDecisionCount(dc || 0);
       // Latest result per screener
       const map: Record<string, any> = {};
       (scr || []).forEach((r: any) => { if (!map[r.assessment_type]) map[r.assessment_type] = r; });
