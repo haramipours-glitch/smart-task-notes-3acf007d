@@ -8,6 +8,28 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { installUndoShortcuts } from "@/lib/undoStack";
+import { toast } from "sonner";
+
+function usePwaUpdateToast() {
+  useEffect(() => {
+    const onUpdate = () => {
+      toast("نسخه‌ی جدید برنامه آماده است", {
+        description: "برای دریافت امکانات جدید، برنامه را به‌روزرسانی کن.",
+        duration: Infinity,
+        action: {
+          label: "به‌روزرسانی",
+          onClick: () => {
+            const apply = (window as any).__applyPwaUpdate;
+            if (typeof apply === "function") apply();
+            else window.location.reload();
+          },
+        },
+      });
+    };
+    window.addEventListener("pwa-update-available", onUpdate);
+    return () => window.removeEventListener("pwa-update-available", onUpdate);
+  }, []);
+}
 
 // Keep entry-critical routes eager so first paint isn't gated on a chunk
 import Index from "./pages/Index";
