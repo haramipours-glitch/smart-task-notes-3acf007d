@@ -274,7 +274,7 @@ export default function BreathingView() {
           />
           {/* Center text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white pointer-events-none">
-            <div className="text-3xl font-extrabold tabular-nums drop-shadow">{phaseLeft || phaseDuration(phase) || "—"}</div>
+            <div className="text-3xl font-extrabold tabular-nums drop-shadow">{displaySeconds || phaseTotal || "—"}</div>
             <div className="text-sm font-medium opacity-95 mt-1">{PHASE_LABEL[phase]}</div>
             {running && (
               <div className="text-[11px] opacity-80 mt-1">
