@@ -286,11 +286,11 @@ export default function BreathingView() {
 
         <div className="relative flex gap-2 justify-center mt-4">
           {!running ? (
-            <Button onClick={start} size="lg" className="bg-white text-foreground hover:bg-white/90">
-              <Play className="w-5 h-5 me-1" /> شروع
+            <Button onClick={phaseLeft > 0 && phaseLeft < phaseTotal ? resume : start} size="lg" className="bg-white text-foreground hover:bg-white/90">
+              <Play className="w-5 h-5 me-1" /> {phaseLeft > 0 && phaseLeft < phaseTotal ? "ادامه" : "شروع"}
             </Button>
           ) : (
-            <Button onClick={() => stop(false)} size="lg" variant="secondary">
+            <Button onClick={pause} size="lg" variant="secondary">
               <Pause className="w-5 h-5 me-1" /> توقف
             </Button>
           )}
