@@ -268,7 +268,8 @@ export default function BreathingView() {
             style={{
               width: 200, height: 200,
               transform: `scale(${scale}) rotateX(15deg) rotateY(${t * 30}deg)`,
-              transition: "transform 950ms cubic-bezier(0.45,0.05,0.55,0.95)",
+              transition: "none",
+              willChange: "transform",
               boxShadow: "0 30px 60px rgba(0,0,0,0.25), 0 0 90px rgba(255,255,255,0.35)",
             }}
           />
