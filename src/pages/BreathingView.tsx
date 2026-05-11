@@ -81,26 +81,43 @@ export default function BreathingView() {
   const [pattern, setPattern] = useState<Pattern>(PATTERNS[0]);
   const [running, setRunning] = useState(false);
   const [phase, setPhase] = useState<Phase>("inhale");
-  const [phaseLeft, setPhaseLeft] = useState(0);
+  const [phaseLeft, setPhaseLeft] = useState(0); // remaining seconds (float, for smooth display)
+  const [phaseTotal, setPhaseTotal] = useState(0);
   const [loop, setLoop] = useState(0);
   const [ambient, setAmbient] = useState(true);
   const [vol, setVol] = useState(35);
-  const tickRef = useRef<number | null>(null);
+
+  const rafRef = useRef<number | null>(null);
+  const phaseStartRef = useRef<number>(0);   // performance.now() when current phase started
+  const phaseIdxRef = useRef<number>(0);
+  const loopRef = useRef<number>(0);
+  const runningRef = useRef<boolean>(false);
 
   // Build the phase sequence skipping zero-length phases
-  const sequence = useMemo<Phase[]>(() => {
-    const seq: Phase[] = [];
-    if (pattern.inhale > 0) seq.push("inhale");
-    if (pattern.holdIn > 0) seq.push("hold-in");
-    if (pattern.exhale > 0) seq.push("exhale");
-    if (pattern.holdOut > 0) seq.push("hold-out");
+  const sequence = useMemo<Array<{ phase: Phase; dur: number }>>(() => {
+    const seq: Array<{ phase: Phase; dur: number }> = [];
+    if (pattern.inhale > 0) seq.push({ phase: "inhale", dur: pattern.inhale });
+    if (pattern.holdIn > 0) seq.push({ phase: "hold-in", dur: pattern.holdIn });
+    if (pattern.exhale > 0) seq.push({ phase: "exhale", dur: pattern.exhale });
+    if (pattern.holdOut > 0) seq.push({ phase: "hold-out", dur: pattern.holdOut });
     return seq;
   }, [pattern]);
 
-  const phaseDuration = (p: Phase) =>
-    p === "inhale" ? pattern.inhale :
-    p === "hold-in" ? pattern.holdIn :
-    p === "exhale" ? pattern.exhale : pattern.holdOut;
+  const stop = useCallback((reset = false) => {
+    runningRef.current = false;
+    setRunning(false);
+    if (rafRef.current != null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    stopSynth();
+    if (reset) {
+      phaseIdxRef.current = 0;
+      loopRef.current = 0;
+      const first = sequence[0];
+      setPhase(first?.phase || "inhale");
+      setPhaseTotal(first?.dur || 0);
+      setPhaseLeft(first?.dur || 0);
+      setLoop(0);
+    }
+  }, [sequence]);
 
   // Reset on pattern change
   useEffect(() => {
@@ -117,62 +134,81 @@ export default function BreathingView() {
   }, [running, ambient, pattern.id]);
   useEffect(() => { setSynthVolume(vol); }, [vol]);
 
-  const tick = () => {
-    setPhaseLeft((s) => {
-      if (s > 1) return s - 1;
-      // advance to next phase
-      setPhase((curr) => {
-        const idx = sequence.indexOf(curr);
-        const nextIdx = idx + 1;
-        if (nextIdx >= sequence.length) {
-          setLoop((l) => {
-            const nl = l + 1;
-            if (nl >= pattern.loops) {
-              // finished
-              stop(true);
-              return 0;
-            }
-            return nl;
-          });
-          const first = sequence[0];
-          setPhaseLeft(phaseDuration(first));
-          return first;
+  const loop_ = useCallback(() => {
+    if (!runningRef.current) return;
+    const now = performance.now();
+    const seq = sequence;
+    if (!seq.length) { stop(true); return; }
+    let idx = phaseIdxRef.current;
+    let cur = seq[idx];
+    let elapsed = (now - phaseStartRef.current) / 1000;
+
+    // Advance through any completed phases (in case of tab throttling jumps)
+    while (elapsed >= cur.dur) {
+      elapsed -= cur.dur;
+      idx += 1;
+      if (idx >= seq.length) {
+        idx = 0;
+        loopRef.current += 1;
+        if (loopRef.current >= pattern.loops) {
+          stop(true);
+          return;
         }
-        const next = sequence[nextIdx];
-        setPhaseLeft(phaseDuration(next));
-        return next;
-      });
-      return 0; // overwritten by next setPhaseLeft above
-    });
-  };
+        setLoop(loopRef.current);
+      }
+      cur = seq[idx];
+      phaseStartRef.current = now - elapsed * 1000;
+      phaseIdxRef.current = idx;
+      setPhase(cur.phase);
+      setPhaseTotal(cur.dur);
+    }
+
+    const left = Math.max(0, cur.dur - elapsed);
+    setPhaseLeft(left);
+    rafRef.current = requestAnimationFrame(loop_);
+  }, [sequence, pattern.loops, stop]);
 
   const start = () => {
-    if (running) return;
+    if (runningRef.current) return;
     if (!sequence.length) return;
-    setRunning(true);
-    setPhase(sequence[0]);
-    setPhaseLeft(phaseDuration(sequence[0]));
+    phaseIdxRef.current = 0;
+    loopRef.current = 0;
+    phaseStartRef.current = performance.now();
+    const first = sequence[0];
+    setPhase(first.phase);
+    setPhaseTotal(first.dur);
+    setPhaseLeft(first.dur);
     setLoop(0);
-    if (tickRef.current) clearInterval(tickRef.current);
-    tickRef.current = window.setInterval(tick, 1000) as unknown as number;
+    runningRef.current = true;
+    setRunning(true);
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(loop_);
   };
 
-  const stop = (reset = false) => {
+  const pause = () => {
+    runningRef.current = false;
     setRunning(false);
-    if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+    if (rafRef.current != null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     stopSynth();
-    if (reset) {
-      setPhase(sequence[0] || "inhale");
-      setPhaseLeft(0);
-      setLoop(0);
-    }
   };
 
-  useEffect(() => () => { if (tickRef.current) clearInterval(tickRef.current); stopSynth(); }, []);
+  const resume = () => {
+    if (runningRef.current) return;
+    if (!sequence.length) return;
+    // continue from current phaseLeft
+    const cur = sequence[phaseIdxRef.current] || sequence[0];
+    const elapsedInPhase = cur.dur - phaseLeft;
+    phaseStartRef.current = performance.now() - elapsedInPhase * 1000;
+    runningRef.current = true;
+    setRunning(true);
+    rafRef.current = requestAnimationFrame(loop_);
+  };
 
-  // Visual scale for the orb (0..1 => 0.55..1.15)
-  const total = phaseDuration(phase) || 1;
-  const elapsed = total - phaseLeft;
+  useEffect(() => () => { if (rafRef.current != null) cancelAnimationFrame(rafRef.current); stopSynth(); }, []);
+
+  // Visual scale for the orb — based on continuous phaseLeft
+  const total = phaseTotal || 1;
+  const elapsed = Math.max(0, total - phaseLeft);
   const t = Math.max(0, Math.min(1, elapsed / total));
   const eased = 0.5 - Math.cos(Math.PI * t) / 2;
   const scale =
@@ -180,6 +216,8 @@ export default function BreathingView() {
     phase === "exhale" ? 1.15 - eased * 0.6 :
     phase === "hold-in" ? 1.15 :
     0.55;
+
+  const displaySeconds = Math.max(1, Math.ceil(phaseLeft));
 
   return (
     <div className="max-w-2xl mx-auto p-4 md:p-8 space-y-5 animate-fade-in" dir="rtl">
