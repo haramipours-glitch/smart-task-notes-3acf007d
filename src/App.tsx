@@ -85,6 +85,7 @@ const RouteFallback = () => (
 
 const App = () => {
   useEffect(() => installUndoShortcuts(), []);
+  usePwaUpdateToast();
   return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
