@@ -17,6 +17,8 @@ import {
   PROVIDER_INFO, OPERATIONS, MODEL_DESCRIPTIONS,
   type Provider, type ProviderConfig, type AIPerOpSettings,
 } from "@/lib/aiSettings";
+import { fetchProviderModels, getMergedModels } from "@/lib/fetchModels";
+import { RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { loadSettings, saveSettings, ensureNotificationPermission, type UserSettings } from "@/lib/reminders";
