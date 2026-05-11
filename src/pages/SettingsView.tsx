@@ -17,6 +17,8 @@ import {
   PROVIDER_INFO, OPERATIONS, MODEL_DESCRIPTIONS,
   type Provider, type ProviderConfig, type AIPerOpSettings,
 } from "@/lib/aiSettings";
+import { fetchProviderModels, getMergedModels } from "@/lib/fetchModels";
+import { RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { loadSettings, saveSettings, ensureNotificationPermission, type UserSettings } from "@/lib/reminders";
@@ -24,9 +26,30 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: (c: ProviderConfig) => void }) {
   const info = PROVIDER_INFO[value.provider];
+  const [refreshing, setRefreshing] = useState(false);
+  const [tick, setTick] = useState(0);
+  const models = useMemo(
+    () => getMergedModels(value.provider, info.models),
+    [value.provider, info.models, tick],
+  );
   const onProvider = (p: Provider) => {
     const i = PROVIDER_INFO[p];
     onChange({ provider: p, apiKey: value.apiKey, model: i.defaultModel, baseUrl: i.baseUrl });
+  };
+  const refresh = async () => {
+    if (value.provider === "lovable") {
+      toast.info("لیست مدل‌های Lovable AI توسط برنامه به‌روز می‌شود.");
+      return;
+    }
+    if (!value.apiKey) { toast.error("ابتدا API Key را وارد کن."); return; }
+    setRefreshing(true);
+    try {
+      const list = await fetchProviderModels(value.provider, value.apiKey, value.baseUrl);
+      setTick((t) => t + 1);
+      toast.success(`${list.length} مدل از ${info.label} دریافت شد.`);
+    } catch (e: any) {
+      toast.error(`خطا در دریافت مدل‌ها: ${e?.message || e}`);
+    } finally { setRefreshing(false); }
   };
   return (
     <div dir="rtl" className="space-y-3">
@@ -42,12 +65,19 @@ function ProviderEditor({ value, onChange }: { value: ProviderConfig; onChange: 
         </Select>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs">مدل</Label>
-        {info.models.length > 0 ? (
+        <div className="flex items-center justify-between gap-2">
+          <Label className="text-xs">مدل</Label>
+          <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-[11px]"
+            onClick={refresh} disabled={refreshing}>
+            <RefreshCw className={`w-3.5 h-3.5 ms-1 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? "در حال به‌روزرسانی…" : "به‌روزرسانی لیست مدل‌ها"}
+          </Button>
+        </div>
+        {models.length > 0 ? (
           <Select value={value.model} onValueChange={(v) => onChange({ ...value, model: v })}>
             <SelectTrigger><SelectValue placeholder={info.defaultModel} /></SelectTrigger>
             <SelectContent>
-              {info.models.map((m) => (
+              {models.map((m) => (
                 <SelectItem key={m} value={m}>
                   <div className="flex flex-col items-start">
                     <span className="font-mono text-xs">{m}</span>

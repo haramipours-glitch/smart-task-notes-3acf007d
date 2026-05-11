@@ -52,16 +52,24 @@ export const PROVIDER_INFO: Record<Provider, { label: string; defaultModel: stri
     help: "بدون نیاز به کلید — از طریق Lovable Cloud.",
     models: [
       "google/gemini-3.1-pro-preview",
+      "google/gemini-3.1-flash-lite-preview",
       "google/gemini-3.1-flash-image-preview",
       "google/gemini-3-pro-image-preview",
       "google/gemini-3-flash-preview",
       "google/gemini-2.5-pro",
       "google/gemini-2.5-flash",
       "google/gemini-2.5-flash-lite",
+      "google/gemini-2.5-flash-image",
+      "openai/gpt-5.5",
+      "openai/gpt-5.5-pro",
+      "openai/gpt-5.4",
+      "openai/gpt-5.4-pro",
+      "openai/gpt-5.4-mini",
+      "openai/gpt-5.4-nano",
+      "openai/gpt-5.2",
       "openai/gpt-5",
       "openai/gpt-5-mini",
       "openai/gpt-5-nano",
-      "openai/gpt-5.2",
     ],
   },
   openai: {
@@ -79,42 +87,41 @@ export const PROVIDER_INFO: Record<Provider, { label: string; defaultModel: stri
     models: ["claude-sonnet-4-5", "claude-opus-4-1", "claude-3-5-sonnet-latest", "claude-3-5-haiku-latest"],
   },
   gemini: {
-    // Updated: Gemini 3 / 3.1 pro · flash · flash-lite + جدیدترین ۲.۵
+    // فقط نسل ۳.۱ (به همراه image preview) — مطابق درخواست کاربر
     label: "Google Gemini (مستقیم)",
-    defaultModel: "gemini-3-flash-preview",
+    defaultModel: "gemini-3.1-flash-preview",
     baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
-    help: "از aistudio.google.com کلید بگیرید. شامل Gemini 3 / 3.1 (Pro · Flash · Flash-Lite).",
+    help: "از aistudio.google.com کلید بگیرید. فقط Gemini 3.1 (Pro · Flash · Flash-Lite · Image).",
     models: [
       "gemini-3.1-pro-preview",
       "gemini-3.1-flash-preview",
       "gemini-3.1-flash-lite-preview",
-      "gemini-3-pro-preview",
-      "gemini-3-flash-preview",
-      "gemini-3-flash-lite-preview",
-      "gemini-2.5-pro",
-      "gemini-2.5-flash",
-      "gemini-2.5-flash-lite",
-      "gemini-2.0-flash",
+      "gemini-3.1-flash-image-preview",
     ],
   },
   groq: {
-    // Groq — سریع‌ترین inference با مدل‌های open-source به‌روز
+    // Groq — به‌روزترین مدل‌ها (Llama 4، Kimi K2، Qwen 3، GPT-OSS، DeepSeek R1)
     label: "Groq (سریع‌ترین)",
     defaultModel: "llama-3.3-70b-versatile",
     baseUrl: "https://api.groq.com/openai/v1",
-    help: "از console.groq.com کلید بگیرید (رایگان). سریع‌ترین inference در دنیا.",
+    help: "از console.groq.com کلید بگیرید (رایگان). با دکمه refresh آخرین مدل‌ها از API گرفته می‌شود.",
     models: [
-      "llama-3.3-70b-versatile",         // قوی‌ترین — کیفیت بالا، سرعت خوب
-      "llama-3.1-70b-versatile",         // متعادل — همه‌کاره
-      "llama-3.1-8b-instant",            // سریع‌ترین — وظایف ساده
-      "llama-3.2-90b-vision-preview",    // تصویر+متن
-      "llama-3.2-11b-vision-preview",    // تصویر سبک
-      "deepseek-r1-distill-llama-70b",   // استدلال عمیق (reasoning)
-      "deepseek-r1-distill-qwen-32b",    // استدلال + کد
-      "qwen-2.5-32b",                    // کد و چندزبانه
-      "qwen-2.5-coder-32b",              // برنامه‌نویسی
-      "mixtral-8x7b-32768",              // context طولانی
-      "gemma2-9b-it",                    // سبک و سریع
+      // Llama 4 (جدیدترین)
+      "meta-llama/llama-4-maverick-17b-128e-instruct",
+      "meta-llama/llama-4-scout-17b-16e-instruct",
+      // Llama 3.x
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant",
+      // OpenAI open-weights روی Groq
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      // Kimi K2
+      "moonshotai/kimi-k2-instruct",
+      // Qwen 3 + DeepSeek R1
+      "qwen/qwen3-32b",
+      "deepseek-r1-distill-llama-70b",
+      // Whisper (audio) — برای کامل بودن لیست
+      "whisper-large-v3-turbo",
     ],
   },
   openrouter: {
