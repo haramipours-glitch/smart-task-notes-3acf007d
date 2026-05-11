@@ -33,8 +33,9 @@ if (isPreviewHost || isInIframe) {
       const updateSW = registerSW({
         immediate: true,
         onNeedRefresh() {
-          // New version available — activate and reload immediately
-          updateSW(true);
+          // New version available — surface a toast and let user trigger update.
+          (window as any).__applyPwaUpdate = () => updateSW(true);
+          window.dispatchEvent(new CustomEvent("pwa-update-available"));
         },
         onRegisteredSW(_swUrl, registration) {
           // Poll for updates every 60s so new publishes are picked up fast
@@ -46,7 +47,7 @@ if (isPreviewHost || isInIframe) {
         },
       });
 
-      // Reload the page once the new SW takes control
+      // Reload the page once the new SW takes control (after user accepts).
       let refreshing = false;
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (refreshing) return;
