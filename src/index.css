@@ -260,3 +260,15 @@
   }
   button:active, [role="button"]:active { transform: scale(0.97); }
 }
+
+/* Subtle dividers between top-level sections of TaskDetail body */
+.task-detail-sections > * + * {
+  position: relative;
+}
+.task-detail-sections > * + *::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: -10px 8px 14px;
+  background: linear-gradient(to left, transparent, hsl(var(--border) / 0.55), transparent);
+}
