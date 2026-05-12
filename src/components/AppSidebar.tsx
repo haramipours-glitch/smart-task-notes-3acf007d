@@ -499,7 +499,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar side="right" collapsible="offcanvas">
       <SidebarHeader className="border-b">
         <div className="flex items-center gap-2 px-2 py-1">
           <img src="/favicon.png" alt="ARSHNAZ" className="w-8 h-8 rounded-lg shrink-0" loading="lazy" width={32} height={32} />

@@ -40,7 +40,7 @@ export default function AppLayout() {
     }
   }, [loc.pathname]);
   return (
-    <SidebarProvider defaultOpen={typeof window !== "undefined" ? window.innerWidth >= 1280 : false}>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
