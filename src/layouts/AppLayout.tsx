@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AIPanel } from "@/components/AIPanel";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Search } from "lucide-react";
+import { PanelRight, Sparkles, Search } from "lucide-react";
 import OfflineIndicator from "@/components/OfflineIndicator";
 import InstallPrompt from "@/components/InstallPrompt";
 import EdgeSwipeHandler from "@/components/EdgeSwipeHandler";
@@ -24,6 +24,23 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useTwoFingerSwipe } from "@/lib/useTwoFingerSwipe";
 import { useThreeFingerGestures } from "@/lib/useThreeFingerGestures";
+
+function DesktopSidebarToggle() {
+  const { open, isMobile, toggleSidebar } = useSidebar();
+
+  if (isMobile || open) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={toggleSidebar}
+      aria-label="باز کردن منو"
+      className="fixed right-3 top-1/2 z-30 hidden -translate-y-1/2 rounded-l-xl border border-r-0 border-sidebar-border bg-sidebar/96 px-2 py-3 text-sidebar-foreground shadow-soft backdrop-blur md:flex"
+    >
+      <PanelRight className="h-4 w-4" />
+    </button>
+  );
+}
 
 export default function AppLayout() {
   const [aiOpen, setAiOpen] = useState(false);
@@ -73,6 +90,7 @@ export default function AppLayout() {
           </main>
         </div>
         <AIPanel open={aiOpen} onOpenChange={setAiOpen} />
+        <DesktopSidebarToggle />
         <OfflineIndicator />
         <InstallPrompt />
         <EdgeSwipeHandler />
