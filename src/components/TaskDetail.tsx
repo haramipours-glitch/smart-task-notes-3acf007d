@@ -138,7 +138,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   };
 
   const body = (
-    <div className="space-y-5 mt-4">
+    <div className="space-y-5 mt-4 task-detail-sections">
       <div className="space-y-3 rounded-2xl border bg-card/40 p-3 shadow-sm">
         <AutoTextarea
           value={t.title}

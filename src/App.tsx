@@ -67,6 +67,7 @@ const NewNoteView = lazy(() => import("./pages/NewNoteView"));
 const TaskDetailView = lazy(() => import("./pages/TaskDetailView"));
 const AdminView = lazy(() => import("./pages/AdminView"));
 const SharedWithMeView = lazy(() => import("./pages/SharedWithMeView"));
+const ShareTargetView = lazy(() => import("./pages/ShareTargetView"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -133,6 +134,7 @@ const App = () => {
                 <Route path="shared" element={<SharedWithMeView />} />
                 <Route path="new/task" element={<NewTaskView />} />
                 <Route path="new/note" element={<NewNoteView />} />
+                <Route path="share-target" element={<ShareTargetView />} />
                 <Route path="tasks/:id" element={<TaskDetailView />} />
                 <Route path="widgets" element={<Navigate to="/app/home" replace />} />
                 <Route path="widget/:id" element={<Navigate to="/app/home" replace />} />
