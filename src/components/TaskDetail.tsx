@@ -164,205 +164,227 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
         </div>
       </div>
 
-            {/* Priority accordion + inline avoidance toggle */}
-            <div className="rounded-lg border">
-              <div className="flex items-center justify-between p-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPriorityOpen(o => !o)}
-                  className="flex items-center gap-2 flex-1 text-start min-w-0"
-                >
-                  <ChevronDown className={`w-4 h-4 transition-transform shrink-0 ${priorityOpen ? "" : "-rotate-90"}`} />
-                  <span className="text-xs text-muted-foreground shrink-0">اولویت:</span>
-                  {t.priority && t.priority !== "none" ? (
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${PRIORITY_META[t.priority as Priority].bgClass} ${PRIORITY_META[t.priority as Priority].textClass}`}>
-                      {PRIORITY_META[t.priority as Priority].emoji} {PRIORITY_META[t.priority as Priority].label}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">بدون</span>
-                  )}
-                </button>
-                <label className="flex items-center gap-1.5 cursor-pointer shrink-0 px-2 py-1 rounded hover:bg-accent" title="تسک اجتنابی — تیک = موفق به اجتناب">
-                  <Checkbox
-                    checked={!!t.is_avoidance}
-                    onCheckedChange={(v) => save({ is_avoidance: !!v } as any)}
-                  />
-                  <Ban className="w-3.5 h-3.5 text-amber-600" />
-                  <span className="text-[11px] text-muted-foreground">اجتنابی</span>
-                </label>
+            {/* ── Block 1: Classification (priority / folder / tags) ── */}
+            <section className="rounded-2xl border bg-muted/20 p-3 space-y-2.5">
+              <div className="flex items-center gap-1.5 px-1">
+                <span className="w-1 h-3.5 rounded-full bg-primary/60" />
+                <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase">دسته‌بندی</h3>
               </div>
-              {priorityOpen && (
-                <div className="px-2 pb-2 flex gap-1.5 flex-wrap border-t pt-2">
-                  {PRIORITY_ORDER.map((p) => {
-                    const m = PRIORITY_META[p];
-                    const active = t.priority === p;
-                    return (
-                      <button key={p} onClick={() => { save({ priority: p }); setPriorityOpen(false); }}
-                        className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1.5 ${active ? `${m.bgClass} ${m.textClass} ring-2 ring-current` : "hover:bg-accent border-border"}`}>
-                        <span>{m.emoji}</span> {m.label}
-                      </button>
-                    );
-                  })}
-                  {t.priority !== "none" && (
-                    <button onClick={() => { save({ priority: "none" as any }); setPriorityOpen(false); }}
-                      className="px-2 py-1.5 rounded-lg border border-dashed text-[11px] text-muted-foreground hover:bg-accent">
-                      حذف اولویت
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
 
-            {/* Folder + Tags */}
-            <div className="grid grid-cols-2 gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="justify-start gap-1.5 h-9 text-xs">
-                    <FolderIcon className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{folderName(t.folder_id)}</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-1 max-h-[40vh] overflow-y-auto" align="start">
+              {/* Priority accordion + inline avoidance toggle */}
+              <div className="rounded-lg border bg-background">
+                <div className="flex items-center justify-between p-2 gap-2">
                   <button
-                    onClick={() => save({ folder_id: null })}
-                    className={`w-full text-end p-2 rounded text-sm hover:bg-accent ${t.folder_id === null ? "bg-accent" : ""}`}
-                  >بدون فولدر (Inbox)</button>
-                  {folders.filter(f => !f.parent_id).map(f => {
-                    const children = folders.filter(c => c.parent_id === f.id);
-                    return (
-                      <div key={f.id}>
-                        <button
-                          onClick={() => save({ folder_id: f.id })}
-                          className={`w-full text-end p-2 rounded text-sm hover:bg-accent flex items-center gap-2 ${t.folder_id === f.id ? "bg-accent" : ""}`}
-                        >
-                          <FolderIcon className="w-3.5 h-3.5" style={{ color: f.color || undefined }} />
-                          {f.name}
+                    type="button"
+                    onClick={() => setPriorityOpen(o => !o)}
+                    className="flex items-center gap-2 flex-1 text-start min-w-0"
+                  >
+                    <ChevronDown className={`w-4 h-4 transition-transform shrink-0 ${priorityOpen ? "" : "-rotate-90"}`} />
+                    <span className="text-xs text-muted-foreground shrink-0">اولویت:</span>
+                    {t.priority && t.priority !== "none" ? (
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${PRIORITY_META[t.priority as Priority].bgClass} ${PRIORITY_META[t.priority as Priority].textClass}`}>
+                        {PRIORITY_META[t.priority as Priority].emoji} {PRIORITY_META[t.priority as Priority].label}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">بدون</span>
+                    )}
+                  </button>
+                  <label className="flex items-center gap-1.5 cursor-pointer shrink-0 px-2 py-1 rounded hover:bg-accent" title="تسک اجتنابی — تیک = موفق به اجتناب">
+                    <Checkbox
+                      checked={!!t.is_avoidance}
+                      onCheckedChange={(v) => save({ is_avoidance: !!v } as any)}
+                    />
+                    <Ban className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="text-[11px] text-muted-foreground">اجتنابی</span>
+                  </label>
+                </div>
+                {priorityOpen && (
+                  <div className="px-2 pb-2 flex gap-1.5 flex-wrap border-t pt-2">
+                    {PRIORITY_ORDER.map((p) => {
+                      const m = PRIORITY_META[p];
+                      const active = t.priority === p;
+                      return (
+                        <button key={p} onClick={() => { save({ priority: p }); setPriorityOpen(false); }}
+                          className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1.5 ${active ? `${m.bgClass} ${m.textClass} ring-2 ring-current` : "hover:bg-accent border-border"}`}>
+                          <span>{m.emoji}</span> {m.label}
                         </button>
-                        {children.map(c => (
-                          <button key={c.id}
-                            onClick={() => save({ folder_id: c.id })}
-                            className={`w-full text-end p-2 ps-6 rounded text-xs hover:bg-accent flex items-center gap-2 ${t.folder_id === c.id ? "bg-accent" : ""}`}
-                          >
-                            <FolderIcon className="w-3 h-3" style={{ color: c.color || undefined }} />
-                            {c.name}
-                          </button>
-                        ))}
-                      </div>
-                    );
-                  })}
-                  {folders.length === 0 && <p className="text-xs text-muted-foreground p-2 text-center">فولدری نداری</p>}
-                </PopoverContent>
-              </Popover>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="justify-start gap-1.5 h-9 text-xs">
-                    <TagIcon className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">
-                      {taskTagIds.length === 0 ? "بدون تگ" : `${taskTagIds.length} تگ`}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-1 max-h-[40vh] overflow-y-auto" align="start">
-                  {tags.length === 0 && <p className="text-xs text-muted-foreground p-2 text-center">تگی نداری</p>}
-                  {tags.map(tg => {
-                    const active = taskTagIds.includes(tg.id);
-                    return (
-                      <button key={tg.id} onClick={() => toggleTag(tg.id)}
-                        className={`w-full text-end p-2 rounded text-sm hover:bg-accent flex items-center justify-between gap-2 ${active ? "bg-accent" : ""}`}>
-                        <span className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full" style={{ background: tg.color || "hsl(var(--muted-foreground))" }} />
-                          {tg.name}
-                        </span>
-                        {active && <Check className="w-3.5 h-3.5" />}
+                      );
+                    })}
+                    {t.priority !== "none" && (
+                      <button onClick={() => { save({ priority: "none" as any }); setPriorityOpen(false); }}
+                        className="px-2 py-1.5 rounded-lg border border-dashed text-[11px] text-muted-foreground hover:bg-accent">
+                        حذف اولویت
                       </button>
-                    );
-                  })}
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* Due date + reminder (compact, integrated) */}
-            <DueDatePicker
-              label="سررسید"
-              value={t.due_date}
-              reminderValue={t.reminder_at}
-              onReminderChange={(iso) => save({ reminder_at: iso })}
-              onChange={(iso) => {
-                const newDue = iso ? new Date(iso) : null;
-                const patch: Partial<Task> = { due_date: iso };
-                if (t.reminder_at && newDue && t.due_date) {
-                  const delta = newDue.getTime() - new Date(t.due_date).getTime();
-                  patch.reminder_at = new Date(new Date(t.reminder_at).getTime() + delta).toISOString();
-                }
-                save(patch);
-              }}
-            />
-
-
-            <Collapsible open={timeBlockOpen} onOpenChange={setTimeBlockOpen}>
-              <div className="rounded-lg border border-primary/30 bg-primary/5">
-                <CollapsibleTrigger className="w-full flex items-center justify-between p-3 text-sm font-medium text-primary">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" /> Time Block
-                    {hasTimeBlock && <span className="text-[10px] text-muted-foreground ms-1">(فعال)</span>}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${timeBlockOpen ? "" : "-rotate-90"}`} />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="px-3 pb-3 space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-[10px] text-muted-foreground">شروع</label>
-                        <Input type="datetime-local"
-                          value={t.start_at ? t.start_at.slice(0, 16) : ""}
-                          onChange={(e) => save({ start_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-muted-foreground">پایان</label>
-                        <Input type="datetime-local"
-                          value={t.end_at ? t.end_at.slice(0, 16) : ""}
-                          onChange={(e) => save({ end_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <label className="text-[10px] text-muted-foreground whitespace-nowrap">مدت تخمینی (دقیقه):</label>
-                      <Input type="number" placeholder="—"
-                        value={t.estimated_minutes ?? ""}
-                        onChange={(e) => save({ estimated_minutes: e.target.value ? Number(e.target.value) : null } as any)}
-                        className="h-8 w-24 text-xs" />
-                      <div className="flex gap-1">
-                        {[15, 30, 60].map(m => (
-                          <button key={m} type="button"
-                            onClick={() => save({ estimated_minutes: m } as any)}
-                            className={`px-2 h-7 text-[10px] rounded border ${t.estimated_minutes === m ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}>
-                            {m}د
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    )}
                   </div>
-                </CollapsibleContent>
+                )}
               </div>
-            </Collapsible>
 
-            <RecurrenceEditor
-              value={t.recurrence_rule}
-              onChange={(rule) => save({ recurrence_rule: rule } as any)}
-            />
+              {/* Folder + Tags */}
+              <div className="grid grid-cols-2 gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="justify-start gap-1.5 h-9 text-xs bg-background">
+                      <FolderIcon className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">{folderName(t.folder_id)}</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-1 max-h-[40vh] overflow-y-auto" align="start">
+                    <button
+                      onClick={() => save({ folder_id: null })}
+                      className={`w-full text-end p-2 rounded text-sm hover:bg-accent ${t.folder_id === null ? "bg-accent" : ""}`}
+                    >بدون فولدر (Inbox)</button>
+                    {folders.filter(f => !f.parent_id).map(f => {
+                      const children = folders.filter(c => c.parent_id === f.id);
+                      return (
+                        <div key={f.id}>
+                          <button
+                            onClick={() => save({ folder_id: f.id })}
+                            className={`w-full text-end p-2 rounded text-sm hover:bg-accent flex items-center gap-2 ${t.folder_id === f.id ? "bg-accent" : ""}`}
+                          >
+                            <FolderIcon className="w-3.5 h-3.5" style={{ color: f.color || undefined }} />
+                            {f.name}
+                          </button>
+                          {children.map(c => (
+                            <button key={c.id}
+                              onClick={() => save({ folder_id: c.id })}
+                              className={`w-full text-end p-2 ps-6 rounded text-xs hover:bg-accent flex items-center gap-2 ${t.folder_id === c.id ? "bg-accent" : ""}`}
+                            >
+                              <FolderIcon className="w-3 h-3" style={{ color: c.color || undefined }} />
+                              {c.name}
+                            </button>
+                          ))}
+                        </div>
+                      );
+                    })}
+                    {folders.length === 0 && <p className="text-xs text-muted-foreground p-2 text-center">فولدری نداری</p>}
+                  </PopoverContent>
+                </Popover>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="justify-start gap-1.5 h-9 text-xs bg-background">
+                      <TagIcon className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">
+                        {taskTagIds.length === 0 ? "بدون تگ" : `${taskTagIds.length} تگ`}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-1 max-h-[40vh] overflow-y-auto" align="start">
+                    {tags.length === 0 && <p className="text-xs text-muted-foreground p-2 text-center">تگی نداری</p>}
+                    {tags.map(tg => {
+                      const active = taskTagIds.includes(tg.id);
+                      return (
+                        <button key={tg.id} onClick={() => toggleTag(tg.id)}
+                          className={`w-full text-end p-2 rounded text-sm hover:bg-accent flex items-center justify-between gap-2 ${active ? "bg-accent" : ""}`}>
+                          <span className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ background: tg.color || "hsl(var(--muted-foreground))" }} />
+                            {tg.name}
+                          </span>
+                          {active && <Check className="w-3.5 h-3.5" />}
+                        </button>
+                      );
+                    })}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </section>
 
-            <TaskSubtasksInline
-              taskId={t.id}
-              onOpenSubtask={(id) => {
-                supabase.from("tasks").select("*").eq("id", id).single().then(({ data }) => {
-                  if (data) {
-                    onChanged();
-                    setT(data as any);
+            {/* ── Block 2: Schedule (due / time-block / recurrence) ── */}
+            <section className="rounded-2xl border bg-muted/20 p-3 space-y-2.5">
+              <div className="flex items-center gap-1.5 px-1">
+                <span className="w-1 h-3.5 rounded-full bg-primary/60" />
+                <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase">زمان‌بندی</h3>
+              </div>
+
+              <DueDatePicker
+                label="سررسید"
+                value={t.due_date}
+                reminderValue={t.reminder_at}
+                onReminderChange={(iso) => save({ reminder_at: iso })}
+                onChange={(iso) => {
+                  const newDue = iso ? new Date(iso) : null;
+                  const patch: Partial<Task> = { due_date: iso };
+                  if (t.reminder_at && newDue && t.due_date) {
+                    const delta = newDue.getTime() - new Date(t.due_date).getTime();
+                    patch.reminder_at = new Date(new Date(t.reminder_at).getTime() + delta).toISOString();
                   }
-                });
-              }}
-            />
+                  save(patch);
+                }}
+              />
 
-            <TaskStepLists taskId={t.id} />
+              <Collapsible open={timeBlockOpen} onOpenChange={setTimeBlockOpen}>
+                <div className="rounded-lg border border-primary/30 bg-primary/5">
+                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 text-sm font-medium text-primary">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" /> Time Block
+                      {hasTimeBlock && <span className="text-[10px] text-muted-foreground ms-1">(فعال)</span>}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${timeBlockOpen ? "" : "-rotate-90"}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="px-3 pb-3 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] text-muted-foreground">شروع</label>
+                          <Input type="datetime-local"
+                            value={t.start_at ? t.start_at.slice(0, 16) : ""}
+                            onChange={(e) => save({ start_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-muted-foreground">پایان</label>
+                          <Input type="datetime-local"
+                            value={t.end_at ? t.end_at.slice(0, 16) : ""}
+                            onChange={(e) => save({ end_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <label className="text-[10px] text-muted-foreground whitespace-nowrap">مدت تخمینی (دقیقه):</label>
+                        <Input type="number" placeholder="—"
+                          value={t.estimated_minutes ?? ""}
+                          onChange={(e) => save({ estimated_minutes: e.target.value ? Number(e.target.value) : null } as any)}
+                          className="h-8 w-24 text-xs" />
+                        <div className="flex gap-1">
+                          {[15, 30, 60].map(m => (
+                            <button key={m} type="button"
+                              onClick={() => save({ estimated_minutes: m } as any)}
+                              className={`px-2 h-7 text-[10px] rounded border ${t.estimated_minutes === m ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}>
+                              {m}د
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
+
+              <RecurrenceEditor
+                value={t.recurrence_rule}
+                onChange={(rule) => save({ recurrence_rule: rule } as any)}
+              />
+            </section>
+
+            {/* ── Block 3: Breakdown (subtasks + steps) ── */}
+            <section className="rounded-2xl border bg-muted/20 p-3 space-y-2.5">
+              <div className="flex items-center gap-1.5 px-1">
+                <span className="w-1 h-3.5 rounded-full bg-primary/60" />
+                <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase">خرد کردن کار</h3>
+              </div>
+
+              <TaskSubtasksInline
+                taskId={t.id}
+                onOpenSubtask={(id) => {
+                  supabase.from("tasks").select("*").eq("id", id).single().then(({ data }) => {
+                    if (data) {
+                      onChanged();
+                      setT(data as any);
+                    }
+                  });
+                }}
+              />
+
+              <TaskStepLists taskId={t.id} />
+            </section>
 
             <TaskAttachments taskId={t.id} />
 
