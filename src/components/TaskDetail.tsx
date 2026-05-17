@@ -303,6 +303,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                   </PopoverContent>
                 </Popover>
               </div>
+              </div>
               </CollapsibleContent>
             </section>
             </Collapsible>
