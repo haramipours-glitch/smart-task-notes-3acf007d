@@ -172,17 +172,20 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
       </div>
 
             {/* ── Block 1: Classification (priority / folder / tags) ── */}
+            <Collapsible open={secOpen.cls} onOpenChange={(v) => setSecOpen(s => ({ ...s, cls: v }))} asChild>
             <section className="rounded-2xl border bg-muted/20 p-3 space-y-2.5">
+              <CollapsibleTrigger asChild>
               <button
                 type="button"
-                onClick={() => toggleSec("cls")}
-                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-0.5 rounded hover:bg-accent/40 transition"
+                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-0.5 rounded hover:bg-accent/40 transition group"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">دسته‌بندی</h3>
-                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${secOpen.cls ? "" : "-rotate-90"}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-300 ease-out ${secOpen.cls ? "" : "-rotate-90"}`} />
               </button>
-              {secOpen.cls && (<>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <div className="space-y-2.5 pt-1">
 
               {/* Priority accordion + inline avoidance toggle */}
               <div className="rounded-lg border bg-background">
@@ -300,21 +303,26 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                   </PopoverContent>
                 </Popover>
               </div>
-              </>)}
+              </div>
+              </CollapsibleContent>
             </section>
+            </Collapsible>
 
             {/* ── Block 2: Schedule (due / time-block / recurrence) ── */}
+            <Collapsible open={secOpen.sch} onOpenChange={(v) => setSecOpen(s => ({ ...s, sch: v }))} asChild>
             <section className="rounded-2xl border bg-muted/20 p-3 space-y-2.5">
+              <CollapsibleTrigger asChild>
               <button
                 type="button"
-                onClick={() => toggleSec("sch")}
                 className="w-full flex items-center gap-1.5 px-1 -mx-1 py-0.5 rounded hover:bg-accent/40 transition"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">زمان‌بندی</h3>
-                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${secOpen.sch ? "" : "-rotate-90"}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-300 ease-out ${secOpen.sch ? "" : "-rotate-90"}`} />
               </button>
-              {secOpen.sch && (<>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <div className="space-y-2.5 pt-1">
 
               <DueDatePicker
                 label="سررسید"
@@ -382,21 +390,26 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                 value={t.recurrence_rule}
                 onChange={(rule) => save({ recurrence_rule: rule } as any)}
               />
-              </>)}
+              </div>
+              </CollapsibleContent>
             </section>
+            </Collapsible>
 
             {/* ── Block 3: Breakdown (subtasks + steps) ── */}
+            <Collapsible open={secOpen.brk} onOpenChange={(v) => setSecOpen(s => ({ ...s, brk: v }))} asChild>
             <section className="rounded-2xl border bg-muted/20 p-3 space-y-2.5">
+              <CollapsibleTrigger asChild>
               <button
                 type="button"
-                onClick={() => toggleSec("brk")}
                 className="w-full flex items-center gap-1.5 px-1 -mx-1 py-0.5 rounded hover:bg-accent/40 transition"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">خرد کردن کار</h3>
-                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${secOpen.brk ? "" : "-rotate-90"}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-300 ease-out ${secOpen.brk ? "" : "-rotate-90"}`} />
               </button>
-              {secOpen.brk && (<>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <div className="space-y-2.5 pt-1">
 
               <TaskSubtasksInline
                 taskId={t.id}
@@ -411,8 +424,10 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               />
 
               <TaskStepLists taskId={t.id} />
-              </>)}
+              </div>
+              </CollapsibleContent>
             </section>
+            </Collapsible>
 
             <TaskAttachments taskId={t.id} />
 
