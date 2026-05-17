@@ -43,6 +43,13 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const [priorityOpen, setPriorityOpen] = useState(false);
   const hasTimeBlock = !!(t.start_at || t.end_at || t.estimated_minutes);
   const [timeBlockOpen, setTimeBlockOpen] = useState<boolean>(hasTimeBlock);
+  const isMobileView = typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
+  const [secOpen, setSecOpen] = useState<{ cls: boolean; sch: boolean; brk: boolean }>(() => ({
+    cls: !isMobileView,
+    sch: !isMobileView,
+    brk: !isMobileView,
+  }));
+  const toggleSec = (k: "cls" | "sch" | "brk") => setSecOpen(s => ({ ...s, [k]: !s[k] }));
 
   useEffect(() => { setT(task); }, [task.id]);
 
