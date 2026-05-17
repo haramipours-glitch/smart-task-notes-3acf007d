@@ -423,8 +423,10 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               />
 
               <TaskStepLists taskId={t.id} />
-              </>)}
+              </div>
+              </CollapsibleContent>
             </section>
+            </Collapsible>
 
             <TaskAttachments taskId={t.id} />
 
