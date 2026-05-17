@@ -173,10 +173,16 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
             {/* ── Block 1: Classification (priority / folder / tags) ── */}
             <section className="rounded-2xl border bg-muted/20 p-3 space-y-2.5">
-              <div className="flex items-center gap-1.5 px-1">
+              <button
+                type="button"
+                onClick={() => toggleSec("cls")}
+                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-0.5 rounded hover:bg-accent/40 transition"
+              >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
-                <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase">دسته‌بندی</h3>
-              </div>
+                <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">دسته‌بندی</h3>
+                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${secOpen.cls ? "" : "-rotate-90"}`} />
+              </button>
+              {secOpen.cls && (<>
 
               {/* Priority accordion + inline avoidance toggle */}
               <div className="rounded-lg border bg-background">
