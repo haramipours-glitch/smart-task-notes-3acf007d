@@ -411,6 +411,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               />
 
               <TaskStepLists taskId={t.id} />
+              </>)}
             </section>
 
             <TaskAttachments taskId={t.id} />
