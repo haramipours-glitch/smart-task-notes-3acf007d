@@ -177,14 +177,16 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               <CollapsibleTrigger asChild>
               <button
                 type="button"
-                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 rounded hover:bg-accent/40 transition group"
+                aria-expanded={secOpen.cls}
+                aria-controls="td-section-cls"
+                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 min-h-11 sm:min-h-0 rounded hover:bg-accent/40 transition group"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">دسته‌بندی</h3>
                 <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${secOpen.cls ? "rotate-0" : "-rotate-90"}`} />
               </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <CollapsibleContent id="td-section-cls" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
               <div className="space-y-2 sm:space-y-2.5 pt-1">
 
               {/* Priority accordion + inline avoidance toggle */}
@@ -314,14 +316,16 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               <CollapsibleTrigger asChild>
               <button
                 type="button"
-                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 rounded hover:bg-accent/40 transition"
+                aria-expanded={secOpen.sch}
+                aria-controls="td-section-sch"
+                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 min-h-11 sm:min-h-0 rounded hover:bg-accent/40 transition"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">زمان‌بندی</h3>
                 <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${secOpen.sch ? "rotate-0" : "-rotate-90"}`} />
               </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <CollapsibleContent id="td-section-sch" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
               <div className="space-y-2 sm:space-y-2.5 pt-1">
 
               <DueDatePicker
@@ -342,25 +346,27 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
               <Collapsible open={timeBlockOpen} onOpenChange={setTimeBlockOpen}>
                 <div className="rounded-lg border border-primary/30 bg-primary/5">
-                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 text-sm font-medium text-primary">
+                  <CollapsibleTrigger aria-expanded={timeBlockOpen} aria-controls="td-timeblock" className="w-full flex items-center justify-between p-3 min-h-11 text-sm font-medium text-primary">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" /> Time Block
                       {hasTimeBlock && <span className="text-[10px] text-muted-foreground ms-1">(فعال)</span>}
                     </span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${timeBlockOpen ? "" : "-rotate-90"}`} />
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${timeBlockOpen ? "" : "-rotate-90"}`} />
                   </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="px-3 pb-3 space-y-2">
+                  <CollapsibleContent id="td-timeblock">
+                    <div className="px-3 pb-3 space-y-2.5">
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label className="text-[10px] text-muted-foreground">شروع</label>
                           <Input type="datetime-local"
+                            className="h-10 sm:h-9 text-xs"
                             value={t.start_at ? t.start_at.slice(0, 16) : ""}
                             onChange={(e) => save({ start_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
                         </div>
                         <div>
                           <label className="text-[10px] text-muted-foreground">پایان</label>
                           <Input type="datetime-local"
+                            className="h-10 sm:h-9 text-xs"
                             value={t.end_at ? t.end_at.slice(0, 16) : ""}
                             onChange={(e) => save({ end_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
                         </div>
@@ -370,7 +376,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                         <Input type="number" placeholder="—"
                           value={t.estimated_minutes ?? ""}
                           onChange={(e) => save({ estimated_minutes: e.target.value ? Number(e.target.value) : null } as any)}
-                          className="h-8 w-24 text-xs" />
+                          className="h-10 sm:h-8 w-24 text-xs" />
                         <div className="flex gap-1">
                           {[15, 30, 60].map(m => (
                             <button key={m} type="button"
@@ -401,14 +407,16 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               <CollapsibleTrigger asChild>
               <button
                 type="button"
-                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 rounded hover:bg-accent/40 transition"
+                aria-expanded={secOpen.brk}
+                aria-controls="td-section-brk"
+                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 min-h-11 sm:min-h-0 rounded hover:bg-accent/40 transition"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">خرد کردن کار</h3>
                 <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${secOpen.brk ? "rotate-0" : "-rotate-90"}`} />
               </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <CollapsibleContent id="td-section-brk" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
               <div className="space-y-2 sm:space-y-2.5 pt-1">
 
               <TaskSubtasksInline
