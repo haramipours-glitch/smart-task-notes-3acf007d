@@ -177,7 +177,9 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               <CollapsibleTrigger asChild>
               <button
                 type="button"
-                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 rounded hover:bg-accent/40 transition group"
+                aria-expanded={secOpen.cls}
+                aria-controls="td-section-cls"
+                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 min-h-11 sm:min-h-0 rounded hover:bg-accent/40 transition group"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">دسته‌بندی</h3>
