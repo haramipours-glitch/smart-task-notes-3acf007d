@@ -173,19 +173,19 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
             {/* ── Block 1: Classification (priority / folder / tags) ── */}
             <Collapsible open={secOpen.cls} onOpenChange={(v) => setSecOpen(s => ({ ...s, cls: v }))} asChild>
-            <section className="rounded-2xl border bg-muted/20 p-3 space-y-2.5">
+            <section className="rounded-2xl border bg-muted/20 p-2 sm:p-3 space-y-2 sm:space-y-2.5">
               <CollapsibleTrigger asChild>
               <button
                 type="button"
-                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-0.5 rounded hover:bg-accent/40 transition group"
+                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 rounded hover:bg-accent/40 transition group"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">دسته‌بندی</h3>
-                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-300 ease-out ${secOpen.cls ? "" : "-rotate-90"}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${secOpen.cls ? "rotate-0" : "-rotate-90"}`} />
               </button>
               </CollapsibleTrigger>
               <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-              <div className="space-y-2.5 pt-1">
+              <div className="space-y-2 sm:space-y-2.5 pt-1">
 
               {/* Priority accordion + inline avoidance toggle */}
               <div className="rounded-lg border bg-background">
