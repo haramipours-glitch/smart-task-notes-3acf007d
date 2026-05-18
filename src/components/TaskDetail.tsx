@@ -186,7 +186,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                 <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${secOpen.cls ? "rotate-0" : "-rotate-90"}`} />
               </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <CollapsibleContent id="td-section-cls" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
               <div className="space-y-2 sm:space-y-2.5 pt-1">
 
               {/* Priority accordion + inline avoidance toggle */}
