@@ -316,14 +316,16 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               <CollapsibleTrigger asChild>
               <button
                 type="button"
-                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 rounded hover:bg-accent/40 transition"
+                aria-expanded={secOpen.sch}
+                aria-controls="td-section-sch"
+                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 min-h-11 sm:min-h-0 rounded hover:bg-accent/40 transition"
               >
                 <span className="w-1 h-3.5 rounded-full bg-primary/60" />
                 <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">زمان‌بندی</h3>
                 <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${secOpen.sch ? "rotate-0" : "-rotate-90"}`} />
               </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <CollapsibleContent id="td-section-sch" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
               <div className="space-y-2 sm:space-y-2.5 pt-1">
 
               <DueDatePicker
