@@ -346,25 +346,27 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
               <Collapsible open={timeBlockOpen} onOpenChange={setTimeBlockOpen}>
                 <div className="rounded-lg border border-primary/30 bg-primary/5">
-                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 text-sm font-medium text-primary">
+                  <CollapsibleTrigger aria-expanded={timeBlockOpen} aria-controls="td-timeblock" className="w-full flex items-center justify-between p-3 min-h-11 text-sm font-medium text-primary">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" /> Time Block
                       {hasTimeBlock && <span className="text-[10px] text-muted-foreground ms-1">(فعال)</span>}
                     </span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${timeBlockOpen ? "" : "-rotate-90"}`} />
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${timeBlockOpen ? "" : "-rotate-90"}`} />
                   </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="px-3 pb-3 space-y-2">
+                  <CollapsibleContent id="td-timeblock">
+                    <div className="px-3 pb-3 space-y-2.5">
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label className="text-[10px] text-muted-foreground">شروع</label>
                           <Input type="datetime-local"
+                            className="h-10 sm:h-9 text-xs"
                             value={t.start_at ? t.start_at.slice(0, 16) : ""}
                             onChange={(e) => save({ start_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
                         </div>
                         <div>
                           <label className="text-[10px] text-muted-foreground">پایان</label>
                           <Input type="datetime-local"
+                            className="h-10 sm:h-9 text-xs"
                             value={t.end_at ? t.end_at.slice(0, 16) : ""}
                             onChange={(e) => save({ end_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
                         </div>
@@ -374,7 +376,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                         <Input type="number" placeholder="—"
                           value={t.estimated_minutes ?? ""}
                           onChange={(e) => save({ estimated_minutes: e.target.value ? Number(e.target.value) : null } as any)}
-                          className="h-8 w-24 text-xs" />
+                          className="h-10 sm:h-8 w-24 text-xs" />
                         <div className="flex gap-1">
                           {[15, 30, 60].map(m => (
                             <button key={m} type="button"
