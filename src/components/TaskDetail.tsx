@@ -173,70 +173,46 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
             {/* ── Block 1: Classification (priority / folder / tags) ── */}
             <Collapsible open={secOpen.cls} onOpenChange={(v) => setSecOpen(s => ({ ...s, cls: v }))} asChild>
-            <section className="rounded-2xl border bg-muted/20 p-2 sm:p-3 space-y-2 sm:space-y-2.5">
+            <section className="border-b border-border/40 py-3 px-1">
               <CollapsibleTrigger asChild>
               <button
                 type="button"
                 aria-expanded={secOpen.cls}
                 aria-controls="td-section-cls"
-                className="w-full flex items-center gap-1.5 px-1 -mx-1 py-1 min-h-11 sm:min-h-0 rounded hover:bg-accent/40 transition group"
+                className="w-full flex items-center gap-2 py-1 min-h-9 rounded hover:bg-accent/30 transition group -mx-1 px-1"
               >
-                <span className="w-1 h-3.5 rounded-full bg-primary/60" />
-                <h3 className="text-[11px] font-semibold text-muted-foreground tracking-wide uppercase flex-1 text-start">دسته‌بندی</h3>
-                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${secOpen.cls ? "rotate-0" : "-rotate-90"}`} />
+                <h3 className="text-[12px] font-medium text-muted-foreground/80 flex-1 text-start">دسته‌بندی</h3>
+                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground/60 transition-transform duration-300 ${secOpen.cls ? "rotate-0" : "-rotate-90"}`} />
               </button>
               </CollapsibleTrigger>
               <CollapsibleContent id="td-section-cls" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-              <div className="space-y-3 sm:space-y-2.5 pt-2 sm:pt-1">
+              <div className="space-y-3 pt-3">
 
-              {/* Priority accordion + inline avoidance toggle */}
-              <div className="rounded-lg border bg-background">
-                <div className="flex items-center justify-between p-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPriorityOpen(o => !o)}
-                    className="flex items-center gap-2 flex-1 text-start min-w-0"
-                  >
-                    <ChevronDown className={`w-4 h-4 transition-transform shrink-0 ${priorityOpen ? "" : "-rotate-90"}`} />
-                    <span className="text-xs text-muted-foreground shrink-0">اولویت:</span>
-                    {t.priority && t.priority !== "none" ? (
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${PRIORITY_META[t.priority as Priority].bgClass} ${PRIORITY_META[t.priority as Priority].textClass}`}>
-                        {PRIORITY_META[t.priority as Priority].emoji} {PRIORITY_META[t.priority as Priority].label}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">بدون</span>
-                    )}
+              {/* Priority chips — inline, no nested card */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {PRIORITY_ORDER.map((p) => {
+                  const m = PRIORITY_META[p];
+                  const active = t.priority === p;
+                  return (
+                    <button key={p} onClick={() => save({ priority: p })}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition ${active ? `${m.bgClass} ${m.textClass}` : "bg-muted/40 text-muted-foreground hover:bg-muted"}`}>
+                      {m.emoji} {m.label}
+                    </button>
+                  );
+                })}
+                {t.priority !== "none" && (
+                  <button onClick={() => save({ priority: "none" as any })}
+                    className="px-2 py-1 rounded-full text-[11px] text-muted-foreground/70 hover:bg-muted">
+                    ×
                   </button>
-                  <label className="flex items-center gap-1.5 cursor-pointer shrink-0 px-2 py-1 rounded hover:bg-accent" title="تسک اجتنابی — تیک = موفق به اجتناب">
-                    <Checkbox
-                      checked={!!t.is_avoidance}
-                      onCheckedChange={(v) => save({ is_avoidance: !!v } as any)}
-                    />
-                    <Ban className="w-3.5 h-3.5 text-amber-600" />
-                    <span className="text-[11px] text-muted-foreground">اجتنابی</span>
-                  </label>
-                </div>
-                {priorityOpen && (
-                  <div className="px-2 pb-2 flex gap-1.5 flex-wrap border-t pt-2">
-                    {PRIORITY_ORDER.map((p) => {
-                      const m = PRIORITY_META[p];
-                      const active = t.priority === p;
-                      return (
-                        <button key={p} onClick={() => { save({ priority: p }); setPriorityOpen(false); }}
-                          className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1.5 ${active ? `${m.bgClass} ${m.textClass} ring-2 ring-current` : "hover:bg-accent border-border"}`}>
-                          <span>{m.emoji}</span> {m.label}
-                        </button>
-                      );
-                    })}
-                    {t.priority !== "none" && (
-                      <button onClick={() => { save({ priority: "none" as any }); setPriorityOpen(false); }}
-                        className="px-2 py-1.5 rounded-lg border border-dashed text-[11px] text-muted-foreground hover:bg-accent">
-                        حذف اولویت
-                      </button>
-                    )}
-                  </div>
                 )}
+                <label className="ms-auto flex items-center gap-1.5 cursor-pointer" title="تسک اجتنابی">
+                  <Ban className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="text-[11px] text-muted-foreground">اجتناب</span>
+                  <Switch checked={!!t.is_avoidance} onCheckedChange={(v) => save({ is_avoidance: !!v } as any)} />
+                </label>
               </div>
+
 
               {/* Folder + Tags */}
               <div className="grid grid-cols-2 gap-2">
