@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { loadSettings, checkAndFireReminders, ensureDailyTasks } from "@/lib/reminders";
+import { loadSettings, checkAndFireReminders, ensureDailyTasks, checkTaskReminders } from "@/lib/reminders";
 import { applyFontSize, applyUIScale, type FontSize } from "@/lib/uiScale";
 
 /** Mounts globally inside AppLayout — polls every 60s for reminders + applies UI prefs. */
