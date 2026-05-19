@@ -3,6 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Calendar, Clock, X, Bell } from "lucide-react";
+import { ensureNotificationPermission } from "@/lib/reminders";
+import { toast } from "sonner";
+
 import { addDays, format, startOfDay } from "date-fns";
 
 /**
