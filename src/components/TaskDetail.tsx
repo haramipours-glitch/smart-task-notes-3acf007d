@@ -218,7 +218,8 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               <div className="grid grid-cols-2 gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="justify-start gap-1.5 h-9 text-xs bg-background">
+                    <Button variant="ghost" size="sm" className="justify-start gap-1.5 h-9 text-xs bg-muted/30 hover:bg-muted/60 border border-transparent">
+
                       <FolderIcon className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{folderName(t.folder_id)}</span>
                     </Button>
