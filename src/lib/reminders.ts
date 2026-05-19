@@ -44,6 +44,56 @@ function fire(title: string, body: string, tag: string) {
   }
 }
 
+const FIRED_TASKS_KEY = "reminder_fired_tasks_v1";
+
+function playBeep() {
+  try {
+    const AC = (window.AudioContext || (window as any).webkitAudioContext);
+    if (!AC) return;
+    const ctx = new AC();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = "sine"; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+    o.start();
+    o.stop(ctx.currentTime + 0.55);
+  } catch { /* ignore */ }
+}
+
+export async function checkTaskReminders(userId: string, s: UserSettings) {
+  if (!s.notifications_enabled) return;
+  if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+  const nowIso = new Date().toISOString();
+  const { data } = await supabase
+    .from("tasks")
+    .select("id,title,reminder_at")
+    .eq("user_id", userId)
+    .eq("completed", false)
+    .not("reminder_at", "is", null)
+    .lte("reminder_at", nowIso)
+    .gte("reminder_at", new Date(Date.now() - 24 * 3600 * 1000).toISOString());
+  if (!data || data.length === 0) return;
+  const fired: Record<string, string> = JSON.parse(localStorage.getItem(FIRED_TASKS_KEY) || "{}");
+  let played = false;
+  for (const t of data as any[]) {
+    const key = `${t.id}:${t.reminder_at}`;
+    if (fired[key]) continue;
+    fire("⏰ یادآور تسک", t.title, key);
+    if (!played) { playBeep(); played = true; }
+    fired[key] = nowIso;
+  }
+  // GC: keep only entries from last 7 days
+  const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
+  for (const k of Object.keys(fired)) {
+    if (new Date(fired[k]).getTime() < cutoff) delete fired[k];
+  }
+  localStorage.setItem(FIRED_TASKS_KEY, JSON.stringify(fired));
+}
+
+
 export function checkAndFireReminders(s: UserSettings) {
   if (!s.notifications_enabled) return;
   const now = new Date();
