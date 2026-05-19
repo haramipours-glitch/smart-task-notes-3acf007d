@@ -324,7 +324,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               <Collapsible open={timeBlockOpen} onOpenChange={setTimeBlockOpen}>
                 <div className="rounded-lg border border-border/60 bg-muted/20">
 
-                  <CollapsibleTrigger aria-expanded={timeBlockOpen} aria-controls="td-timeblock" className="w-full flex items-center justify-between p-3 min-h-11 text-sm font-medium text-primary">
+                  <CollapsibleTrigger aria-expanded={timeBlockOpen} aria-controls="td-timeblock" className="w-full flex items-center justify-between p-2.5 min-h-10 text-xs font-medium text-foreground/80">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" /> Time Block
                       {hasTimeBlock && <span className="text-[10px] text-muted-foreground ms-1">(فعال)</span>}
