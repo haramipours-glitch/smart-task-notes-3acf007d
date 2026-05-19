@@ -40,7 +40,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const [folders, setFolders] = useState<{ id: string; name: string; parent_id: string | null; color: string | null }[]>([]);
   const [tags, setTags] = useState<{ id: string; name: string; color: string | null }[]>([]);
   const [taskTagIds, setTaskTagIds] = useState<string[]>([]);
-  const [priorityOpen, setPriorityOpen] = useState(false);
+  
   const hasTimeBlock = !!(t.start_at || t.end_at || t.estimated_minutes);
   const [timeBlockOpen, setTimeBlockOpen] = useState<boolean>(hasTimeBlock);
   const isMobileView = typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
