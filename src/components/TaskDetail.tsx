@@ -145,28 +145,28 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   };
 
   const body = (
-    <div className="space-y-5 mt-4 task-detail-sections">
-      <div className="space-y-3 rounded-2xl border bg-card/40 p-3 shadow-sm">
+    <div className="mt-2 task-detail-sections">
+      <div className="px-1 pb-4 border-b border-border/40">
         <AutoTextarea
           value={t.title}
           onChange={(e) => setT({ ...t, title: e.target.value })}
           onBlur={() => save({ title: t.title })}
-          minHeight={42}
+          minHeight={36}
           maxHeight={220}
           rows={1}
           dir="auto"
           placeholder="عنوان تسک"
-          className="text-lg font-semibold leading-snug border-none bg-transparent px-1 py-1 focus-visible:ring-1 break-words whitespace-pre-wrap"
+          className="text-xl font-semibold leading-snug border-none bg-transparent px-0 py-0 focus-visible:ring-0 break-words whitespace-pre-wrap"
         />
-        <div data-rich-selection onContextMenu={(e) => e.preventDefault()} style={{ WebkitTouchCallout: "none" } as any}>
+        <div data-rich-selection onContextMenu={(e) => e.preventDefault()} style={{ WebkitTouchCallout: "none" } as any} className="mt-1">
           <AutoTextarea
             placeholder="توضیحات..."
             value={t.description || ""}
             onChange={(e) => setT({ ...t, description: e.target.value })}
             onBlur={() => save({ description: t.description })}
-            minHeight={56}
+            minHeight={40}
             maxHeight={360}
-            className="border-none bg-transparent focus-visible:ring-1 px-1"
+            className="border-none bg-transparent focus-visible:ring-0 px-0 text-sm text-muted-foreground"
           />
         </div>
       </div>
