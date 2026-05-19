@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Plus, Sparkles, Trash2, FileText, Clock, ChevronDown, ArrowRight, Ban, Folder as FolderIcon, Tag as TagIcon, Check } from "lucide-react";
 import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
 import { NoteEditorTabs } from "@/components/NoteEditorTabs";
