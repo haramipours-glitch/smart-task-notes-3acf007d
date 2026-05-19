@@ -187,7 +187,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               </button>
               </CollapsibleTrigger>
               <CollapsibleContent id="td-section-cls" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-              <div className="space-y-2 sm:space-y-2.5 pt-1">
+              <div className="space-y-3 sm:space-y-2.5 pt-2 sm:pt-1">
 
               {/* Priority accordion + inline avoidance toggle */}
               <div className="rounded-lg border bg-background">
@@ -326,7 +326,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               </button>
               </CollapsibleTrigger>
               <CollapsibleContent id="td-section-sch" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-              <div className="space-y-2 sm:space-y-2.5 pt-1">
+              <div className="space-y-3 sm:space-y-2.5 pt-2 sm:pt-1">
 
               <DueDatePicker
                 label="سررسید"
@@ -417,7 +417,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
               </button>
               </CollapsibleTrigger>
               <CollapsibleContent id="td-section-brk" className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-              <div className="space-y-2 sm:space-y-2.5 pt-1">
+              <div className="space-y-3 sm:space-y-2.5 pt-2 sm:pt-1">
 
               <TaskSubtasksInline
                 taskId={t.id}
