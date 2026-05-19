@@ -3,6 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Calendar, Clock, X, Bell } from "lucide-react";
+import { ensureNotificationPermission } from "@/lib/reminders";
+import { toast } from "sonner";
+
 import { addDays, format, startOfDay } from "date-fns";
 
 /**
@@ -125,16 +128,19 @@ export function DueDatePicker({
         <div className="flex items-center gap-2">
           <Switch
             checked={reminderOn}
-            onCheckedChange={(v) => {
+            onCheckedChange={async (v) => {
               setReminderOn(v);
-              if (!v) onReminderChange(null);
-              else if (datePart) {
+              if (!v) { onReminderChange(null); return; }
+              const ok = await ensureNotificationPermission();
+              if (!ok) toast.warning("اجازه‌ی نوتیفیکیشن داده نشده — یادآور صدا نمی‌زند");
+              if (datePart) {
                 const t = includeTime && timePart ? timePart : "09:00";
                 onReminderChange(new Date(`${datePart}T${t}`).toISOString());
               }
             }}
             id="reminder-toggle"
           />
+
           <label htmlFor="reminder-toggle" className="text-[11px] text-muted-foreground flex items-center gap-1 cursor-pointer flex-shrink-0">
             <Bell className="w-3 h-3" /> یادآور
           </label>
