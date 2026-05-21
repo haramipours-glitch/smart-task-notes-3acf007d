@@ -44,7 +44,10 @@ export default function AppLayout() {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 border-b flex items-center justify-between px-3 bg-card/50 backdrop-blur sticky top-0 z-10">
+          <header
+            className="border-b flex items-center justify-between px-3 bg-card/50 backdrop-blur sticky top-0 z-10"
+            style={{ paddingTop: "env(safe-area-inset-top)", minHeight: "calc(3rem + env(safe-area-inset-top))" }}
+          >
             <div className="flex items-center gap-1">
               <SidebarTrigger className="hidden md:inline-flex" />
               <HeaderBackButton />
