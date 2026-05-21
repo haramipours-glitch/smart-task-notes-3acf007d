@@ -69,7 +69,10 @@ export default function AppLayout() {
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto pb-20 md:pb-4">
+          <main
+            className="flex-1 overflow-auto md:pb-4"
+            style={{ paddingBottom: "calc(5rem + env(safe-area-inset-bottom))" }}
+          >
             <div key={loc.pathname} className="animate-fade-in motion-reduce:animate-none">
               <Outlet />
             </div>
