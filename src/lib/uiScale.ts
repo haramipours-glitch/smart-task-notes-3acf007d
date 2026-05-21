@@ -1,5 +1,8 @@
-// Apply UI scale (zoom) and font size globally via CSS variables on <html>.
-// Persisted in user_settings.font_size + user_settings.ui_scale.
+// Apply UI scale + font size globally.
+// NOTE: CSS `zoom` was removed because on mobile Chrome it forces a full
+// re-layout of every node on each scroll/repaint, hurting INP & FPS.
+// We now scale only the root font-size, which Tailwind's rem-based spacing
+// follows naturally — same visual effect, ~zero layout cost.
 
 export type FontSize = "small" | "medium" | "large" | "xlarge";
 
@@ -13,21 +16,29 @@ const FONT_PX: Record<FontSize, number> = {
 const LS_FONT = "ui_font_size_v1";
 const LS_SCALE = "ui_scale_v1";
 
+function currentBasePx(): number {
+  const root = document.documentElement;
+  const size = (root.dataset.fontSize as FontSize | undefined) ?? "medium";
+  return FONT_PX[size] ?? 16;
+}
+
 export function applyUIScale(scale: number) {
   const s = Math.max(0.7, Math.min(1.5, Number(scale) || 1));
-  // CSS zoom is supported across modern browsers including mobile chrome.
-  // Falls back to transform if zoom is not supported.
   const root = document.documentElement;
-  // @ts-ignore - 'zoom' is non-standard but widely supported
-  root.style.zoom = String(s);
+  // Clear any legacy zoom that older versions set.
+  // @ts-ignore - non-standard
+  if (root.style.zoom) root.style.zoom = "";
   root.dataset.uiScale = String(s);
+  // Re-derive root font size = base * scale (rem cascade handles the rest).
+  root.style.fontSize = `${currentBasePx() * s}px`;
   try { localStorage.setItem(LS_SCALE, String(s)); } catch {}
 }
 
 export function applyFontSize(size: FontSize) {
-  const px = FONT_PX[size] ?? 16;
-  document.documentElement.style.fontSize = `${px}px`;
-  document.documentElement.dataset.fontSize = size;
+  const root = document.documentElement;
+  root.dataset.fontSize = size;
+  const scale = parseFloat(root.dataset.uiScale || "1") || 1;
+  root.style.fontSize = `${FONT_PX[size] * scale}px`;
   try { localStorage.setItem(LS_FONT, size); } catch {}
 }
 
@@ -35,8 +46,8 @@ export function applyFontSize(size: FontSize) {
 export function bootApplyUIPrefs() {
   try {
     const f = localStorage.getItem(LS_FONT) as FontSize | null;
-    if (f) applyFontSize(f);
     const s = localStorage.getItem(LS_SCALE);
+    if (f) applyFontSize(f);
     if (s) applyUIScale(parseFloat(s));
   } catch { /* ignore */ }
 }
