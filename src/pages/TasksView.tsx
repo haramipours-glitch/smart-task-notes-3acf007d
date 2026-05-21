@@ -169,11 +169,22 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
 
   useEffect(() => {
     if (!user) return;
+    // Coalesce bursty realtime events — Supabase can fire several rows in <100ms
+    // (e.g. bulk update from another device). A debounced reload keeps the UI
+    // fluid and avoids N back-to-back full refetches.
+    let pending: number | null = null;
+    const scheduleLoad = () => {
+      if (pending != null) window.clearTimeout(pending);
+      pending = window.setTimeout(() => { pending = null; load(); }, 350);
+    };
     const ch = supabase.channel(`tasks-rt-${user.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, load)
-      .on("postgres_changes", { event: "*", schema: "public", table: "subtasks" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, scheduleLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "subtasks" }, scheduleLoad)
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      if (pending != null) window.clearTimeout(pending);
+      supabase.removeChannel(ch);
+    };
   }, [user]);
 
   // Filter top-level visible tasks per scope
@@ -507,7 +518,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               onDelete={() => askDeleteTask(t)}
               isCompleted={t.completed}
             >
-            <Card className={`${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""} ${depth > 0 ? "bg-muted/20" : ""}`}>
+            <Card className={`cv-auto ${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""} ${depth > 0 ? "bg-muted/20" : ""}`}>
               {depth > 0 && parent && (
                 <div className="flex items-center gap-1 mb-1 text-[10px] text-muted-foreground/80">
                   <CornerDownRight className="w-2.5 h-2.5 shrink-0" />
