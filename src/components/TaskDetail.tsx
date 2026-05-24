@@ -23,6 +23,7 @@ import { NoteEditorTabs } from "@/components/NoteEditorTabs";
 import { TaskStepLists } from "@/components/TaskStepLists";
 import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
+import { TaskDescriptionEditor } from "@/components/TaskDescriptionEditor";
 import { DueDatePicker } from "@/components/DueDatePicker";
 import { describeRule } from "@/lib/recurrence";
 
@@ -224,14 +225,11 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
         className="text-[22px] font-semibold leading-snug border-none bg-transparent px-0 py-0 focus-visible:ring-0 break-words whitespace-pre-wrap tracking-tight"
       />
       <div data-rich-selection onContextMenu={(e) => e.preventDefault()} style={{ WebkitTouchCallout: "none" } as any}>
-        <AutoTextarea
-          placeholder={T("توضیحات…", "Description…")}
+        <TaskDescriptionEditor
+          taskId={t.id}
           value={t.description || ""}
-          onChange={(e) => setT({ ...t, description: e.target.value })}
-          onBlur={() => save({ description: t.description })}
-          minHeight={32}
-          maxHeight={360}
-          className="border-none bg-transparent focus-visible:ring-0 px-0 text-[14px] text-muted-foreground/90"
+          onChange={(v) => setT({ ...t, description: v })}
+          onSave={(v) => save({ description: v })}
         />
       </div>
     </div>
