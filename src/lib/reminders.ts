@@ -159,16 +159,24 @@ export async function ensureDailyTasks(userId: string, s: UserSettings) {
   localStorage.setItem(LAST_TASK_KEY, today);
 }
 
+const settingsCache = new Map<string, Promise<UserSettings | null>>();
 export async function loadSettings(userId: string): Promise<UserSettings | null> {
-  const { data } = await supabase.from("user_settings").select("*").eq("user_id", userId).maybeSingle();
-  if (data) return data as UserSettings;
-  // Create defaults
-  const { data: created } = await supabase
-    .from("user_settings")
-    .insert({ user_id: userId })
-    .select()
-    .maybeSingle();
-  return (created as UserSettings) || null;
+  const cached = settingsCache.get(userId);
+  if (cached) return cached;
+  const p = (async () => {
+    const { data } = await supabase.from("user_settings").select("*").eq("user_id", userId).maybeSingle();
+    if (data) return data as UserSettings;
+    const { data: created } = await supabase
+      .from("user_settings")
+      .insert({ user_id: userId })
+      .select()
+      .maybeSingle();
+    return (created as UserSettings) || null;
+  })();
+  settingsCache.set(userId, p);
+  // Allow refresh after 30s
+  setTimeout(() => settingsCache.delete(userId), 30_000);
+  return p;
 }
 
 export async function saveSettings(userId: string, patch: Partial<UserSettings>) {
