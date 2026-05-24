@@ -180,6 +180,7 @@ export async function loadSettings(userId: string): Promise<UserSettings | null>
 }
 
 export async function saveSettings(userId: string, patch: Partial<UserSettings>) {
+  settingsCache.delete(userId);
   const { error } = await supabase
     .from("user_settings")
     .upsert({ user_id: userId, ...patch }, { onConflict: "user_id" });
