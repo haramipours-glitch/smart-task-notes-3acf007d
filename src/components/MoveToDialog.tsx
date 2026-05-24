@@ -72,9 +72,6 @@ export function MoveToDialog({
               <span className="text-sm">{f.name}</span>
             </button>
           ))}
-          {folders.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-4">فولدری نداری</p>
-          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>انصراف</Button>

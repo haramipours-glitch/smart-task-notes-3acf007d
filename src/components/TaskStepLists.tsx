@@ -249,9 +249,6 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
                       onDelete={() => deleteStep(s.id)}
                     />
                   ))}
-                  {listSteps.length === 0 && (
-                    <li className="text-xs text-muted-foreground/60 px-1">— هیچ مرحله‌ای نیست —</li>
-                  )}
                 </ul>
               </SortableContext>
             </DndContext>
@@ -273,11 +270,6 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
         );
       })}
 
-      {lists.length === 0 && (
-        <p className="text-xs text-muted-foreground text-center py-2">
-          هنوز لیست مراحلی ندارید. یکی اضافه کن.
-        </p>
-      )}
     </div>
   );
 }
