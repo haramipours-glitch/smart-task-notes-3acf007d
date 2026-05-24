@@ -211,7 +211,7 @@ export default function NotesView() {
               </div>
             </SwipeableRow>
           ))}
-          {filtered.length === 0 && <p className="text-center text-muted-foreground p-6 text-sm">نوتی نیست</p>}
+          
         </div>
       </div>
 
