@@ -126,4 +126,38 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
+  esbuild: {
+    // Drop noisy logs from production bundles (faster parse + smaller JS)
+    drop: mode === "production" ? ["console", "debugger"] : [],
+  },
+  build: {
+    target: "es2020",
+    cssCodeSplit: true,
+    sourcemap: false,
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        // Split heavy vendors into stable, long-cacheable chunks.
+        // The installed PWA only re-downloads the chunks that actually changed.
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("react-dom") || id.match(/[\\/]react[\\/]/) || id.includes("scheduler")) return "react-core";
+          if (id.includes("react-router")) return "router";
+          if (id.includes("@tanstack")) return "query";
+          if (id.includes("@supabase")) return "supabase";
+          if (id.includes("@radix-ui")) return "radix";
+          if (id.includes("@tiptap") || id.includes("prosemirror")) return "tiptap";
+          if (id.includes("recharts") || id.includes("d3-")) return "charts";
+          if (id.includes("@dnd-kit")) return "dnd";
+          if (id.includes("date-fns-jalali") || id.includes("date-fns")) return "date";
+          if (id.includes("react-markdown") || id.includes("remark") || id.includes("micromark") || id.includes("mdast") || id.includes("hast") || id.includes("unified") || id.includes("marked") || id.includes("turndown")) return "markdown";
+          if (id.includes("lucide-react")) return "icons";
+          if (id.includes("rrule")) return "rrule";
+          if (id.includes("framer-motion") || id.includes("motion")) return "motion";
+          if (id.includes("i18next") || id.includes("react-i18next")) return "i18n";
+          return "vendor";
+        },
+      },
+    },
+  },
 }));
