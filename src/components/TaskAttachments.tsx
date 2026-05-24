@@ -154,19 +154,17 @@ export function TaskAttachments({ taskId }: { taskId: string }) {
     <div>
       <div className="flex items-center justify-between mb-2">
         <label className="text-sm font-medium flex items-center gap-1">
-          <Paperclip className="w-4 h-4" /> پیوست‌ها ({items.length})
+          <Paperclip className="w-4 h-4" /> Attachments ({items.length})
         </label>
-        <Button size="sm" variant="outline" onClick={onPick} disabled={uploading} className="gap-1">
+        <Button size="sm" variant="outline" onClick={onPick} disabled={uploading} className="gap-1 rounded-full">
           {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Paperclip className="w-3 h-3" />}
-          افزودن فایل
+          Add file
         </Button>
         <input ref={fileRef} type="file" accept={ACCEPT} multiple className="hidden"
           onChange={(e) => onFiles(e.target.files)} />
       </div>
 
-      {items.length === 0 ? (
-        <p className="text-xs text-muted-foreground text-center py-2">پیوستی نیست</p>
-      ) : (
+      {items.length === 0 ? null : (
         <div className="space-y-2">
           {items.map((a) => (
             <Card key={a.id} className="p-2">
