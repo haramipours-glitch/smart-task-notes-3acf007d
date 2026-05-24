@@ -46,6 +46,8 @@ import { PRIORITY_SELECTABLE, type Priority } from "@/lib/priority";
 import { Repeat, Network } from "lucide-react";
 import type { RecurrenceRule } from "@/lib/recurrence";
 
+// Module-level cache shared across mounts: instantly hydrate from last fetch.
+const tasksCache = new Map<string, Task[]>();
 
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
