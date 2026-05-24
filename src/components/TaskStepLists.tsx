@@ -270,11 +270,6 @@ export function TaskStepLists({ taskId }: { taskId: string }) {
         );
       })}
 
-      {lists.length === 0 && (
-        <p className="text-xs text-muted-foreground text-center py-2">
-          هنوز لیست مراحلی ندارید. یکی اضافه کن.
-        </p>
-      )}
     </div>
   );
 }
