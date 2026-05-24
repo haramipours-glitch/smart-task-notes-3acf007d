@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home, Heart, Coffee, Star, Wand2 } from "lucide-react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home, Heart, Coffee, Star, Wand2, RotateCw } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { applyFontSize, applyUIScale, type FontSize } from "@/lib/uiScale";
 import { Card } from "@/components/ui/card";
@@ -109,6 +109,77 @@ function ProviderEditor({ value, onChange, isEn }: { value: ProviderConfig; onCh
       )}
       <p className="text-[10px] text-muted-foreground">{info.help}</p>
     </div>
+  );
+}
+
+function AppUpdateCard({ isEn }: { isEn: boolean }) {
+  const [checking, setChecking] = useState(false);
+  const version = (import.meta.env.VITE_APP_VERSION as string) || "live";
+  const buildTime = (import.meta.env.VITE_BUILD_TIME as string) || "";
+
+  const check = async () => {
+    setChecking(true);
+    try {
+      if (!("serviceWorker" in navigator)) {
+        toast.info(isEn ? "Updates not supported in this browser." : "این مرورگر از به‌روزرسانی پشتیبانی نمی‌کند.");
+        return;
+      }
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) {
+        toast.info(
+          isEn
+            ? "App is running in preview mode. Updates work in the installed/published app."
+            : "برنامه در حالت پیش‌نمایش است. به‌روزرسانی فقط در نسخهٔ نصب‌شده/منتشرشده کار می‌کند."
+        );
+        return;
+      }
+      const before = reg.waiting || reg.installing;
+      await reg.update();
+      // wait a moment to let SW detect a new version
+      await new Promise((r) => setTimeout(r, 1500));
+      const after = reg.waiting || reg.installing;
+      if (after && after !== before) {
+        toast.success(isEn ? "New version found — applying…" : "نسخه‌ی جدید پیدا شد — در حال اعمال…");
+        const apply = (window as any).__applyPwaUpdate;
+        if (typeof apply === "function") apply();
+        else window.location.reload();
+      } else {
+        toast.success(isEn ? "You're on the latest version." : "نسخه‌ی شما به‌روز است.");
+      }
+    } catch (e: any) {
+      toast.error((isEn ? "Update check failed: " : "بررسی به‌روزرسانی ناموفق: ") + (e?.message || e));
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  return (
+    <Card className="p-5 space-y-3">
+      <div className="flex items-center gap-2">
+        <Download className="w-4 h-4 text-primary" />
+        <h2 className="font-semibold">{isEn ? "App version & updates" : "نسخه و به‌روزرسانی"}</h2>
+      </div>
+      <div className="text-xs text-muted-foreground">
+        {isEn ? "Version" : "نسخه"}: <span className="ltr inline-block font-mono">{version}</span>
+        {buildTime && (
+          <>
+            <span className="mx-1">·</span>
+            <span className="ltr inline-block font-mono">{buildTime}</span>
+          </>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {isEn
+          ? "Auto-check runs every 60s when the app is open. Use this button to check now."
+          : "هر ۶۰ ثانیه به‌صورت خودکار چک می‌شود. برای بررسی فوری از این دکمه استفاده کن."}
+      </p>
+      <Button size="sm" onClick={check} disabled={checking} className="gap-2">
+        <RotateCw className={`w-4 h-4 ${checking ? "animate-spin" : ""}`} />
+        {checking
+          ? isEn ? "Checking…" : "در حال بررسی…"
+          : isEn ? "Check for updates" : "بررسی به‌روزرسانی"}
+      </Button>
+    </Card>
   );
 }
 
@@ -313,6 +384,8 @@ export default function SettingsView() {
       </Card>
 
       <LanguageSwitcher />
+
+      <AppUpdateCard isEn={isEn} />
 
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
