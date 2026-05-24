@@ -46,6 +46,8 @@ import { PRIORITY_SELECTABLE, type Priority } from "@/lib/priority";
 import { Repeat, Network } from "lucide-react";
 import type { RecurrenceRule } from "@/lib/recurrence";
 
+// Module-level cache shared across mounts: instantly hydrate from last fetch.
+const tasksCache = new Map<string, Task[]>();
 
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
@@ -145,16 +147,44 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     return m;
   }, [allTasks]);
 
+  // Module-scoped cache so navigating between scopes (or remounts) reuses
+  // the last task list instantly instead of waiting on a roundtrip.
+  // Keyed by user.id; survives unmount but resets on page reload.
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  const cache = tasksCache;
+
+  const lastLoadRef = (TasksView as any)._lastLoadRef ||= { current: 0 };
+  const inflightRef = (TasksView as any)._inflightRef ||= { current: null as Promise<void> | null };
+  const MIN_INTERVAL_MS = 1500; // throttle: at most one fetch per 1.5s
+
+  const fetchAll = async (force = false): Promise<void> => {
+    if (!user) return;
+    const now = Date.now();
+    if (!force && now - lastLoadRef.current < MIN_INTERVAL_MS && cache.get(user.id)) {
+      return; // recent fetch + cache → skip
+    }
+    if (inflightRef.current) return inflightRef.current;
+    lastLoadRef.current = now;
+    const p = (async () => {
+      const { data: allData } = await supabase.from("tasks")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("position").order("created_at", { ascending: false })
+        .limit(2000);
+      const all = ((allData || []) as unknown) as Task[];
+      cache.set(user.id, all);
+      setAllTasks(all);
+    })();
+    inflightRef.current = p;
+    try { await p; } finally { inflightRef.current = null; }
+  };
+
   const load = async () => {
     if (!user) return;
-    // Always fetch ALL user's tasks for tree completeness, then filter top-level by scope
-    const { data: allData } = await supabase.from("tasks")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("position").order("created_at", { ascending: false })
-      .limit(2000);
-    const all = ((allData || []) as unknown) as Task[];
-    setAllTasks(all);
+    // Serve cached list synchronously on mount/scope-switch — refetch in background
+    const cached = cache.get(user.id);
+    if (cached) setAllTasks(cached);
+    await fetchAll(!cached);
 
     if (scope === "folder" && params.id) {
       const { data: f } = await supabase.from("folders").select("name").eq("id", params.id).single();
@@ -169,23 +199,41 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
 
   useEffect(() => {
     if (!user) return;
-    // Coalesce bursty realtime events — Supabase can fire several rows in <100ms
-    // (e.g. bulk update from another device). A debounced reload keeps the UI
-    // fluid and avoids N back-to-back full refetches.
+    // Coalesce bursty realtime events + enforce min interval between fetches.
+    // - debounce 600ms: many rows in one bulk-update collapse into 1 fetch
+    // - throttle 1.5s: prevents thrash if events keep streaming
+    // - pause while tab hidden: refetch once on visibility return
     let pending: number | null = null;
+    let dirty = false;
+    const flush = () => {
+      pending = null;
+      if (document.hidden) { dirty = true; return; }
+      dirty = false;
+      fetchAll();
+    };
     const scheduleLoad = () => {
       if (pending != null) window.clearTimeout(pending);
-      pending = window.setTimeout(() => { pending = null; load(); }, 350);
+      pending = window.setTimeout(flush, 600);
     };
+    const onVisible = () => {
+      if (!document.hidden && dirty) { dirty = false; fetchAll(true); }
+    };
+    document.addEventListener("visibilitychange", onVisible);
     const ch = supabase.channel(`tasks-rt-${user.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, scheduleLoad)
       .on("postgres_changes", { event: "*", schema: "public", table: "subtasks" }, scheduleLoad)
       .subscribe();
     return () => {
       if (pending != null) window.clearTimeout(pending);
+      document.removeEventListener("visibilitychange", onVisible);
       supabase.removeChannel(ch);
     };
   }, [user]);
+
+  // Keep cache in sync when optimistic local edits change the in-memory list
+  useEffect(() => {
+    if (user && allTasks.length) cache.set(user.id, allTasks);
+  }, [allTasks, user]);
 
   // Filter top-level visible tasks per scope
   const topLevel = useMemo(() => {
