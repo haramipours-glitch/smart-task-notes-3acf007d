@@ -184,6 +184,7 @@ function AppUpdateCard({ isEn }: { isEn: boolean }) {
 }
 
 export default function SettingsView() {
+  const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const isEn = (i18n.language || "fa").startsWith("en");
   const [settings, setSettings] = useState<AIPerOpSettings>({ default: defaultConfig(), perOp: {}, useRecommended: true });
