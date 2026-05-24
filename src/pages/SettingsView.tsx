@@ -119,6 +119,15 @@ function AppUpdateCard({ isEn }: { isEn: boolean }) {
 
   const check = async () => {
     setChecking(true);
+    // Safety: never let the spinner hang forever
+    const hardTimeout = setTimeout(() => {
+      setChecking(false);
+      toast.info(
+        isEn
+          ? "Check timed out. You're likely already on the latest version."
+          : "بررسی طولانی شد. به احتمال زیاد نسخه‌ی شما به‌روز است."
+      );
+    }, 8000);
     try {
       if (!("serviceWorker" in navigator)) {
         toast.info(isEn ? "Updates not supported in this browser." : "این مرورگر از به‌روزرسانی پشتیبانی نمی‌کند.");
@@ -134,9 +143,11 @@ function AppUpdateCard({ isEn }: { isEn: boolean }) {
         return;
       }
       const before = reg.waiting || reg.installing;
-      await reg.update();
-      // wait a moment to let SW detect a new version
-      await new Promise((r) => setTimeout(r, 1500));
+      // Race reg.update() against a 5s timeout — on some Android WebViews it never resolves
+      await Promise.race([
+        reg.update().catch(() => {}),
+        new Promise((r) => setTimeout(r, 5000)),
+      ]);
       const after = reg.waiting || reg.installing;
       if (after && after !== before) {
         toast.success(isEn ? "New version found — applying…" : "نسخه‌ی جدید پیدا شد — در حال اعمال…");
@@ -149,6 +160,7 @@ function AppUpdateCard({ isEn }: { isEn: boolean }) {
     } catch (e: any) {
       toast.error((isEn ? "Update check failed: " : "بررسی به‌روزرسانی ناموفق: ") + (e?.message || e));
     } finally {
+      clearTimeout(hardTimeout);
       setChecking(false);
     }
   };
