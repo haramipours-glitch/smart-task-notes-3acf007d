@@ -305,3 +305,7 @@
 
 /* Prevent iOS double-tap-zoom on interactive surfaces (keeps gestures snappy). */
 button, [role="button"], a { touch-action: manipulation; }
+
+/* Hide scrollbar (used by TaskDetail bottom icon rail) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
