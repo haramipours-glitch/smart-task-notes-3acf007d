@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home, Heart, Coffee, Star, Wand2 } from "lucide-react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home, Heart, Coffee, Star, Wand2, RotateCw } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { applyFontSize, applyUIScale, type FontSize } from "@/lib/uiScale";
 import { Card } from "@/components/ui/card";
