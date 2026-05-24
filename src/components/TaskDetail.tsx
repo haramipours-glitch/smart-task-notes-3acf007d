@@ -23,6 +23,7 @@ import { NoteEditorTabs } from "@/components/NoteEditorTabs";
 import { TaskStepLists } from "@/components/TaskStepLists";
 import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
+import { TaskDescriptionEditor } from "@/components/TaskDescriptionEditor";
 import { DueDatePicker } from "@/components/DueDatePicker";
 import { describeRule } from "@/lib/recurrence";
 
