@@ -217,12 +217,12 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
         value={t.title}
         onChange={(e) => setT({ ...t, title: e.target.value })}
         onBlur={() => save({ title: t.title })}
-        minHeight={36}
+        minHeight={44}
         maxHeight={220}
         rows={1}
         dir="auto"
-        placeholder={T("عنوان تسک", "Task title")}
-        className="text-[22px] font-semibold leading-snug border-none bg-transparent px-0 py-0 focus-visible:ring-0 break-words whitespace-pre-wrap tracking-tight"
+        placeholder={T("عنوان تسک را اینجا بنویس…", "Write the task title here…")}
+        className="text-[22px] font-semibold leading-snug bg-muted/40 border border-dashed border-primary/40 rounded-md px-3 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary focus-visible:bg-background break-words whitespace-pre-wrap tracking-tight placeholder:text-primary/60 placeholder:font-medium"
       />
       <div data-rich-selection onContextMenu={(e) => e.preventDefault()} style={{ WebkitTouchCallout: "none" } as any}>
         <TaskDescriptionEditor
