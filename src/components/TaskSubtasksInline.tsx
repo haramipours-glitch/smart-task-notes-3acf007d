@@ -24,6 +24,9 @@ export function TaskSubtasksInline({
   const [subs, setSubs] = useState<Sub[]>([]);
   const [newTitle, setNewTitle] = useState("");
 
+  const editingRef = useRef<Set<string>>(new Set());
+  const writeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
   const load = async () => {
     const { data } = await supabase
       .from("tasks")
@@ -31,7 +34,15 @@ export function TaskSubtasksInline({
       .eq("parent_id", taskId)
       .order("position")
       .order("created_at", { ascending: false });
-    setSubs((data || []) as any);
+    // Preserve titles for rows the user is actively editing (avoid clobbering input/focus on mobile)
+    setSubs((prev) => {
+      const prevMap = new Map(prev.map((p) => [p.id, p]));
+      return ((data || []) as Sub[]).map((row) =>
+        editingRef.current.has(row.id) && prevMap.has(row.id)
+          ? { ...row, title: prevMap.get(row.id)!.title }
+          : row,
+      );
+    });
   };
 
   useEffect(() => { load(); }, [taskId]);
@@ -46,6 +57,7 @@ export function TaskSubtasksInline({
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user, taskId]);
+
 
   const add = async () => {
     const title = newTitle.trim();
