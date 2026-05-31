@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
@@ -24,6 +24,9 @@ export function TaskSubtasksInline({
   const [subs, setSubs] = useState<Sub[]>([]);
   const [newTitle, setNewTitle] = useState("");
 
+  const editingRef = useRef<Set<string>>(new Set());
+  const writeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
   const load = async () => {
     const { data } = await supabase
       .from("tasks")
@@ -31,7 +34,15 @@ export function TaskSubtasksInline({
       .eq("parent_id", taskId)
       .order("position")
       .order("created_at", { ascending: false });
-    setSubs((data || []) as any);
+    // Preserve titles for rows the user is actively editing (avoid clobbering input/focus on mobile)
+    setSubs((prev) => {
+      const prevMap = new Map(prev.map((p) => [p.id, p]));
+      return ((data || []) as Sub[]).map((row) =>
+        editingRef.current.has(row.id) && prevMap.has(row.id)
+          ? { ...row, title: prevMap.get(row.id)!.title }
+          : row,
+      );
+    });
   };
 
   useEffect(() => { load(); }, [taskId]);
@@ -46,6 +57,7 @@ export function TaskSubtasksInline({
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user, taskId]);
+
 
   const add = async () => {
     const title = newTitle.trim();
@@ -74,9 +86,15 @@ export function TaskSubtasksInline({
       .eq("id", s.id);
   };
 
-  const updateTitle = async (id: string, title: string) => {
+  const updateTitle = (id: string, title: string) => {
+    editingRef.current.add(id);
     setSubs((prev) => prev.map((x) => (x.id === id ? { ...x, title } : x)));
-    await supabase.from("tasks").update({ title }).eq("id", id);
+    if (writeTimers.current[id]) clearTimeout(writeTimers.current[id]);
+    writeTimers.current[id] = setTimeout(async () => {
+      await supabase.from("tasks").update({ title }).eq("id", id);
+      // release the editing lock shortly after the realtime echo arrives
+      setTimeout(() => editingRef.current.delete(id), 800);
+    }, 500);
   };
 
   const remove = async (id: string) => {
