@@ -86,9 +86,15 @@ export function TaskSubtasksInline({
       .eq("id", s.id);
   };
 
-  const updateTitle = async (id: string, title: string) => {
+  const updateTitle = (id: string, title: string) => {
+    editingRef.current.add(id);
     setSubs((prev) => prev.map((x) => (x.id === id ? { ...x, title } : x)));
-    await supabase.from("tasks").update({ title }).eq("id", id);
+    if (writeTimers.current[id]) clearTimeout(writeTimers.current[id]);
+    writeTimers.current[id] = setTimeout(async () => {
+      await supabase.from("tasks").update({ title }).eq("id", id);
+      // release the editing lock shortly after the realtime echo arrives
+      setTimeout(() => editingRef.current.delete(id), 800);
+    }, 500);
   };
 
   const remove = async (id: string) => {
