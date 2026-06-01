@@ -501,7 +501,7 @@ export default function HomeView() {
         </div>
       </header>
 
-      {focusCards}
+      {primaryCards}
 
       {focusMode ? (
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
