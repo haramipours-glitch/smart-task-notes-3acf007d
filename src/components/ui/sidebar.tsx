@@ -237,6 +237,11 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
         className={cn("h-7 w-7", className)}
         onClick={(event) => {
           onClick?.(event);
+          try {
+            if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+              navigator.vibrate(10);
+            }
+          } catch {}
           toggleSidebar();
         }}
         {...props}
