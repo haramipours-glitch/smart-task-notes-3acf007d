@@ -15,6 +15,8 @@ import { markdownToHtml } from "@/lib/markdown";
 import { toPersianDigits } from "@/lib/persianDigits";
 import { getQuoteForHour } from "@/lib/hourlyQuotes";
 import { HourlyStoryCard } from "@/components/HourlyStoryCard";
+import { HomeRangeTasks } from "@/components/HomeRangeTasks";
+import { haptic } from "@/lib/haptics";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet";
