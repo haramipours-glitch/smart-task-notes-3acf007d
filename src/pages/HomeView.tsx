@@ -15,6 +15,8 @@ import { markdownToHtml } from "@/lib/markdown";
 import { toPersianDigits } from "@/lib/persianDigits";
 import { getQuoteForHour } from "@/lib/hourlyQuotes";
 import { HourlyStoryCard } from "@/components/HourlyStoryCard";
+import { HomeRangeTasks } from "@/components/HomeRangeTasks";
+import { haptic } from "@/lib/haptics";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet";
@@ -253,9 +255,12 @@ export default function HomeView() {
     return "شب بخیر";
   })();
 
-  // ----- Focus cards (always shown) -----
-  const focusCards = (
+  // ----- Always-visible primary cards -----
+  const primaryCards = (
     <>
+      {/* بازه‌ی زمانی: امروز / فردا / هفته */}
+      <HomeRangeTasks />
+
       {/* مهم‌ترین کارهای امروز */}
       {snap.topTasks.length > 0 && (
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
@@ -269,7 +274,7 @@ export default function HomeView() {
             {snap.topTasks.map((tt) => (
               <button
                 key={tt.id}
-                onClick={() => navigate(`/app/tasks/${tt.id}`)}
+                onClick={() => { haptic("light"); navigate(`/app/tasks/${tt.id}`); }}
                 className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
               >
                 <span className="flex-1 truncate font-medium">{tt.title}</span>
@@ -284,6 +289,43 @@ export default function HomeView() {
           </CardContent>
         </Card>
       )}
+
+      {/* جمله و داستان این ساعت */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
+          <CardContent className="p-4 flex items-start gap-3 h-full">
+            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
+            <div dir="rtl" className="text-right w-full">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
+              <p className="text-sm md:text-base leading-7">{quote.text}</p>
+              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
+            </div>
+          </CardContent>
+        </Card>
+        <HourlyStoryCard />
+      </div>
+
+      {/* خلاصه‌ی هوشمند روز — کاشی‌بندی شده */}
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent overflow-hidden">
+        <CardContent className="p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">خلاصه‌ی هوشمند روز</span>
+          </div>
+          <Button size="sm" onClick={() => { haptic("medium"); generateBrief(!!brief); }} disabled={loadingBrief}>
+            {loadingBrief
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : brief
+                ? <><RefreshCw className="w-3.5 h-3.5 ms-1" /> به‌روزرسانی</>
+                : <><Sparkles className="w-3.5 h-3.5 ms-1" /> دریافت Brief</>}
+          </Button>
+        </CardContent>
+        {brief && (
+          <CardContent className="pt-0">
+            <BriefRenderer markdown={brief} />
+          </CardContent>
+        )}
+      </Card>
 
       {/* عادت‌های امروز */}
       {snap.habitsToday.length > 0 && (
@@ -305,6 +347,7 @@ export default function HomeView() {
                 key={h.id}
                 onClick={async () => {
                   if (!user) return;
+                  haptic(h.done ? "light" : "success");
                   const today = new Date().toISOString().slice(0, 10);
                   if (h.done) {
                     await supabase.from("habit_logs").delete().eq("habit_id", h.id).eq("log_date", today);
@@ -326,7 +369,7 @@ export default function HomeView() {
       )}
 
       {/* Check-in سریع */}
-      <Link to="/app/checkin">
+      <Link to="/app/checkin" onClick={() => haptic("light")}>
         <Card className="border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-transparent hover:bg-accent/20 transition">
           <CardContent className="p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -346,7 +389,7 @@ export default function HomeView() {
       </Link>
 
       {/* Pomodoro */}
-      <Link to="/app/pomodoro">
+      <Link to="/app/pomodoro" onClick={() => haptic("light")}>
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent hover:bg-accent/20 transition">
           <CardContent className="p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -367,23 +410,10 @@ export default function HomeView() {
     </>
   );
 
-  // ----- Extra (full) content -----
+
+  // ----- Extra (full) content — stats + quick access -----
   const extraContent = (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
-          <CardContent className="p-4 flex items-start gap-3 h-full">
-            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
-            <div>
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
-              <p className="text-sm md:text-base leading-7">{quote.text}</p>
-              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
-            </div>
-          </CardContent>
-        </Card>
-        <HourlyStoryCard />
-      </div>
-
       <div className="grid grid-cols-4 gap-2">
         <StatCard icon={Heart} color="text-rose-500" label="چک‌این"
           value={snap.lastCheckin?.mood != null ? `${toPersianDigits(snap.lastCheckin.mood)}/۱۰` : "—"}
@@ -396,32 +426,6 @@ export default function HomeView() {
           value={toPersianDigits(snap.completedToday)} to="/app/today" />
       </div>
 
-      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
-        <CardContent className="p-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium">خلاصه‌ی هوشمند روز</span>
-          </div>
-          <div className="flex gap-1">
-            <Button size="sm" onClick={() => generateBrief(!!brief)} disabled={loadingBrief}>
-              {loadingBrief
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : brief
-                  ? <><RefreshCw className="w-3.5 h-3.5 ms-1" /> به‌روزرسانی</>
-                  : <><Sparkles className="w-3.5 h-3.5 ms-1" /> دریافت Brief</>}
-            </Button>
-          </div>
-        </CardContent>
-        {brief && (
-          <CardContent className="pt-0">
-            <article dir="rtl"
-              className="prose prose-sm dark:prose-invert max-w-none leading-7
-                prose-headings:text-foreground prose-headings:font-semibold
-                prose-p:my-2 prose-strong:text-foreground text-end"
-              dangerouslySetInnerHTML={{ __html: markdownToHtml(brief) }} />
-          </CardContent>
-        )}
-      </Card>
 
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
@@ -497,7 +501,7 @@ export default function HomeView() {
         </div>
       </header>
 
-      {focusCards}
+      {primaryCards}
 
       {focusMode ? (
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
@@ -552,3 +556,50 @@ function QuickCard({ icon: Icon, to, label, color }: any) {
 function labelPriority(p: string) {
   return p === "urgent" ? "فوق فوری" : p === "high" ? "فوری" : p === "medium" ? "متوسط" : p === "low" ? "پایین" : "بدون";
 }
+
+// Categorized renderer for the daily AI brief. Splits markdown by H2 (## ...)
+// into beautiful tiled sections — RTL, right-aligned Persian.
+function BriefRenderer({ markdown }: { markdown: string }) {
+  const sections = (() => {
+    const lines = markdown.split(/\r?\n/);
+    const out: { title: string; body: string }[] = [];
+    let cur: { title: string; body: string } | null = null;
+    for (const ln of lines) {
+      const m = /^##\s+(.+)/.exec(ln.trim());
+      if (m) {
+        if (cur) out.push(cur);
+        cur = { title: m[1].trim(), body: "" };
+      } else if (cur) {
+        cur.body += ln + "\n";
+      } else if (ln.trim()) {
+        // intro lines before any H2 — wrap in a default section
+        cur = { title: "خلاصه", body: ln + "\n" };
+      }
+    }
+    if (cur) out.push(cur);
+    return out;
+  })();
+
+  if (sections.length === 0) {
+    return (
+      <article dir="rtl" className="prose prose-sm dark:prose-invert max-w-none leading-7 text-right"
+        dangerouslySetInnerHTML={{ __html: markdownToHtml(markdown) }} />
+    );
+  }
+
+  return (
+    <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      {sections.map((s, i) => (
+        <div key={i}
+          className="rounded-xl border border-primary/15 bg-card/60 backdrop-blur p-3 shadow-sm hover:shadow-md transition">
+          <h3 className="text-[13px] font-bold text-primary mb-1.5 text-right">{s.title}</h3>
+          <article
+            className="prose prose-sm dark:prose-invert max-w-none leading-7 text-right
+              prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-foreground"
+            dangerouslySetInnerHTML={{ __html: markdownToHtml(s.body.trim()) }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
