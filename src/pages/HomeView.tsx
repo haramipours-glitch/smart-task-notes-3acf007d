@@ -255,9 +255,12 @@ export default function HomeView() {
     return "شب بخیر";
   })();
 
-  // ----- Focus cards (always shown) -----
-  const focusCards = (
+  // ----- Always-visible primary cards -----
+  const primaryCards = (
     <>
+      {/* بازه‌ی زمانی: امروز / فردا / هفته */}
+      <HomeRangeTasks />
+
       {/* مهم‌ترین کارهای امروز */}
       {snap.topTasks.length > 0 && (
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
@@ -271,7 +274,7 @@ export default function HomeView() {
             {snap.topTasks.map((tt) => (
               <button
                 key={tt.id}
-                onClick={() => navigate(`/app/tasks/${tt.id}`)}
+                onClick={() => { haptic("light"); navigate(`/app/tasks/${tt.id}`); }}
                 className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
               >
                 <span className="flex-1 truncate font-medium">{tt.title}</span>
@@ -286,6 +289,43 @@ export default function HomeView() {
           </CardContent>
         </Card>
       )}
+
+      {/* جمله و داستان این ساعت */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
+          <CardContent className="p-4 flex items-start gap-3 h-full">
+            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
+            <div dir="rtl" className="text-right w-full">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
+              <p className="text-sm md:text-base leading-7">{quote.text}</p>
+              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
+            </div>
+          </CardContent>
+        </Card>
+        <HourlyStoryCard />
+      </div>
+
+      {/* خلاصه‌ی هوشمند روز — کاشی‌بندی شده */}
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent overflow-hidden">
+        <CardContent className="p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">خلاصه‌ی هوشمند روز</span>
+          </div>
+          <Button size="sm" onClick={() => { haptic("medium"); generateBrief(!!brief); }} disabled={loadingBrief}>
+            {loadingBrief
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : brief
+                ? <><RefreshCw className="w-3.5 h-3.5 ms-1" /> به‌روزرسانی</>
+                : <><Sparkles className="w-3.5 h-3.5 ms-1" /> دریافت Brief</>}
+          </Button>
+        </CardContent>
+        {brief && (
+          <CardContent className="pt-0">
+            <BriefRenderer markdown={brief} />
+          </CardContent>
+        )}
+      </Card>
 
       {/* عادت‌های امروز */}
       {snap.habitsToday.length > 0 && (
@@ -307,6 +347,7 @@ export default function HomeView() {
                 key={h.id}
                 onClick={async () => {
                   if (!user) return;
+                  haptic(h.done ? "light" : "success");
                   const today = new Date().toISOString().slice(0, 10);
                   if (h.done) {
                     await supabase.from("habit_logs").delete().eq("habit_id", h.id).eq("log_date", today);
@@ -328,7 +369,7 @@ export default function HomeView() {
       )}
 
       {/* Check-in سریع */}
-      <Link to="/app/checkin">
+      <Link to="/app/checkin" onClick={() => haptic("light")}>
         <Card className="border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-transparent hover:bg-accent/20 transition">
           <CardContent className="p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -348,7 +389,7 @@ export default function HomeView() {
       </Link>
 
       {/* Pomodoro */}
-      <Link to="/app/pomodoro">
+      <Link to="/app/pomodoro" onClick={() => haptic("light")}>
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent hover:bg-accent/20 transition">
           <CardContent className="p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -368,6 +409,7 @@ export default function HomeView() {
       </Link>
     </>
   );
+
 
   // ----- Extra (full) content -----
   const extraContent = (
