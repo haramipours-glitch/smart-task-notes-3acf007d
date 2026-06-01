@@ -144,7 +144,7 @@ export function HomeRangeTasks() {
                 <ArrowUpDown className="w-3 h-3" /> مرتب: {sortLabel}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" dir="rtl">
+            <DropdownMenuContent align="end">
               <DropdownMenuLabel className="text-xs">مرتب‌سازی</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => changeSort("time")}>
