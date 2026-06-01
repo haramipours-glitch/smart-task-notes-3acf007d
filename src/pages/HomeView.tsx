@@ -411,23 +411,9 @@ export default function HomeView() {
   );
 
 
-  // ----- Extra (full) content -----
+  // ----- Extra (full) content — stats + quick access -----
   const extraContent = (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
-          <CardContent className="p-4 flex items-start gap-3 h-full">
-            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
-            <div>
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
-              <p className="text-sm md:text-base leading-7">{quote.text}</p>
-              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
-            </div>
-          </CardContent>
-        </Card>
-        <HourlyStoryCard />
-      </div>
-
       <div className="grid grid-cols-4 gap-2">
         <StatCard icon={Heart} color="text-rose-500" label="چک‌این"
           value={snap.lastCheckin?.mood != null ? `${toPersianDigits(snap.lastCheckin.mood)}/۱۰` : "—"}
@@ -440,32 +426,6 @@ export default function HomeView() {
           value={toPersianDigits(snap.completedToday)} to="/app/today" />
       </div>
 
-      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
-        <CardContent className="p-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium">خلاصه‌ی هوشمند روز</span>
-          </div>
-          <div className="flex gap-1">
-            <Button size="sm" onClick={() => generateBrief(!!brief)} disabled={loadingBrief}>
-              {loadingBrief
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : brief
-                  ? <><RefreshCw className="w-3.5 h-3.5 ms-1" /> به‌روزرسانی</>
-                  : <><Sparkles className="w-3.5 h-3.5 ms-1" /> دریافت Brief</>}
-            </Button>
-          </div>
-        </CardContent>
-        {brief && (
-          <CardContent className="pt-0">
-            <article dir="rtl"
-              className="prose prose-sm dark:prose-invert max-w-none leading-7
-                prose-headings:text-foreground prose-headings:font-semibold
-                prose-p:my-2 prose-strong:text-foreground text-end"
-              dangerouslySetInnerHTML={{ __html: markdownToHtml(brief) }} />
-          </CardContent>
-        )}
-      </Card>
 
       <section>
         <div className="flex items-center justify-between mb-2 px-1">
