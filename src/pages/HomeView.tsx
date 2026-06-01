@@ -556,3 +556,50 @@ function QuickCard({ icon: Icon, to, label, color }: any) {
 function labelPriority(p: string) {
   return p === "urgent" ? "فوق فوری" : p === "high" ? "فوری" : p === "medium" ? "متوسط" : p === "low" ? "پایین" : "بدون";
 }
+
+// Categorized renderer for the daily AI brief. Splits markdown by H2 (## ...)
+// into beautiful tiled sections — RTL, right-aligned Persian.
+function BriefRenderer({ markdown }: { markdown: string }) {
+  const sections = (() => {
+    const lines = markdown.split(/\r?\n/);
+    const out: { title: string; body: string }[] = [];
+    let cur: { title: string; body: string } | null = null;
+    for (const ln of lines) {
+      const m = /^##\s+(.+)/.exec(ln.trim());
+      if (m) {
+        if (cur) out.push(cur);
+        cur = { title: m[1].trim(), body: "" };
+      } else if (cur) {
+        cur.body += ln + "\n";
+      } else if (ln.trim()) {
+        // intro lines before any H2 — wrap in a default section
+        cur = { title: "خلاصه", body: ln + "\n" };
+      }
+    }
+    if (cur) out.push(cur);
+    return out;
+  })();
+
+  if (sections.length === 0) {
+    return (
+      <article dir="rtl" className="prose prose-sm dark:prose-invert max-w-none leading-7 text-right"
+        dangerouslySetInnerHTML={{ __html: markdownToHtml(markdown) }} />
+    );
+  }
+
+  return (
+    <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      {sections.map((s, i) => (
+        <div key={i}
+          className="rounded-xl border border-primary/15 bg-card/60 backdrop-blur p-3 shadow-sm hover:shadow-md transition">
+          <h3 className="text-[13px] font-bold text-primary mb-1.5 text-right">{s.title}</h3>
+          <article
+            className="prose prose-sm dark:prose-invert max-w-none leading-7 text-right
+              prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-foreground"
+            dangerouslySetInnerHTML={{ __html: markdownToHtml(s.body.trim()) }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
