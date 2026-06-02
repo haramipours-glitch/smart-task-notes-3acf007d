@@ -61,16 +61,28 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
   useEffect(() => { setT(task); }, [task.id]);
 
+  // Auto-reveal sections that already have data so user doesn't need to tap rail icons
   useEffect(() => {
-    supabase.from("notes").select("id,title,content").eq("task_id", task.id)
-      .order("updated_at", { ascending: false }).then(({ data }) => {
-        const list = (data || []) as any;
-        setTaskNotes(list);
-        if (list.length > 0) setShowNotes(true);
-      });
-    supabase.from("task_tags").select("tag_id").eq("task_id", task.id).then(({ data }) => {
-      setTaskTagIds((data || []).map((r: any) => r.tag_id));
-    });
+    let cancelled = false;
+    (async () => {
+      const [notesRes, tagsRes, subRes, stepListsRes, attachRes] = await Promise.all([
+        supabase.from("notes").select("id,title,content").eq("task_id", task.id).order("updated_at", { ascending: false }),
+        supabase.from("task_tags").select("tag_id").eq("task_id", task.id),
+        supabase.from("subtasks").select("id", { count: "exact", head: true }).eq("task_id", task.id),
+        supabase.from("task_step_lists").select("id", { count: "exact", head: true }).eq("task_id", task.id),
+        supabase.from("task_attachments").select("id", { count: "exact", head: true }).eq("task_id", task.id),
+      ]);
+      if (cancelled) return;
+      const list = (notesRes.data || []) as any;
+      setTaskNotes(list);
+      if (list.length > 0) setShowNotes(true);
+      setTaskTagIds((tagsRes.data || []).map((r: any) => r.tag_id));
+      if ((subRes.count || 0) > 0) setShowSubtasks(true);
+      if ((stepListsRes.count || 0) > 0) setShowSteps(true);
+      if ((attachRes.count || 0) > 0) setShowAttachments(true);
+      if (hasTimeBlock) setShowTimeBlock(true);
+    })();
+    return () => { cancelled = true; };
   }, [task.id]);
 
   useEffect(() => {
