@@ -477,12 +477,13 @@ export default function HomeView() {
 
 function StatCard({ icon: Icon, color, label, value, to }: any) {
   return (
-    <Link to={to}>
-      <Card className="hover:bg-accent/30 transition-colors h-full">
-        <CardContent className="p-2.5 md:p-3 text-center">
+    <Link to={to} onClick={() => haptic("light")}>
+      <Card className="group relative overflow-hidden hover:bg-accent/30 transition-all h-full border-border/60 hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]">
+        <div className={`absolute inset-x-0 top-0 h-0.5 ${color.replace("text-", "bg-")} opacity-60`} />
+        <CardContent className="p-3 text-center">
           <Icon className={`w-4 h-4 ${color} mx-auto mb-1`} />
           <div className="text-base md:text-lg font-bold leading-none">{value}</div>
-          <div className="text-[10px] text-muted-foreground mt-1 truncate">{label}</div>
+          <div className="text-[10px] text-muted-foreground mt-1 break-words leading-tight">{label}</div>
         </CardContent>
       </Card>
     </Link>
@@ -490,12 +491,16 @@ function StatCard({ icon: Icon, color, label, value, to }: any) {
 }
 
 function QuickCard({ icon: Icon, to, label, color }: any) {
+  const bg = color.replace("text-", "bg-");
   return (
-    <Link to={to}>
-      <Card className="hover:bg-accent/30 hover:border-primary/40 transition-all h-full">
-        <CardContent className="p-3 flex flex-col items-center justify-center gap-1.5 text-center">
-          <Icon className={`w-5 h-5 ${color}`} />
-          <span className="text-[11px] font-medium leading-tight">{label}</span>
+    <Link to={to} onClick={() => haptic("light")}>
+      <Card className="group relative overflow-hidden h-full border-border/60 bg-gradient-to-br from-card to-card/40 hover:border-primary/40 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200">
+        <div className={`absolute -top-6 -end-6 w-16 h-16 rounded-full ${bg} opacity-10 blur-2xl group-hover:opacity-25 transition`} />
+        <CardContent className="p-3 flex flex-col items-center justify-center gap-2 text-center min-h-[88px]">
+          <div className={`w-9 h-9 rounded-2xl ${bg}/15 flex items-center justify-center ring-1 ring-inset ring-border/40 group-hover:scale-110 transition-transform`}>
+            <Icon className={`w-4.5 h-4.5 ${color}`} />
+          </div>
+          <span className="text-[11px] font-semibold leading-tight break-words line-clamp-2 w-full">{label}</span>
         </CardContent>
       </Card>
     </Link>
