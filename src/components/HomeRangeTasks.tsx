@@ -141,85 +141,96 @@ export function HomeRangeTasks() {
 
   const sortLabel = sort === "time" ? "زمان" : sort === "priority" ? "اولویت" : "جدیدترین";
 
+  const countLabel = sorted.length > 0 ? toPersianDigits(sorted.length) : "۰";
+
   return (
     <Card className="border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-transparent">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            <ListTodo className="w-4 h-4 text-blue-500" /> برنامه‌ی بازه‌ی زمانی
-          </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="ghost" className="h-7 text-[11px] gap-1" onClick={() => haptic("light")}>
-                <ArrowUpDown className="w-3 h-3" /> مرتب: {sortLabel}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel className="text-xs">مرتب‌سازی</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => changeSort("time")}>
-                <Clock className="w-3.5 h-3.5 ms-1" /> زمان
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeSort("priority")}>
-                <Flag className="w-3.5 h-3.5 ms-1" /> اولویت
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeSort("created")}>
-                <Calendar className="w-3.5 h-3.5 ms-1" /> جدیدترین
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs value={range} onValueChange={(v) => changeRange(v as Range)}>
-          <TabsList className="w-full grid grid-cols-3">
-            <TabsTrigger value="today" className="text-xs gap-1">
-              <ListTodo className="w-3.5 h-3.5" /> امروز
-            </TabsTrigger>
-            <TabsTrigger value="tomorrow" className="text-xs gap-1">
-              <CalendarDays className="w-3.5 h-3.5" /> فردا
-            </TabsTrigger>
-            <TabsTrigger value="week" className="text-xs gap-1">
-              <Calendar className="w-3.5 h-3.5" /> هفته
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value={range} className="mt-3">
-            {loading ? (
-              <p className="text-xs text-muted-foreground text-center py-6">در حال بارگذاری…</p>
-            ) : sorted.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-6 border border-dashed rounded-lg">
-                هیچ تسکی در این بازه نیست. 🌿
-              </p>
-            ) : (
-              <ul className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1">
-                {sorted.map((t) => (
-                  <li key={t.id}
-                      className="flex items-center gap-2 p-2 rounded-lg border border-border/60 hover:bg-accent/30 transition">
-                    <button
-                      onClick={() => toggleDone(t.id)}
-                      className="w-5 h-5 rounded-full border-2 border-muted-foreground/40 hover:border-emerald-500 flex items-center justify-center shrink-0"
-                      aria-label="انجام شد"
-                    >
-                      <Check className="w-3 h-3 opacity-0 hover:opacity-100" />
-                    </button>
-                    <button
-                      onClick={() => { haptic("light"); navigate(`/app/tasks/${t.id}`); }}
-                      className="flex-1 text-end min-w-0"
-                    >
-                      <div className="text-sm font-medium truncate">{t.title}</div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1.5 justify-end">
-                        <Clock className="w-3 h-3" />
-                        <span>{toPersianDigits(timeLabel(t.due_date))}</span>
-                      </div>
-                    </button>
-                    {priorityBadge(t.priority)}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
+      <Collapsible open={open} onOpenChange={toggleOpen}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center justify-between gap-2">
+            <CollapsibleTrigger className="flex items-center gap-2 flex-1 text-start hover:opacity-80 transition">
+              <ChevronDown className={`w-4 h-4 transition-transform ${open ? "" : "-rotate-90"}`} />
+              <ListTodo className="w-4 h-4 text-blue-500" />
+              <span>برنامه‌ی بازه‌ی زمانی</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-300 font-normal">
+                {countLabel}
+              </span>
+            </CollapsibleTrigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="ghost" className="h-7 text-[11px] gap-1" onClick={() => haptic("light")}>
+                  <ArrowUpDown className="w-3 h-3" /> مرتب: {sortLabel}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel className="text-xs">مرتب‌سازی</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => changeSort("time")}>
+                  <Clock className="w-3.5 h-3.5 ms-1" /> زمان
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeSort("priority")}>
+                  <Flag className="w-3.5 h-3.5 ms-1" /> اولویت
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeSort("created")}>
+                  <Calendar className="w-3.5 h-3.5 ms-1" /> جدیدترین
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </CardTitle>
+        </CardHeader>
+        <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden">
+          <CardContent>
+            <Tabs value={range} onValueChange={(v) => changeRange(v as Range)}>
+              <TabsList className="w-full grid grid-cols-3">
+                <TabsTrigger value="today" className="text-xs gap-1">
+                  <ListTodo className="w-3.5 h-3.5" /> امروز
+                </TabsTrigger>
+                <TabsTrigger value="tomorrow" className="text-xs gap-1">
+                  <CalendarDays className="w-3.5 h-3.5" /> فردا
+                </TabsTrigger>
+                <TabsTrigger value="week" className="text-xs gap-1">
+                  <Calendar className="w-3.5 h-3.5" /> هفته
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value={range} className="mt-3">
+                {loading ? (
+                  <p className="text-xs text-muted-foreground text-center py-6">در حال بارگذاری…</p>
+                ) : sorted.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-6 border border-dashed rounded-lg">
+                    هیچ تسکی در این بازه نیست. 🌿
+                  </p>
+                ) : (
+                  <ul className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1">
+                    {sorted.map((t) => (
+                      <li key={t.id}
+                          className="flex items-center gap-2 p-2 rounded-lg border border-border/60 hover:bg-accent/30 transition">
+                        <button
+                          onClick={() => toggleDone(t.id)}
+                          className="w-5 h-5 rounded-full border-2 border-muted-foreground/40 hover:border-emerald-500 flex items-center justify-center shrink-0"
+                          aria-label="انجام شد"
+                        >
+                          <Check className="w-3 h-3 opacity-0 hover:opacity-100" />
+                        </button>
+                        <button
+                          onClick={() => { haptic("light"); navigate(`/app/tasks/${t.id}`); }}
+                          className="flex-1 text-end min-w-0"
+                        >
+                          <div className="text-sm font-medium break-words line-clamp-2">{t.title}</div>
+                          <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1.5 justify-end">
+                            <Clock className="w-3 h-3" />
+                            <span>{toPersianDigits(timeLabel(t.due_date))}</span>
+                          </div>
+                        </button>
+                        {priorityBadge(t.priority)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 }
