@@ -13,6 +13,18 @@ const config: CapacitorConfig = {
   android: {
     backgroundColor: "#0F172A",
   },
+  plugins: {
+    StatusBar: {
+      style: "DARK",
+      backgroundColor: "#0F172A",
+      overlaysWebView: false,
+    },
+    SplashScreen: {
+      backgroundColor: "#0F172A",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: false,
+    },
+  },
 };
 
 export default config;

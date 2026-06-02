@@ -258,37 +258,8 @@ export default function HomeView() {
   // ----- Always-visible primary cards -----
   const primaryCards = (
     <>
-      {/* بازه‌ی زمانی: امروز / فردا / هفته */}
+      {/* بازه‌ی زمانی: امروز / فردا / هفته (به‌صورت کشویی) */}
       <HomeRangeTasks />
-
-      {/* مهم‌ترین کارهای امروز */}
-      {snap.topTasks.length > 0 && (
-        <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Target className="w-4 h-4 text-amber-500" />
-              مهم‌ترین کارهای امروز
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-1.5">
-            {snap.topTasks.map((tt) => (
-              <button
-                key={tt.id}
-                onClick={() => { haptic("light"); navigate(`/app/tasks/${tt.id}`); }}
-                className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent/30 text-sm text-end"
-              >
-                <span className="flex-1 truncate font-medium">{tt.title}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full ms-2 ${
-                  tt.priority === "urgent" ? "bg-red-600/20 text-red-700 dark:text-red-300" :
-                  tt.priority === "high" ? "bg-destructive/15 text-destructive" :
-                  tt.priority === "medium" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
-                  tt.priority === "low" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-muted text-muted-foreground"
-                }`}>{labelPriority(tt.priority)}</span>
-              </button>
-            ))}
-          </CardContent>
-        </Card>
-      )}
 
       {/* جمله و داستان این ساعت */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -297,35 +268,13 @@ export default function HomeView() {
             <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
             <div dir="rtl" className="text-right w-full">
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
-              <p className="text-sm md:text-base leading-7">{quote.text}</p>
+              <p className="text-sm md:text-base leading-7 whitespace-pre-wrap break-words">{quote.text}</p>
               {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
             </div>
           </CardContent>
         </Card>
         <HourlyStoryCard />
       </div>
-
-      {/* خلاصه‌ی هوشمند روز — کاشی‌بندی شده */}
-      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent overflow-hidden">
-        <CardContent className="p-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium">خلاصه‌ی هوشمند روز</span>
-          </div>
-          <Button size="sm" onClick={() => { haptic("medium"); generateBrief(!!brief); }} disabled={loadingBrief}>
-            {loadingBrief
-              ? <Loader2 className="w-4 h-4 animate-spin" />
-              : brief
-                ? <><RefreshCw className="w-3.5 h-3.5 ms-1" /> به‌روزرسانی</>
-                : <><Sparkles className="w-3.5 h-3.5 ms-1" /> دریافت Brief</>}
-          </Button>
-        </CardContent>
-        {brief && (
-          <CardContent className="pt-0">
-            <BriefRenderer markdown={brief} />
-          </CardContent>
-        )}
-      </Card>
 
       {/* عادت‌های امروز */}
       {snap.habitsToday.length > 0 && (
@@ -528,12 +477,13 @@ export default function HomeView() {
 
 function StatCard({ icon: Icon, color, label, value, to }: any) {
   return (
-    <Link to={to}>
-      <Card className="hover:bg-accent/30 transition-colors h-full">
-        <CardContent className="p-2.5 md:p-3 text-center">
+    <Link to={to} onClick={() => haptic("light")}>
+      <Card className="group relative overflow-hidden hover:bg-accent/30 transition-all h-full border-border/60 hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]">
+        <div className={`absolute inset-x-0 top-0 h-0.5 ${color.replace("text-", "bg-")} opacity-60`} />
+        <CardContent className="p-3 text-center">
           <Icon className={`w-4 h-4 ${color} mx-auto mb-1`} />
           <div className="text-base md:text-lg font-bold leading-none">{value}</div>
-          <div className="text-[10px] text-muted-foreground mt-1 truncate">{label}</div>
+          <div className="text-[10px] text-muted-foreground mt-1 break-words leading-tight">{label}</div>
         </CardContent>
       </Card>
     </Link>
@@ -541,12 +491,16 @@ function StatCard({ icon: Icon, color, label, value, to }: any) {
 }
 
 function QuickCard({ icon: Icon, to, label, color }: any) {
+  const bg = color.replace("text-", "bg-");
   return (
-    <Link to={to}>
-      <Card className="hover:bg-accent/30 hover:border-primary/40 transition-all h-full">
-        <CardContent className="p-3 flex flex-col items-center justify-center gap-1.5 text-center">
-          <Icon className={`w-5 h-5 ${color}`} />
-          <span className="text-[11px] font-medium leading-tight">{label}</span>
+    <Link to={to} onClick={() => haptic("light")}>
+      <Card className="group relative overflow-hidden h-full border-border/60 bg-gradient-to-br from-card to-card/40 hover:border-primary/40 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200">
+        <div className={`absolute -top-6 -end-6 w-16 h-16 rounded-full ${bg} opacity-10 blur-2xl group-hover:opacity-25 transition`} />
+        <CardContent className="p-3 flex flex-col items-center justify-center gap-2 text-center min-h-[88px]">
+          <div className={`w-9 h-9 rounded-2xl ${bg}/15 flex items-center justify-center ring-1 ring-inset ring-border/40 group-hover:scale-110 transition-transform`}>
+            <Icon className={`w-4.5 h-4.5 ${color}`} />
+          </div>
+          <span className="text-[11px] font-semibold leading-tight break-words line-clamp-2 w-full">{label}</span>
         </CardContent>
       </Card>
     </Link>
