@@ -29,6 +29,7 @@ type Task = {
 
 const SORT_KEY = "home_range_sort_v1";
 const RANGE_KEY = "home_range_tab_v1";
+const OPEN_KEY = "home_range_open_v1";
 
 function priorityRank(p: string) {
   return p === "urgent" ? 0 : p === "high" ? 1 : p === "medium" ? 2 : p === "low" ? 3 : 4;
