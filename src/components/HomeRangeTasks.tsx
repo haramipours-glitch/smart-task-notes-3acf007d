@@ -5,11 +5,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { CalendarDays, ListTodo, Clock, Flag, ArrowUpDown, Calendar, Check } from "lucide-react";
+import { CalendarDays, ListTodo, Clock, Flag, ArrowUpDown, Calendar, Check, ChevronDown } from "lucide-react";
 import { toPersianDigits } from "@/lib/persianDigits";
 import { haptic } from "@/lib/haptics";
 import { toast } from "sonner";
