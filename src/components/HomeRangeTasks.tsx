@@ -68,6 +68,14 @@ export function HomeRangeTasks() {
   });
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState<boolean>(() => {
+    try { const v = localStorage.getItem(OPEN_KEY); return v === null ? true : v === "1"; } catch { return true; }
+  });
+  const toggleOpen = (v: boolean) => {
+    haptic("light");
+    setOpen(v);
+    try { localStorage.setItem(OPEN_KEY, v ? "1" : "0"); } catch {}
+  };
 
   const bounds = useMemo(() => {
     const start = new Date(); start.setHours(0, 0, 0, 0);
