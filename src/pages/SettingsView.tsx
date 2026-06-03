@@ -749,6 +749,10 @@ export default function SettingsView() {
         </Button>
       </Card>
 
+      {/* Time buckets settings */}
+      <TimeBucketsSettings />
+
+
       <Card className="p-5 space-y-2">
         <h2 className="font-semibold">{t("settings.aboutTitle")}</h2>
         <p className="text-sm text-muted-foreground leading-7">{t("settings.aboutBody")}</p>
