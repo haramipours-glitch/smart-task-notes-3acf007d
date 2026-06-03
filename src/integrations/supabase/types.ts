@@ -1030,6 +1030,9 @@ export type Database = {
       }
       tasks: {
         Row: {
+          bucket_anchor: string | null
+          bucket_calendar: string | null
+          bucket_kind: string | null
           completed: boolean
           completed_at: string | null
           created_at: string
@@ -1056,6 +1059,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          bucket_anchor?: string | null
+          bucket_calendar?: string | null
+          bucket_kind?: string | null
           completed?: boolean
           completed_at?: string | null
           created_at?: string
@@ -1082,6 +1088,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          bucket_anchor?: string | null
+          bucket_calendar?: string | null
+          bucket_kind?: string | null
           completed?: boolean
           completed_at?: string | null
           created_at?: string
