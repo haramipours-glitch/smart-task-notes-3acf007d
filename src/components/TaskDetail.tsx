@@ -25,7 +25,7 @@ import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
 import { TaskDescriptionEditor } from "@/components/TaskDescriptionEditor";
 import { DueDatePicker } from "@/components/DueDatePicker";
-import { BucketPickerInline as BucketRailPicker } from "@/components/BucketPickerInline";
+import { BucketPickerBody } from "@/components/BucketPickerInline";
 import { describeRule } from "@/lib/recurrence";
 
 import { Switch } from "@/components/ui/switch";
