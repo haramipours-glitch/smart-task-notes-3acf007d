@@ -24,6 +24,51 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { loadSettings, saveSettings, ensureNotificationPermission, type UserSettings } from "@/lib/reminders";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ALL_BUCKET_KINDS, getEnabledBuckets, setEnabledBuckets, kindLabel, type BucketKind } from "@/lib/timeBuckets";
+import { getCalendarSystem, setCalendarSystem, type CalendarSystem } from "@/lib/jalali";
+
+function TimeBucketsSettings() {
+  const [enabled, setEnabled] = useState<BucketKind[]>(() => getEnabledBuckets());
+  const [cal, setCal] = useState<CalendarSystem>(() => getCalendarSystem());
+  const toggle = (k: BucketKind) => {
+    const next = enabled.includes(k) ? enabled.filter((x) => x !== k) : [...enabled, k];
+    setEnabled(next);
+    setEnabledBuckets(next);
+  };
+  const changeCal = (v: CalendarSystem) => {
+    setCal(v);
+    setCalendarSystem(v);
+  };
+  return (
+    <Card className="p-5 space-y-3">
+      <div className="flex items-center gap-2">
+        <LayoutGrid className="w-4 h-4 text-primary" />
+        <h2 className="font-semibold">دسته‌بندی زمانی</h2>
+      </div>
+      <p className="text-xs text-muted-foreground leading-6">
+        مشخص کن کدام بازه‌ها در انتخاب «بازهٔ کلی» تسک‌ها نمایش داده شوند.
+      </p>
+      <div className="space-y-2">
+        {ALL_BUCKET_KINDS.map((k) => (
+          <div key={k} className="flex items-center justify-between p-2 rounded-lg border">
+            <span className="text-sm">{kindLabel(k)}</span>
+            <Switch checked={enabled.includes(k)} onCheckedChange={() => toggle(k)} />
+          </div>
+        ))}
+      </div>
+      <div className="pt-2 border-t space-y-2">
+        <Label className="text-xs">سیستم تقویم برای نام ماه‌ها</Label>
+        <Select value={cal} onValueChange={(v) => changeCal(v as CalendarSystem)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="jalali">شمسی (فروردین، اردیبهشت…)</SelectItem>
+            <SelectItem value="gregorian">میلادی (January, February…)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </Card>
+  );
+}
 
 function ProviderEditor({ value, onChange, isEn }: { value: ProviderConfig; onChange: (c: ProviderConfig) => void; isEn: boolean }) {
   const { t } = useTranslation();
