@@ -467,7 +467,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
             </span>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2" align="start" side="top">
-            <BucketRailPicker
+            <BucketPickerBody
               value={{
                 kind: (t.bucket_kind as any) || null,
                 calendar: (t.bucket_calendar as any) || null,
