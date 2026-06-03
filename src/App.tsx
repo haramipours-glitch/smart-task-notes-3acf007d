@@ -115,6 +115,7 @@ const App = () => {
                 <Route path="pomodoro" element={<PomodoroView />} />
                 <Route path="calendar" element={<CalendarView />} />
                 <Route path="kanban" element={<KanbanView />} />
+                <Route path="buckets" element={<BucketsView />} />
                 
                 <Route path="mind" element={<MindView />} />
                 <Route path="self" element={<SelfKnowledgeView />} />
