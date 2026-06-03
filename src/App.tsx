@@ -68,6 +68,7 @@ const TaskDetailView = lazy(() => import("./pages/TaskDetailView"));
 const AdminView = lazy(() => import("./pages/AdminView"));
 const SharedWithMeView = lazy(() => import("./pages/SharedWithMeView"));
 const ShareTargetView = lazy(() => import("./pages/ShareTargetView"));
+const BucketsView = lazy(() => import("./pages/BucketsView"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -114,6 +115,7 @@ const App = () => {
                 <Route path="pomodoro" element={<PomodoroView />} />
                 <Route path="calendar" element={<CalendarView />} />
                 <Route path="kanban" element={<KanbanView />} />
+                <Route path="buckets" element={<BucketsView />} />
                 
                 <Route path="mind" element={<MindView />} />
                 <Route path="self" element={<SelfKnowledgeView />} />

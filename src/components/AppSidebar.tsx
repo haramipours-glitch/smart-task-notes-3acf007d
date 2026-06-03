@@ -88,6 +88,7 @@ const SECTIONS: Section[] = [
       { url: "/app/tomorrow", icon: Sun, label: "فردا" },
       { url: "/app/next7", icon: CalendarDays, label: "۷ روز آینده" },
       { url: "/app/calendar", icon: Calendar, label: "تقویم" },
+      { url: "/app/buckets", icon: CalendarDays, label: "بازه‌های کلی" },
       { url: "/app/smart", icon: Filter, label: "Smart Lists" },
       { url: "/app/pomodoro", icon: Timer, label: "Pomodoro" },
     ],

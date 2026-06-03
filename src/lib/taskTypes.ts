@@ -17,7 +17,9 @@ export type Task = {
   end_at: string | null;
   estimated_minutes: number | null;
   is_avoidance?: boolean;
-  
+  bucket_kind?: "day" | "week" | "month" | "quarter" | "year" | null;
+  bucket_calendar?: "jalali" | "gregorian" | null;
+  bucket_anchor?: string | null;
 };
 
 export type TaskNote = { id: string; title: string; content: string };

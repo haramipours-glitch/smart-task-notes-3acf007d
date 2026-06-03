@@ -25,6 +25,7 @@ import { TaskSubtasksInline } from "@/components/TaskSubtasksInline";
 import { TaskAttachments } from "@/components/TaskAttachments";
 import { TaskDescriptionEditor } from "@/components/TaskDescriptionEditor";
 import { DueDatePicker } from "@/components/DueDatePicker";
+import { BucketPickerBody } from "@/components/BucketPickerInline";
 import { describeRule } from "@/lib/recurrence";
 
 import { Switch } from "@/components/ui/switch";
@@ -453,6 +454,33 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           active={hasTimeBlock || showTimeBlock}
           onClick={() => setShowTimeBlock(s => !s)}
         />
+
+        {/* Time bucket (categorical: today/this week/this month/this quarter/this year) */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <span>
+              <RailButton
+                icon={CalendarIcon}
+                label={T("بازهٔ کلی", "Bucket")}
+                active={!!t.bucket_kind}
+              />
+            </span>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-2" align="start" side="top">
+            <BucketPickerBody
+              value={{
+                kind: (t.bucket_kind as any) || null,
+                calendar: (t.bucket_calendar as any) || null,
+                anchor: (t.bucket_anchor as any) || null,
+              }}
+              onChange={(v) => save({
+                bucket_kind: v.kind,
+                bucket_calendar: v.calendar,
+                bucket_anchor: v.anchor,
+              } as any)}
+            />
+          </PopoverContent>
+        </Popover>
 
         {/* Subtasks */}
         <RailButton
