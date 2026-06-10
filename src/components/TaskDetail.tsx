@@ -695,47 +695,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   // ── Expandable inline blocks (only when toggled) ────────────────────
   const expandables = (
     <div className="space-y-4 px-1">
-      {showTimeBlock && (
-        <Card className="p-3 space-y-2 rounded-2xl border-border/60">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-foreground/80 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" /> {T("بازهٔ زمانی", "Time block")}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-[10px] text-muted-foreground">{T("شروع", "Start")}</label>
-              <Input type="datetime-local"
-                className="h-10 sm:h-9 text-xs"
-                value={t.start_at ? t.start_at.slice(0, 16) : ""}
-                onChange={(e) => save({ start_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
-            </div>
-            <div>
-              <label className="text-[10px] text-muted-foreground">{T("پایان", "End")}</label>
-              <Input type="datetime-local"
-                className="h-10 sm:h-9 text-xs"
-                value={t.end_at ? t.end_at.slice(0, 16) : ""}
-                onChange={(e) => save({ end_at: e.target.value ? new Date(e.target.value).toISOString() : null } as any)} />
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <label className="text-[10px] text-muted-foreground whitespace-nowrap">{T("مدت تخمینی (دقیقه):", "Estimate (min):")}</label>
-            <Input type="number" placeholder="—"
-              value={t.estimated_minutes ?? ""}
-              onChange={(e) => save({ estimated_minutes: e.target.value ? Number(e.target.value) : null } as any)}
-              className="h-10 sm:h-8 w-24 text-xs" />
-            <div className="flex gap-1">
-              {[15, 30, 60].map(m => (
-                <button key={m} type="button"
-                  onClick={() => save({ estimated_minutes: m } as any)}
-                  className={`px-2 h-7 text-[10px] rounded-lg border ${t.estimated_minutes === m ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}>
-                  {m}{isEn ? "m" : "د"}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Card>
-      )}
+
 
       {showSubtasks && (
         <TaskSubtasksInline
