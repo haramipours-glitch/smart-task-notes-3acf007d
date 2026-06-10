@@ -8,11 +8,13 @@ import { AutoTextarea } from "@/components/ui/auto-textarea";
 import { BidiText } from "@/components/BidiText";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   Plus, Sparkles, Trash2, FileText, Clock, ArrowRight, Ban,
   Folder as FolderIcon, Tag as TagIcon, Check, Calendar as CalendarIcon,
-  Flag, Repeat, ListTree, Paperclip, X,
+  Flag, Repeat, ListTree, Paperclip, X, Image as ImageIcon, Music, Link as LinkIcon,
+  CheckSquare, ListChecks,
 } from "lucide-react";
 import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
