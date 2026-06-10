@@ -528,26 +528,41 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
             </span>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-2 max-h-[55vh] overflow-y-auto" align="start" side="top">
-            <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-muted/40">
-              <span className="w-6 h-6 rounded-md shrink-0" style={{ background: newFolderColor }} />
-              <Input
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && createFolderAndAssign()}
-                placeholder={T("نام فولدر جدید…", "New folder name…")}
-                className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0"
-              />
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={createFolderAndAssign} disabled={!newFolderName.trim()}>
-                <Plus className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-            <div className="flex gap-1 mb-2 px-1">
-              {TAG_COLORS.map(c => (
-                <button key={c} onClick={() => setNewFolderColor(c)}
-                  className={`w-5 h-5 rounded-full border-2 ${newFolderColor === c ? "border-foreground" : "border-transparent"}`}
-                  style={{ background: c }} />
-              ))}
-            </div>
+            {!showFolderCreate ? (
+              <button
+                onClick={() => setShowFolderCreate(true)}
+                className="w-full flex items-center gap-2 p-2 mb-1 rounded-xl bg-muted/40 hover:bg-accent text-sm text-muted-foreground"
+              >
+                <Plus className="w-4 h-4" /> {T("ساخت فولدر جدید", "Create new folder")}
+              </button>
+            ) : (
+              <>
+                <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-muted/40">
+                  <span className="w-6 h-6 rounded-md shrink-0" style={{ background: newFolderColor }} />
+                  <Input
+                    autoFocus
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { createFolderAndAssign(); setShowFolderCreate(false); }
+                      if (e.key === "Escape") setShowFolderCreate(false);
+                    }}
+                    placeholder={T("نام فولدر جدید…", "New folder name…")}
+                    className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0"
+                  />
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={async () => { await createFolderAndAssign(); setShowFolderCreate(false); }} disabled={!newFolderName.trim()}>
+                    <Plus className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                <div className="flex gap-1 mb-2 px-1">
+                  {TAG_COLORS.map(c => (
+                    <button key={c} onClick={() => setNewFolderColor(c)}
+                      className={`w-5 h-5 rounded-full border-2 ${newFolderColor === c ? "border-foreground" : "border-transparent"}`}
+                      style={{ background: c }} />
+                  ))}
+                </div>
+              </>
+            )}
             <button
               onClick={() => save({ folder_id: null })}
               className={`w-full text-start p-2 rounded-lg text-sm hover:bg-accent ${t.folder_id === null ? "bg-accent" : ""}`}
