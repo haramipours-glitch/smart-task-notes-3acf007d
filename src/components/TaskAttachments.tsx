@@ -178,9 +178,10 @@ export function TaskAttachments({ taskId }: { taskId: string }) {
           {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Paperclip className="w-3 h-3" />}
           Add file
         </Button>
-        <input ref={fileRef} type="file" accept={ACCEPT} multiple className="hidden"
+        <input ref={fileRef} type="file" accept={pickAccept} multiple className="hidden"
           onChange={(e) => onFiles(e.target.files)} />
       </div>
+
 
       {items.length === 0 ? null : (
         <div className="space-y-2">
