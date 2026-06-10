@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -378,31 +379,29 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
     }, 50);
   };
 
-  // ── Bottom icon rail — fixed above BottomTabBar on mobile ───────────
-  const rail = (
-    <div
-      className="fixed md:sticky inset-x-0 z-30 md:mt-4 -mx-1 sm:-mx-2 md:-mx-4 px-2 py-1.5 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t border-border/40 shadow-[0_-2px_10px_-4px_rgba(0,0,0,0.08)]"
-      style={{ bottom: "calc(56px + env(safe-area-inset-bottom))" }}
-    >
-      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-        {/* 1. Schedule (Date + Time block + Repeat) */}
+  // ── Bottom icon rail — portal'd to body so it sits above BottomTabBar
+  const railInner = (
+    <div className="mx-auto max-w-3xl">
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar px-2 py-1.5">
+        {/* 1. Schedule (Date + Time block + Repeat + Bucket) */}
         <Popover>
           <PopoverTrigger asChild>
             <span>
               <RailButton
                 icon={CalendarIcon}
                 label={T("زمان‌بندی", "Schedule")}
-                active={!!t.due_date || !!t.reminder_at || hasTimeBlock || !!t.recurrence_rule}
+                active={!!t.due_date || !!t.reminder_at || hasTimeBlock || !!t.recurrence_rule || !!t.bucket_kind}
                 accent
               />
             </span>
           </PopoverTrigger>
-          <PopoverContent className="w-[min(92vw,360px)] p-2" align="start" side="top">
+          <PopoverContent className="w-[min(94vw,380px)] p-2" align="start" side="top">
             <Tabs defaultValue="date">
-              <TabsList className="grid grid-cols-3 w-full mb-2">
-                <TabsTrigger value="date" className="text-xs">{T("تاریخ", "Date")}</TabsTrigger>
-                <TabsTrigger value="block" className="text-xs">{T("بازه", "Time")}</TabsTrigger>
-                <TabsTrigger value="repeat" className="text-xs">{T("تکرار", "Repeat")}</TabsTrigger>
+              <TabsList className="grid grid-cols-4 w-full mb-2">
+                <TabsTrigger value="date" className="text-[11px] px-1">{T("تاریخ", "Date")}</TabsTrigger>
+                <TabsTrigger value="block" className="text-[11px] px-1">{T("تایم‌بلاک", "Block")}</TabsTrigger>
+                <TabsTrigger value="repeat" className="text-[11px] px-1">{T("تکرار", "Repeat")}</TabsTrigger>
+                <TabsTrigger value="bucket" className="text-[11px] px-1">{T("بازه", "Bucket")}</TabsTrigger>
               </TabsList>
               <TabsContent value="date" className="mt-0">
                 <DueDatePicker
@@ -449,6 +448,23 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                 <RecurrenceEditor
                   value={t.recurrence_rule}
                   onChange={(rule) => save({ recurrence_rule: rule } as any)}
+                />
+              </TabsContent>
+              <TabsContent value="bucket" className="mt-0">
+                <p className="text-[10px] text-muted-foreground mb-1.5 px-1">
+                  {T("بدون زمان دقیق — فقط بازه‌ای که کار باید توش انجام بشه.", "Fuzzy schedule — pick a period instead of an exact time.")}
+                </p>
+                <BucketPickerBody
+                  value={{
+                    kind: (t.bucket_kind as any) || null,
+                    calendar: (t.bucket_calendar as any) || null,
+                    anchor: (t.bucket_anchor as any) || null,
+                  }}
+                  onChange={(v) => save({
+                    bucket_kind: v.kind,
+                    bucket_calendar: v.calendar,
+                    bucket_anchor: v.anchor,
+                  } as any)}
                 />
               </TabsContent>
             </Tabs>
@@ -654,33 +670,6 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           </PopoverContent>
         </Popover>
 
-        {/* Bucket */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <span>
-              <RailButton
-                icon={CalendarIcon}
-                label={T("بازهٔ کلی", "Bucket")}
-                active={!!t.bucket_kind}
-              />
-            </span>
-          </PopoverTrigger>
-          <PopoverContent className="w-64 p-2" align="start" side="top">
-            <BucketPickerBody
-              value={{
-                kind: (t.bucket_kind as any) || null,
-                calendar: (t.bucket_calendar as any) || null,
-                anchor: (t.bucket_anchor as any) || null,
-              }}
-              onChange={(v) => save({
-                bucket_kind: v.kind,
-                bucket_calendar: v.calendar,
-                bucket_anchor: v.anchor,
-              } as any)}
-            />
-          </PopoverContent>
-        </Popover>
-
         {/* AI */}
         <RailButton
           icon={Sparkles}
@@ -691,6 +680,19 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
       </div>
     </div>
   );
+
+  const rail = typeof document !== "undefined"
+    ? createPortal(
+        <div
+          dir="rtl"
+          className="fixed inset-x-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t border-border/40 shadow-[0_-2px_10px_-4px_rgba(0,0,0,0.08)]"
+          style={{ bottom: "calc(56px + env(safe-area-inset-bottom))" }}
+        >
+          {railInner}
+        </div>,
+        document.body,
+      )
+    : null;
 
   // ── Expandable inline blocks (only when toggled) ────────────────────
   const expandables = (

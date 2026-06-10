@@ -162,43 +162,58 @@ function AppUpdateCard({ isEn }: { isEn: boolean }) {
   const version = (import.meta.env.VITE_APP_VERSION as string) || "live";
   const buildTime = (import.meta.env.VITE_BUILD_TIME as string) || "";
 
+  const getCurrentEntryHash = () => {
+    const scripts = Array.from(document.querySelectorAll('script[type="module"][src]')) as HTMLScriptElement[];
+    const entry = scripts.find((s) => /\/assets\/(index|main)[-.]/.test(s.src)) || scripts[0];
+    return entry ? entry.src.split("/").pop() || "" : "";
+  };
+
   const check = async () => {
     setChecking(true);
-    // Safety: never let the spinner hang forever
     const hardTimeout = setTimeout(() => {
       setChecking(false);
       toast.info(
-        isEn
-          ? "Check timed out. You're likely already on the latest version."
-          : "بررسی طولانی شد. به احتمال زیاد نسخه‌ی شما به‌روز است."
+        isEn ? "Check timed out. Try again with internet on." : "بررسی طولانی شد. اتصال اینترنت را بررسی کن."
       );
-    }, 8000);
+    }, 10000);
     try {
-      if (!("serviceWorker" in navigator)) {
-        toast.info(isEn ? "Updates not supported in this browser." : "این مرورگر از به‌روزرسانی پشتیبانی نمی‌کند.");
-        return;
+      // 1) Try service-worker update path (PWA)
+      if ("serviceWorker" in navigator) {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+          const before = reg.waiting || reg.installing;
+          await Promise.race([reg.update().catch(() => {}), new Promise((r) => setTimeout(r, 4000))]);
+          const after = reg.waiting || reg.installing;
+          if (after && after !== before) {
+            toast.success(isEn ? "New version found — applying…" : "نسخه‌ی جدید پیدا شد — در حال اعمال…");
+            const apply = (window as any).__applyPwaUpdate;
+            if (typeof apply === "function") apply();
+            else setTimeout(() => window.location.reload(), 600);
+            return;
+          }
+        }
       }
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (!reg) {
-        toast.info(
-          isEn
-            ? "App is running in preview mode. Updates work in the installed/published app."
-            : "برنامه در حالت پیش‌نمایش است. به‌روزرسانی فقط در نسخهٔ نصب‌شده/منتشرشده کار می‌کند."
-        );
-        return;
-      }
-      const before = reg.waiting || reg.installing;
-      // Race reg.update() against a 5s timeout — on some Android WebViews it never resolves
-      await Promise.race([
-        reg.update().catch(() => {}),
-        new Promise((r) => setTimeout(r, 5000)),
-      ]);
-      const after = reg.waiting || reg.installing;
-      if (after && after !== before) {
-        toast.success(isEn ? "New version found — applying…" : "نسخه‌ی جدید پیدا شد — در حال اعمال…");
-        const apply = (window as any).__applyPwaUpdate;
-        if (typeof apply === "function") apply();
-        else window.location.reload();
+
+      // 2) Fallback: fetch live index.html and compare the entry-script hash with the running one
+      const currentHash = getCurrentEntryHash();
+      const origin = window.location.origin;
+      const res = await fetch(`${origin}/?_v=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const html = await res.text();
+      const match = html.match(/<script[^>]+type=["']module["'][^>]+src=["']([^"']+)["']/i);
+      const remoteSrc = match ? match[1] : "";
+      const remoteHash = remoteSrc.split("/").pop() || "";
+
+      if (remoteHash && currentHash && remoteHash !== currentHash) {
+        toast.success(isEn ? "Update available — reloading…" : "نسخه‌ی جدید پیدا شد — در حال نصب…");
+        // Clear caches so we definitely pick up the new bundle
+        try {
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+        } catch {}
+        setTimeout(() => window.location.reload(), 700);
       } else {
         toast.success(isEn ? "You're on the latest version." : "نسخه‌ی شما به‌روز است.");
       }
