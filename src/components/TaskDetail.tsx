@@ -601,26 +601,41 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
             </span>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-2 max-h-[55vh] overflow-y-auto" align="start" side="top">
-            <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-muted/40">
-              <span className="w-3 h-3 rounded-full shrink-0 ms-1" style={{ background: newTagColor }} />
-              <Input
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && createTagAndAssign()}
-                placeholder={T("نام تگ جدید…", "New tag name…")}
-                className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0"
-              />
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={createTagAndAssign} disabled={!newTagName.trim()}>
-                <Plus className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-            <div className="flex gap-1 mb-2 px-1">
-              {TAG_COLORS.map(c => (
-                <button key={c} onClick={() => setNewTagColor(c)}
-                  className={`w-5 h-5 rounded-full border-2 ${newTagColor === c ? "border-foreground" : "border-transparent"}`}
-                  style={{ background: c }} />
-              ))}
-            </div>
+            {!showTagCreate ? (
+              <button
+                onClick={() => setShowTagCreate(true)}
+                className="w-full flex items-center gap-2 p-2 mb-1 rounded-xl bg-muted/40 hover:bg-accent text-sm text-muted-foreground"
+              >
+                <Plus className="w-4 h-4" /> {T("ساخت تگ جدید", "Create new tag")}
+              </button>
+            ) : (
+              <>
+                <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-muted/40">
+                  <span className="w-3 h-3 rounded-full shrink-0 ms-1" style={{ background: newTagColor }} />
+                  <Input
+                    autoFocus
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { createTagAndAssign(); setShowTagCreate(false); }
+                      if (e.key === "Escape") setShowTagCreate(false);
+                    }}
+                    placeholder={T("نام تگ جدید…", "New tag name…")}
+                    className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0"
+                  />
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={async () => { await createTagAndAssign(); setShowTagCreate(false); }} disabled={!newTagName.trim()}>
+                    <Plus className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                <div className="flex gap-1 mb-2 px-1">
+                  {TAG_COLORS.map(c => (
+                    <button key={c} onClick={() => setNewTagColor(c)}
+                      className={`w-5 h-5 rounded-full border-2 ${newTagColor === c ? "border-foreground" : "border-transparent"}`}
+                      style={{ background: c }} />
+                  ))}
+                </div>
+              </>
+            )}
             {tags.map(tg => {
               const active = taskTagIds.includes(tg.id);
               return (
