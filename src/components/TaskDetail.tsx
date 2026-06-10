@@ -248,6 +248,27 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           onSave={(v) => save({ description: v })}
         />
       </div>
+      <div className="flex items-center gap-2 mt-1 px-0">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={async () => { await addNote(); }}
+          className="h-7 gap-1 text-[11px] text-muted-foreground hover:text-foreground rounded-full px-2"
+        >
+          <Plus className="w-3 h-3" />
+          <FileText className="w-3.5 h-3.5" />
+          {T("افزودن نوت با عنوان", "Add titled note")}
+        </Button>
+        {taskNotes.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowNotes(s => !s)}
+            className="text-[11px] text-muted-foreground hover:text-foreground"
+          >
+            {taskNotes.length} {T("نوت", "notes")} {showNotes ? "▴" : "▾"}
+          </button>
+        )}
+      </div>
     </div>
   );
 
