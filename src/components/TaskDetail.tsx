@@ -773,7 +773,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   return (
     <>
       {mode === "page" ? (
-        <div className="w-full px-1 sm:px-2 md:px-4 py-3">
+        <div className="w-full px-1 sm:px-2 md:px-4 py-3 pb-40 md:pb-3">
           {activeNote ? noteEditorBody : body}
         </div>
       ) : (
