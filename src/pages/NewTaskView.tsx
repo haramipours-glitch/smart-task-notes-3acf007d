@@ -126,7 +126,7 @@ export default function NewTaskView() {
   }
 
   return (
-    <div dir="rtl" className="w-full pb-24">
+    <div dir="rtl" className="w-full pb-40">
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b flex items-center justify-between gap-2 p-3">
         <Button variant="ghost" size="sm" onClick={handleBack} className="gap-1">
           <ArrowRight className="w-4 h-4" /> برگشت
