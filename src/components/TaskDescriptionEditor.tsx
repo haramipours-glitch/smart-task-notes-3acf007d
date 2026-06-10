@@ -38,7 +38,7 @@ export function TaskDescriptionEditor({
     <div className="relative group">
       {editing || !hasContent ? (
         <AutoTextarea
-          placeholder={T("توضیحات…  (از **متن** برای bold و *متن* برای italic استفاده کن)", "Description…  (use **bold**, *italic*, lists, etc.)")}
+          placeholder={T("توضیحات…", "Description…")}
           value={value || ""}
           onFocus={() => setEditing(true)}
           onChange={(e) => onChange(e.target.value)}
