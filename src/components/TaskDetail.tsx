@@ -400,10 +400,22 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           <PopoverContent className="w-[min(94vw,380px)] p-2" align="start" side="top">
             <Tabs defaultValue="date">
               <TabsList className="grid grid-cols-4 w-full mb-2">
-                <TabsTrigger value="date" className="text-[11px] px-1">{T("تاریخ", "Date")}</TabsTrigger>
-                <TabsTrigger value="block" className="text-[11px] px-1">{T("تایم‌بلاک", "Block")}</TabsTrigger>
-                <TabsTrigger value="repeat" className="text-[11px] px-1">{T("تکرار", "Repeat")}</TabsTrigger>
-                <TabsTrigger value="bucket" className="text-[11px] px-1">{T("بازه", "Bucket")}</TabsTrigger>
+                <TabsTrigger value="date" className="text-[11px] px-1 relative">
+                  {T("تاریخ", "Date")}
+                  {(t.due_date || t.reminder_at) && <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-primary" />}
+                </TabsTrigger>
+                <TabsTrigger value="block" className="text-[11px] px-1 relative">
+                  {T("تایم‌بلاک", "Block")}
+                  {hasTimeBlock && <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-primary" />}
+                </TabsTrigger>
+                <TabsTrigger value="repeat" className="text-[11px] px-1 relative">
+                  {T("تکرار", "Repeat")}
+                  {t.recurrence_rule && <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-primary" />}
+                </TabsTrigger>
+                <TabsTrigger value="bucket" className="text-[11px] px-1 relative">
+                  {T("بازه", "Bucket")}
+                  {t.bucket_kind && <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-primary" />}
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="date" className="mt-0">
                 <DueDatePicker
