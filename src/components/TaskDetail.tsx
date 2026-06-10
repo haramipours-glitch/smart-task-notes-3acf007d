@@ -248,6 +248,27 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           onSave={(v) => save({ description: v })}
         />
       </div>
+      <div className="flex items-center gap-2 mt-1 px-0">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={async () => { await addNote(); }}
+          className="h-7 gap-1 text-[11px] text-muted-foreground hover:text-foreground rounded-full px-2"
+        >
+          <Plus className="w-3 h-3" />
+          <FileText className="w-3.5 h-3.5" />
+          {T("افزودن نوت با عنوان", "Add titled note")}
+        </Button>
+        {taskNotes.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowNotes(s => !s)}
+            className="text-[11px] text-muted-foreground hover:text-foreground"
+          >
+            {taskNotes.length} {T("نوت", "notes")} {showNotes ? "▴" : "▾"}
+          </button>
+        )}
+      </div>
     </div>
   );
 
@@ -320,8 +341,10 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const TAG_COLORS = ["#ef4444", "#f59e0b", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
   const [newFolderName, setNewFolderName] = useState("");
   const [newFolderColor, setNewFolderColor] = useState<string>(TAG_COLORS[5]);
+  const [showFolderCreate, setShowFolderCreate] = useState(false);
   const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState<string>(TAG_COLORS[3]);
+  const [showTagCreate, setShowTagCreate] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
 
   const createFolderAndAssign = async () => {
@@ -398,10 +421,22 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           <PopoverContent className="w-[min(94vw,380px)] p-2" align="start" side="top">
             <Tabs defaultValue="date">
               <TabsList className="grid grid-cols-4 w-full mb-2">
-                <TabsTrigger value="date" className="text-[11px] px-1">{T("تاریخ", "Date")}</TabsTrigger>
-                <TabsTrigger value="block" className="text-[11px] px-1">{T("تایم‌بلاک", "Block")}</TabsTrigger>
-                <TabsTrigger value="repeat" className="text-[11px] px-1">{T("تکرار", "Repeat")}</TabsTrigger>
-                <TabsTrigger value="bucket" className="text-[11px] px-1">{T("بازه", "Bucket")}</TabsTrigger>
+                <TabsTrigger value="date" className="text-[11px] px-1 relative">
+                  {T("تاریخ", "Date")}
+                  {(t.due_date || t.reminder_at) && <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-primary" />}
+                </TabsTrigger>
+                <TabsTrigger value="block" className="text-[11px] px-1 relative">
+                  {T("تایم‌بلاک", "Block")}
+                  {hasTimeBlock && <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-primary" />}
+                </TabsTrigger>
+                <TabsTrigger value="repeat" className="text-[11px] px-1 relative">
+                  {T("تکرار", "Repeat")}
+                  {t.recurrence_rule && <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-primary" />}
+                </TabsTrigger>
+                <TabsTrigger value="bucket" className="text-[11px] px-1 relative">
+                  {T("بازه", "Bucket")}
+                  {t.bucket_kind && <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-primary" />}
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="date" className="mt-0">
                 <DueDatePicker
@@ -514,26 +549,41 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
             </span>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-2 max-h-[55vh] overflow-y-auto" align="start" side="top">
-            <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-muted/40">
-              <span className="w-6 h-6 rounded-md shrink-0" style={{ background: newFolderColor }} />
-              <Input
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && createFolderAndAssign()}
-                placeholder={T("نام فولدر جدید…", "New folder name…")}
-                className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0"
-              />
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={createFolderAndAssign} disabled={!newFolderName.trim()}>
-                <Plus className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-            <div className="flex gap-1 mb-2 px-1">
-              {TAG_COLORS.map(c => (
-                <button key={c} onClick={() => setNewFolderColor(c)}
-                  className={`w-5 h-5 rounded-full border-2 ${newFolderColor === c ? "border-foreground" : "border-transparent"}`}
-                  style={{ background: c }} />
-              ))}
-            </div>
+            {!showFolderCreate ? (
+              <button
+                onClick={() => setShowFolderCreate(true)}
+                className="w-full flex items-center gap-2 p-2 mb-1 rounded-xl bg-muted/40 hover:bg-accent text-sm text-muted-foreground"
+              >
+                <Plus className="w-4 h-4" /> {T("ساخت فولدر جدید", "Create new folder")}
+              </button>
+            ) : (
+              <>
+                <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-muted/40">
+                  <span className="w-6 h-6 rounded-md shrink-0" style={{ background: newFolderColor }} />
+                  <Input
+                    autoFocus
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { createFolderAndAssign(); setShowFolderCreate(false); }
+                      if (e.key === "Escape") setShowFolderCreate(false);
+                    }}
+                    placeholder={T("نام فولدر جدید…", "New folder name…")}
+                    className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0"
+                  />
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={async () => { await createFolderAndAssign(); setShowFolderCreate(false); }} disabled={!newFolderName.trim()}>
+                    <Plus className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                <div className="flex gap-1 mb-2 px-1">
+                  {TAG_COLORS.map(c => (
+                    <button key={c} onClick={() => setNewFolderColor(c)}
+                      className={`w-5 h-5 rounded-full border-2 ${newFolderColor === c ? "border-foreground" : "border-transparent"}`}
+                      style={{ background: c }} />
+                  ))}
+                </div>
+              </>
+            )}
             <button
               onClick={() => save({ folder_id: null })}
               className={`w-full text-start p-2 rounded-lg text-sm hover:bg-accent ${t.folder_id === null ? "bg-accent" : ""}`}
@@ -572,26 +622,41 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
             </span>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-2 max-h-[55vh] overflow-y-auto" align="start" side="top">
-            <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-muted/40">
-              <span className="w-3 h-3 rounded-full shrink-0 ms-1" style={{ background: newTagColor }} />
-              <Input
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && createTagAndAssign()}
-                placeholder={T("نام تگ جدید…", "New tag name…")}
-                className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0"
-              />
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={createTagAndAssign} disabled={!newTagName.trim()}>
-                <Plus className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-            <div className="flex gap-1 mb-2 px-1">
-              {TAG_COLORS.map(c => (
-                <button key={c} onClick={() => setNewTagColor(c)}
-                  className={`w-5 h-5 rounded-full border-2 ${newTagColor === c ? "border-foreground" : "border-transparent"}`}
-                  style={{ background: c }} />
-              ))}
-            </div>
+            {!showTagCreate ? (
+              <button
+                onClick={() => setShowTagCreate(true)}
+                className="w-full flex items-center gap-2 p-2 mb-1 rounded-xl bg-muted/40 hover:bg-accent text-sm text-muted-foreground"
+              >
+                <Plus className="w-4 h-4" /> {T("ساخت تگ جدید", "Create new tag")}
+              </button>
+            ) : (
+              <>
+                <div className="flex items-center gap-1.5 mb-2 p-1.5 rounded-xl bg-muted/40">
+                  <span className="w-3 h-3 rounded-full shrink-0 ms-1" style={{ background: newTagColor }} />
+                  <Input
+                    autoFocus
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { createTagAndAssign(); setShowTagCreate(false); }
+                      if (e.key === "Escape") setShowTagCreate(false);
+                    }}
+                    placeholder={T("نام تگ جدید…", "New tag name…")}
+                    className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0"
+                  />
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={async () => { await createTagAndAssign(); setShowTagCreate(false); }} disabled={!newTagName.trim()}>
+                    <Plus className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                <div className="flex gap-1 mb-2 px-1">
+                  {TAG_COLORS.map(c => (
+                    <button key={c} onClick={() => setNewTagColor(c)}
+                      className={`w-5 h-5 rounded-full border-2 ${newTagColor === c ? "border-foreground" : "border-transparent"}`}
+                      style={{ background: c }} />
+                  ))}
+                </div>
+              </>
+            )}
             {tags.map(tg => {
               const active = taskTagIds.includes(tg.id);
               return (
