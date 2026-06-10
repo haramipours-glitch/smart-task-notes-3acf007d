@@ -41,6 +41,7 @@ export function TaskAttachments({ taskId }: { taskId: string }) {
   const [pendingImage, setPendingImage] = useState<Attachment | null>(null);
   const [processing, setProcessing] = useState<ImageAction | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [pickAccept, setPickAccept] = useState<string>(ACCEPT);
 
   const load = async () => {
     const { data } = await supabase
@@ -52,7 +53,24 @@ export function TaskAttachments({ taskId }: { taskId: string }) {
   };
   useEffect(() => { load(); }, [taskId]);
 
-  const onPick = () => fileRef.current?.click();
+  // External rail trigger: open native picker with a specific accept filter
+  useEffect(() => {
+    const onPick = (e: Event) => {
+      const det = (e as CustomEvent).detail || {};
+      if (det.accept) setPickAccept(det.accept);
+      setTimeout(() => fileRef.current?.click(), 30);
+    };
+    const onRefresh = () => load();
+    window.addEventListener(`lov:attach-pick:${taskId}`, onPick as any);
+    window.addEventListener(`lov:attach-refresh:${taskId}`, onRefresh as any);
+    return () => {
+      window.removeEventListener(`lov:attach-pick:${taskId}`, onPick as any);
+      window.removeEventListener(`lov:attach-refresh:${taskId}`, onRefresh as any);
+    };
+  }, [taskId]);
+
+  const onPick = () => { setPickAccept(ACCEPT); fileRef.current?.click(); };
+
 
   const onFiles = async (files: FileList | null) => {
     if (!files || !user) return;
@@ -160,9 +178,10 @@ export function TaskAttachments({ taskId }: { taskId: string }) {
           {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Paperclip className="w-3 h-3" />}
           Add file
         </Button>
-        <input ref={fileRef} type="file" accept={ACCEPT} multiple className="hidden"
+        <input ref={fileRef} type="file" accept={pickAccept} multiple className="hidden"
           onChange={(e) => onFiles(e.target.files)} />
       </div>
+
 
       {items.length === 0 ? null : (
         <div className="space-y-2">
