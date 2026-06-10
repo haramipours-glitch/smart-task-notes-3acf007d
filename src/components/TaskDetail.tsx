@@ -320,8 +320,10 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const TAG_COLORS = ["#ef4444", "#f59e0b", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
   const [newFolderName, setNewFolderName] = useState("");
   const [newFolderColor, setNewFolderColor] = useState<string>(TAG_COLORS[5]);
+  const [showFolderCreate, setShowFolderCreate] = useState(false);
   const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState<string>(TAG_COLORS[3]);
+  const [showTagCreate, setShowTagCreate] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
 
   const createFolderAndAssign = async () => {
