@@ -798,3 +798,17 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
     </>
   );
 }
+
+function AttachTypeBtn({ icon: Icon, label, onClick }: { icon: any; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-muted/40 hover:bg-accent active:scale-95 transition"
+    >
+      <Icon className="w-5 h-5 text-primary" />
+      <span className="text-[11px] font-medium">{label}</span>
+    </button>
+  );
+}
+
