@@ -301,6 +301,26 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           </PopoverContent>
         </Popover>
       )}
+      {t.bucket_kind && t.bucket_anchor && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Chip
+                  icon={CalendarDays}
+                  onClear={() => save({ bucket_kind: null, bucket_calendar: null, bucket_anchor: null } as any)}
+                  color="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                >
+                  {kindLabel(t.bucket_kind, isEn ? "en" : "fa")} · {bucketLabel(t.bucket_kind, (t.bucket_calendar as any) || "gregorian", t.bucket_anchor, isEn ? "en" : "fa")}
+                </Chip>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              {T("این تسک در بازهٔ زمانی قرار دارد", "This task is in a time bucket")}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
       {t.priority !== "none" && (
         <Chip
           icon={Flag}
