@@ -29,6 +29,7 @@ import { TaskAttachments } from "@/components/TaskAttachments";
 import { TaskDescriptionEditor } from "@/components/TaskDescriptionEditor";
 import { DueDatePicker } from "@/components/DueDatePicker";
 import { BucketPickerBody } from "@/components/BucketPickerInline";
+import { bucketLabel, kindLabel } from "@/lib/timeBuckets";
 import { describeRule } from "@/lib/recurrence";
 
 import { Switch } from "@/components/ui/switch";
