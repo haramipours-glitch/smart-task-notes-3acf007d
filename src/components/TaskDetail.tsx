@@ -15,10 +15,11 @@ import {
   Plus, Sparkles, Trash2, FileText, Clock, ArrowRight, Ban,
   Folder as FolderIcon, Tag as TagIcon, Check, Calendar as CalendarIcon,
   Flag, Repeat, ListTree, Paperclip, X, Image as ImageIcon, Music, Link as LinkIcon,
-  CheckSquare, ListChecks,
+  CheckSquare, ListChecks, CalendarDays,
 } from "lucide-react";
 import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 import { RecurrenceEditor } from "@/components/RecurrenceEditor";
 import { TaskAIPanel } from "@/components/TaskAIPanel";
@@ -29,6 +30,7 @@ import { TaskAttachments } from "@/components/TaskAttachments";
 import { TaskDescriptionEditor } from "@/components/TaskDescriptionEditor";
 import { DueDatePicker } from "@/components/DueDatePicker";
 import { BucketPickerBody } from "@/components/BucketPickerInline";
+import { bucketLabel, kindLabel } from "@/lib/timeBuckets";
 import { describeRule } from "@/lib/recurrence";
 
 import { Switch } from "@/components/ui/switch";
@@ -298,6 +300,26 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
             />
           </PopoverContent>
         </Popover>
+      )}
+      {t.bucket_kind && t.bucket_anchor && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Chip
+                  icon={CalendarDays}
+                  onClear={() => save({ bucket_kind: null, bucket_calendar: null, bucket_anchor: null } as any)}
+                  color="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                >
+                  {kindLabel(t.bucket_kind, isEn ? "en" : "fa")} · {bucketLabel(t.bucket_kind, (t.bucket_calendar as any) || "gregorian", t.bucket_anchor, isEn ? "en" : "fa")}
+                </Chip>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              {T("این تسک در بازهٔ زمانی قرار دارد", "This task is in a time bucket")}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
       {t.priority !== "none" && (
         <Chip
