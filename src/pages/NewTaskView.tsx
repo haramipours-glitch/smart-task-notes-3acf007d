@@ -37,12 +37,14 @@ export default function NewTaskView() {
     const folderId = params.get("folder_id");
     const dueDate = params.get("due_date");
     const initialTitle = params.get("title") || "";
+    const initialDescription = params.get("description") || "";
     (async () => {
       const { data, error } = await supabase
         .from("tasks")
         .insert({
           user_id: user.id,
           title: initialTitle,
+          description: initialDescription || null,
           folder_id: parentId ? null : folderId,
           parent_id: parentId,
           due_date: dueDate,
