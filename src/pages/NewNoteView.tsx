@@ -16,8 +16,8 @@ export default function NewNoteView() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState(params.get("title") || "");
+  const [content, setContent] = useState(params.get("content") || "");
   const [folderId, setFolderId] = useState<string | null>(params.get("folder_id"));
   const [pinned, setPinned] = useState(false);
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -102,7 +102,7 @@ export default function NewNoteView() {
 
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">محتوا</label>
-          <RichEditor initialMarkdown="" onChange={(_html, md) => setContent(md)} />
+          <RichEditor initialMarkdown={content} onChange={(_html, md) => setContent(md)} />
         </div>
       </Card>
     </div>
