@@ -1,6 +1,6 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, Sunrise, Sun, Sunset, Moon } from "lucide-react";
 import {
   ALL_BUCKET_KINDS, type BucketKind, getEnabledBuckets,
   currentAnchor, bucketLabel, kindLabel,
@@ -13,17 +13,46 @@ type Value = {
   anchor: string | null;
 };
 
+const TIME_PRESETS: { id: string; label: string; hour: number; icon: any }[] = [
+  { id: "morning",   label: "صبح",  hour: 8,  icon: Sunrise },
+  { id: "noon",      label: "ظهر",  hour: 12, icon: Sun },
+  { id: "afternoon", label: "عصر",  hour: 17, icon: Sunset },
+  { id: "night",     label: "شب",   hour: 21, icon: Moon },
+];
+
 export function BucketPickerBody({
   value,
   onChange,
+  onPickTimeOfDay,
 }: {
   value: Value;
   onChange: (v: Value) => void;
+  onPickTimeOfDay?: (hour: number) => void;
 }) {
   const enabled = getEnabledBuckets();
   const cal = getCalendarSystem();
   return (
     <div className="space-y-0.5">
+      {onPickTimeOfDay && (
+        <div className="px-1 pb-1.5 mb-1 border-b">
+          <p className="text-[10px] text-muted-foreground mb-1">پیش‌فرض‌های امروز</p>
+          <div className="grid grid-cols-4 gap-1">
+            {TIME_PRESETS.map((p) => {
+              const Icon = p.icon;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => onPickTimeOfDay(p.hour)}
+                  className="flex flex-col items-center gap-0.5 p-1.5 rounded-md hover:bg-accent text-[10px]"
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{p.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
       {value.kind && (
         <button
           onClick={() => onChange({ kind: null, calendar: null, anchor: null })}

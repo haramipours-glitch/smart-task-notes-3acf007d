@@ -522,6 +522,11 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
                     bucket_calendar: v.calendar,
                     bucket_anchor: v.anchor,
                   } as any)}
+                  onPickTimeOfDay={(hour) => {
+                    const d = new Date();
+                    d.setHours(hour, 0, 0, 0);
+                    save({ due_date: d.toISOString() } as any);
+                  }}
                 />
               </TabsContent>
             </Tabs>
