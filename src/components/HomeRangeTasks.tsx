@@ -156,6 +156,37 @@ export function HomeRangeTasks() {
                 {countLabel}
               </span>
             </CollapsibleTrigger>
+            <div className="flex items-center gap-0.5">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                aria-label="افزودن تسک به این بازه"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  haptic("light");
+                  const d = new Date();
+                  if (range === "tomorrow") d.setDate(d.getDate() + 1);
+                  d.setHours(9, 0, 0, 0);
+                  navigate(`/app/new/task?due_date=${encodeURIComponent(d.toISOString())}`);
+                }}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                aria-label="نمایش کامل"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  haptic("light");
+                  const path = range === "today" ? "/app/today" : range === "tomorrow" ? "/app/tomorrow" : "/app/next7";
+                  navigate(path);
+                }}
+              >
+                <Maximize2 className="w-4 h-4" />
+              </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="ghost" className="h-7 text-[11px] gap-1" onClick={() => haptic("light")}>
