@@ -10,7 +10,7 @@ import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { CalendarDays, ListTodo, Clock, Flag, ArrowUpDown, Calendar, Check, ChevronDown } from "lucide-react";
+import { CalendarDays, ListTodo, Clock, Flag, ArrowUpDown, Calendar, Check, ChevronDown, Maximize2, Plus } from "lucide-react";
 import { toPersianDigits } from "@/lib/persianDigits";
 import { haptic } from "@/lib/haptics";
 import { toast } from "sonner";
