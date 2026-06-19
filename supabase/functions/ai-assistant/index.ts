@@ -396,7 +396,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, input, context, settings, action, language, mhProfile, aboutMe, webSearch } = await req.json();
+    const { mode, input, context, settings, action, language, mhProfile, aboutMe, webSearch, timezone } = await req.json();
 
     const useCustom = settings && settings.provider && settings.provider !== "lovable" && settings.apiKey;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
