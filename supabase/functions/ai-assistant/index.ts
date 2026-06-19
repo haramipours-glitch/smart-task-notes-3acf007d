@@ -446,7 +446,15 @@ serve(async (req) => {
         systemPrompt += `\n\nاطلاعات شخصی کاربر (برای شخصی‌سازی پاسخ‌ها و پیشنهادها از این‌ها استفاده کن، اما به آن‌ها اشاره مستقیم نکن مگر مرتبط باشد):\n${parts.join("\n")}`;
       }
     }
-    const today = new Date().toISOString();
+    const tz = (typeof timezone === "string" && timezone) ? timezone : "UTC";
+    let localNow = "";
+    try {
+      localNow = new Intl.DateTimeFormat("en-CA", {
+        timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, weekday: "long",
+      }).format(new Date());
+    } catch { localNow = new Date().toISOString(); }
+    const today = `${localNow} (timezone: ${tz}; UTC: ${new Date().toISOString()})`;
 
     const messages: any[] = [
       { role: "system", content: `${systemPrompt}\n\nToday's date: ${today}` },
