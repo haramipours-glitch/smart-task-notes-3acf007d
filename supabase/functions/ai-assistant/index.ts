@@ -6,7 +6,31 @@ const corsHeaders = {
 };
 
 const SYSTEM_PROMPTS: Record<string, string> = {
-  parse_task: `You parse a natural-language description into a structured task. Extract title, optional description, priority (none/low/medium/high), and due_date as ISO 8601 string if mentioned. Detect the user's language and keep title in same language.`,
+  parse_task: `You parse a natural-language description into a structured task. Extract:
+- title (short, in the user's language)
+- description (optional)
+- priority: none/low/medium/high
+- due_date: ISO 8601 string (with timezone offset) if any date OR time phrase is mentioned
+- start_at: ISO 8601 — set this when a SPECIFIC time / time-of-day is mentioned (e.g. "tomorrow morning", "Friday at 5pm", "فردا صبح", "جمعه ساعت ۵")
+- end_at: ISO 8601 — set this if a duration or end time is mentioned
+
+CRITICAL date/time rules:
+- Use the user's local timezone (provided in the system message). Always emit ISO 8601 with the correct offset.
+- "today / امروز" = today's date. "tomorrow / فردا" = today + 1 day. "yesterday / دیروز" = today - 1.
+- "this week / هفته‌ی این" = next occurrence within current week. "next week / هفته‌ی آینده" = +7 days.
+- Persian time-of-day mapping (use local time):
+  • صبح / morning → 08:00
+  • ظهر / noon → 12:00
+  • بعدازظهر / afternoon → 15:00
+  • عصر / evening → 17:00
+  • شب / night → 21:00
+  • نصف‌شب / midnight → 00:00
+- If a specific clock time is given (e.g. "ساعت ۱۰" / "10am"), use that exact time.
+- When only a date is given (no time), set due_date to that date at 09:00 local time and DO NOT set start_at.
+- When a time-of-day is given, set BOTH due_date and start_at to the same ISO timestamp; if a duration is mentioned, set end_at = start_at + duration.
+- Persian digits (۰-۹) are equivalent to 0-9.
+
+Detect the user's language and keep title/description in the same language.`,
   breakdown: `You break down a high-level task into 4-8 concrete actionable subtasks. Match the language of the input.`,
   generate_note: `You generate a well-structured Markdown note about the given topic. Use headings, lists, and emphasis. Match the language of the input.`,
   summarize_note: `You summarize the given Markdown note into key bullet points in Markdown. Match the language of the input.`,
@@ -169,7 +193,9 @@ const TOOLS: Record<string, any> = {
           title: { type: "string" },
           description: { type: "string" },
           priority: { type: "string", enum: ["none", "low", "medium", "high"] },
-          due_date: { type: "string", description: "ISO 8601 datetime, or empty if not mentioned" },
+          due_date: { type: "string", description: "ISO 8601 datetime with timezone offset, or empty if no date/time mentioned" },
+          start_at: { type: "string", description: "ISO 8601 datetime with timezone offset when a specific time-of-day is mentioned; empty otherwise" },
+          end_at: { type: "string", description: "ISO 8601 datetime when a duration or end time is mentioned; empty otherwise" },
         },
         required: ["title", "priority"],
         additionalProperties: false,
@@ -370,7 +396,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, input, context, settings, action, language, mhProfile, aboutMe, webSearch } = await req.json();
+    const { mode, input, context, settings, action, language, mhProfile, aboutMe, webSearch, timezone } = await req.json();
 
     const useCustom = settings && settings.provider && settings.provider !== "lovable" && settings.apiKey;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -420,7 +446,15 @@ serve(async (req) => {
         systemPrompt += `\n\nاطلاعات شخصی کاربر (برای شخصی‌سازی پاسخ‌ها و پیشنهادها از این‌ها استفاده کن، اما به آن‌ها اشاره مستقیم نکن مگر مرتبط باشد):\n${parts.join("\n")}`;
       }
     }
-    const today = new Date().toISOString();
+    const tz = (typeof timezone === "string" && timezone) ? timezone : "UTC";
+    let localNow = "";
+    try {
+      localNow = new Intl.DateTimeFormat("en-CA", {
+        timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, weekday: "long",
+      }).format(new Date());
+    } catch { localNow = new Date().toISOString(); }
+    const today = `${localNow} (timezone: ${tz}; UTC: ${new Date().toISOString()})`;
 
     const messages: any[] = [
       { role: "system", content: `${systemPrompt}\n\nToday's date: ${today}` },

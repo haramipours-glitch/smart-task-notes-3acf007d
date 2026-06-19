@@ -73,8 +73,11 @@ export async function callAI(
     }
   } catch { /* ignore */ }
 
+  let timezone = "UTC";
+  try { timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch {}
+
   const { data, error } = await supabase.functions.invoke("ai-assistant", {
-    body: { mode, input, context, settings, action, language, mhProfile, aboutMe, webSearch: opts?.webSearch === true },
+    body: { mode, input, context, settings, action, language, mhProfile, aboutMe, webSearch: opts?.webSearch === true, timezone },
   });
   if (error) throw error;
   if (data?.error) throw new Error(data.error);
