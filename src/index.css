@@ -16,91 +16,106 @@
 
 @layer base {
   :root {
-    /* TickTick-inspired clean light palette with blue accent */
-    --background: 0 0% 100%;
-    --foreground: 222 25% 12%;
+    /* ===== Neural Expressive (Gemini-inspired) — Light =====
+       Fluid blue→purple→pink spectrum, soft glass surfaces,
+       generous radii, expressive gradient accents. */
+    --background: 230 60% 99%;
+    --foreground: 240 30% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 25% 12%;
+    --card-foreground: 240 30% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 25% 12%;
+    --popover-foreground: 240 30% 12%;
 
-    --primary: 217 91% 53%;
+    --primary: 248 90% 62%;          /* indigo-violet core */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 65%;
+    --primary-glow: 280 92% 72%;     /* magenta glow */
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 25% 12%;
+    --secondary: 250 60% 97%;
+    --secondary-foreground: 248 40% 22%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 43%;
+    --muted: 240 40% 96%;
+    --muted-foreground: 240 12% 45%;
 
-    --accent: 217 91% 95%;
-    --accent-foreground: 217 91% 35%;
+    --accent: 280 90% 96%;
+    --accent-foreground: 270 70% 38%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
-    --warning: 38 92% 50%;
+    --success: 160 75% 42%;
+    --warning: 35 95% 55%;
 
-    /* Priority colors */
-    --priority-high: 0 84% 60%;
-    --priority-medium: 38 92% 50%;
-    --priority-low: 217 91% 60%;
-    --priority-none: 220 9% 60%;
+    --priority-high: 340 85% 58%;
+    --priority-medium: 35 95% 55%;
+    --priority-low: 210 95% 62%;
+    --priority-none: 240 10% 60%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 91% 60%;
+    --border: 245 35% 92%;
+    --input: 245 35% 92%;
+    --ring: 270 90% 65%;
 
-    --radius: 0.625rem;
+    --radius: 1rem;
 
-    --sidebar-background: 220 17% 98%;
-    --sidebar-foreground: 222 25% 20%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-background: 245 70% 98%;
+    --sidebar-foreground: 248 30% 22%;
+    --sidebar-primary: 270 90% 62%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 91% 95%;
-    --sidebar-accent-foreground: 217 91% 35%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 280 90% 96%;
+    --sidebar-accent-foreground: 270 70% 38%;
+    --sidebar-border: 245 35% 92%;
+    --sidebar-ring: 270 90% 65%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
-    --shadow-soft: 0 1px 3px 0 hsl(220 13% 0% / 0.05), 0 1px 2px -1px hsl(220 13% 0% / 0.05);
-    --shadow-elegant: 0 10px 30px -10px hsl(217 91% 60% / 0.25);
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 62%) 0%, hsl(258 92% 64%) 45%, hsl(310 90% 66%) 78%, hsl(340 92% 68%) 100%);
+    --gradient-mesh: radial-gradient(at 12% 18%, hsl(210 100% 70% / 0.35) 0px, transparent 50%),
+                     radial-gradient(at 82% 8%, hsl(280 95% 72% / 0.32) 0px, transparent 55%),
+                     radial-gradient(at 75% 88%, hsl(340 92% 72% / 0.28) 0px, transparent 50%),
+                     radial-gradient(at 18% 92%, hsl(190 95% 70% / 0.28) 0px, transparent 55%);
+    --shadow-soft: 0 2px 10px -2px hsl(260 50% 40% / 0.08), 0 1px 3px hsl(260 30% 30% / 0.04);
+    --shadow-elegant: 0 20px 50px -20px hsl(270 90% 60% / 0.35), 0 8px 24px -12px hsl(210 90% 60% / 0.25);
   }
+
+
 
   .dark {
-    --background: 222 25% 8%;
-    --foreground: 210 40% 98%;
-    --card: 222 25% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 25% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 70%;
-    --secondary: 222 20% 16%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 20% 16%;
-    --muted-foreground: 215 16% 65%;
-    --accent: 217 60% 20%;
-    --accent-foreground: 217 91% 80%;
-    --destructive: 0 70% 50%;
+    /* Neural Expressive — Dark: deep midnight with vivid aurora accents */
+    --background: 250 35% 7%;
+    --foreground: 250 25% 96%;
+    --card: 250 30% 10%;
+    --card-foreground: 250 25% 96%;
+    --popover: 250 30% 10%;
+    --popover-foreground: 250 25% 96%;
+    --primary: 270 92% 70%;
+    --primary-foreground: 250 35% 8%;
+    --primary-glow: 310 95% 75%;
+    --secondary: 250 25% 15%;
+    --secondary-foreground: 250 25% 96%;
+    --muted: 250 25% 15%;
+    --muted-foreground: 250 15% 68%;
+    --accent: 280 45% 22%;
+    --accent-foreground: 290 95% 88%;
+    --destructive: 0 75% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 20% 18%;
-    --input: 222 20% 18%;
-    --ring: 217 91% 60%;
-    --sidebar-background: 222 25% 10%;
-    --sidebar-foreground: 210 40% 90%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 20% 16%;
-    --sidebar-accent-foreground: 217 91% 80%;
-    --sidebar-border: 222 20% 18%;
-    --sidebar-ring: 217 91% 60%;
+    --border: 250 25% 18%;
+    --input: 250 25% 18%;
+    --ring: 280 95% 70%;
+    --sidebar-background: 250 35% 9%;
+    --sidebar-foreground: 250 20% 88%;
+    --sidebar-primary: 270 92% 70%;
+    --sidebar-primary-foreground: 250 35% 8%;
+    --sidebar-accent: 250 30% 16%;
+    --sidebar-accent-foreground: 290 95% 88%;
+    --sidebar-border: 250 25% 18%;
+    --sidebar-ring: 280 95% 70%;
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 65%) 0%, hsl(258 95% 68%) 45%, hsl(310 92% 70%) 78%, hsl(340 95% 72%) 100%);
+    --gradient-mesh: radial-gradient(at 15% 20%, hsl(220 100% 55% / 0.35) 0px, transparent 55%),
+                     radial-gradient(at 85% 10%, hsl(285 95% 60% / 0.32) 0px, transparent 55%),
+                     radial-gradient(at 78% 85%, hsl(330 95% 60% / 0.28) 0px, transparent 50%),
+                     radial-gradient(at 18% 90%, hsl(190 95% 55% / 0.25) 0px, transparent 55%);
+    --shadow-elegant: 0 20px 60px -20px hsl(280 95% 55% / 0.55), 0 8px 24px -12px hsl(210 95% 55% / 0.35);
   }
+
 
   /* ========== ARSHNAZ THEME — Light (روز) ========== */
   /* Romantic pink-purple-blue palette dedicated to Arshnaz ❤️ */
@@ -225,6 +240,44 @@
     text-align: right;
   }
 }
+
+/* ===== Neural Expressive ambient layer =====
+   A soft, animated gradient mesh living behind every page —
+   the signature Gemini "aurora" feel without hurting readability. */
+body {
+  background-image: var(--gradient-mesh), linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
+  background-attachment: fixed;
+  background-size: 180% 180%, 100% 100%;
+  animation: aurora-drift 28s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+  0%   { background-position: 0% 0%, 0 0; }
+  100% { background-position: 100% 100%, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; }
+}
+
+/* Glass cards — translucent surfaces over the aurora mesh */
+.card, [data-radix-popper-content-wrapper] > * {
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+}
+
+/* Expressive gradient text utility (for hero titles, AI labels, etc.) */
+.text-gradient-neural {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Soft glow ring used on primary CTAs */
+.ring-neural {
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.25), var(--shadow-elegant);
+}
+
+
 
 
 
