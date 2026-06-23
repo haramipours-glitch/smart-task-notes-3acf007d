@@ -241,6 +241,44 @@
   }
 }
 
+/* ===== Neural Expressive ambient layer =====
+   A soft, animated gradient mesh living behind every page —
+   the signature Gemini "aurora" feel without hurting readability. */
+body {
+  background-image: var(--gradient-mesh), linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
+  background-attachment: fixed;
+  background-size: 180% 180%, 100% 100%;
+  animation: aurora-drift 28s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+  0%   { background-position: 0% 0%, 0 0; }
+  100% { background-position: 100% 100%, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; }
+}
+
+/* Glass cards — translucent surfaces over the aurora mesh */
+.card, [data-radix-popper-content-wrapper] > * {
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+}
+
+/* Expressive gradient text utility (for hero titles, AI labels, etc.) */
+.text-gradient-neural {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Soft glow ring used on primary CTAs */
+.ring-neural {
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.25), var(--shadow-elegant);
+}
+
+
+
 
 
 /* Markdown preview — bidi-safe so Persian + English mix correctly per paragraph */
