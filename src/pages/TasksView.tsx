@@ -433,8 +433,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     return { done, total };
   };
 
-  const quickAddSub = async (parent: Task) => {
-    const title = (quickSub[parent.id] || "").trim();
+  const quickAddSub = async (parent: Task, title: string) => {
     if (!title || !user) return;
     const { data, error } = await supabase.from("tasks").insert({
       user_id: user.id, title, parent_id: parent.id, priority: "none" as const,
@@ -442,10 +441,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     if (error) return toast.error(error.message);
     if (data) {
       setAllTasks(prev => [data as any, ...prev]);
-      setQuickSub(s => ({ ...s, [parent.id]: "" }));
       setExpanded(s => ({ ...s, [parent.id]: true }));
     }
   };
+
 
   // Drag & drop: drop a task onto another → set as child; drop in same parent zone → reorder
   const onDragEnd = async (e: DragEndEvent) => {
