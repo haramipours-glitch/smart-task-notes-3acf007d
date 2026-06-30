@@ -49,6 +49,35 @@ import type { RecurrenceRule } from "@/lib/recurrence";
 // Module-level cache shared across mounts: instantly hydrate from last fetch.
 const tasksCache = new Map<string, Task[]>();
 
+// Stable, self-contained quick subtask input. Keeping its state local prevents
+// TasksView from re-rendering on every keystroke (which would otherwise unmount
+// the input because TaskItem is re-defined each render → keyboard closes after 1 letter on mobile).
+function QuickSubInput({ onAdd }: { onAdd: (title: string) => Promise<void> | void }) {
+  const [val, setVal] = useState("");
+  const submit = async () => {
+    const t = val.trim();
+    if (!t) return;
+    setVal("");
+    await onAdd(t);
+  };
+  return (
+    <>
+      <Input
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
+        placeholder="+ زیرتسک سریع..."
+        className="h-6 text-[11px] flex-1"
+        dir="auto"
+      />
+      <Button size="icon" variant="ghost" onClick={submit} className="h-6 w-6">
+        <Plus className="w-3 h-3" />
+      </Button>
+    </>
+  );
+}
+
+
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
   const params = useParams();
@@ -404,8 +433,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     return { done, total };
   };
 
-  const quickAddSub = async (parent: Task) => {
-    const title = (quickSub[parent.id] || "").trim();
+  const quickAddSub = async (parent: Task, title: string) => {
     if (!title || !user) return;
     const { data, error } = await supabase.from("tasks").insert({
       user_id: user.id, title, parent_id: parent.id, priority: "none" as const,
@@ -413,10 +441,10 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
     if (error) return toast.error(error.message);
     if (data) {
       setAllTasks(prev => [data as any, ...prev]);
-      setQuickSub(s => ({ ...s, [parent.id]: "" }));
       setExpanded(s => ({ ...s, [parent.id]: true }));
     }
   };
+
 
   // Drag & drop: drop a task onto another → set as child; drop in same parent zone → reorder
   const onDragEnd = async (e: DragEndEvent) => {
@@ -745,18 +773,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               {/* Inline + subtask quick add */}
               <div className="mt-1.5 flex items-center gap-2 ms-12">
                 <CornerDownRight className="w-3 h-3 text-muted-foreground shrink-0" />
-                <Input
-                  value={quickSub[t.id] || ""}
-                  onChange={(e) => setQuickSub(s => ({ ...s, [t.id]: e.target.value }))}
-                  onKeyDown={(e) => e.key === "Enter" && quickAddSub(t)}
-                  placeholder="+ زیرتسک سریع..."
-                  className="h-6 text-[11px] flex-1"
-                  dir="auto"
-                />
-                <Button size="icon" variant="ghost" onClick={() => quickAddSub(t)} className="h-6 w-6">
-                  <Plus className="w-3 h-3" />
-                </Button>
+                <QuickSubInput onAdd={async (title) => { await quickAddSub(t, title); }} />
               </div>
+
             </Card>
             </SwipeableRow>
           )}
