@@ -49,6 +49,35 @@ import type { RecurrenceRule } from "@/lib/recurrence";
 // Module-level cache shared across mounts: instantly hydrate from last fetch.
 const tasksCache = new Map<string, Task[]>();
 
+// Stable, self-contained quick subtask input. Keeping its state local prevents
+// TasksView from re-rendering on every keystroke (which would otherwise unmount
+// the input because TaskItem is re-defined each render → keyboard closes after 1 letter on mobile).
+function QuickSubInput({ onAdd }: { onAdd: (title: string) => Promise<void> | void }) {
+  const [val, setVal] = useState("");
+  const submit = async () => {
+    const t = val.trim();
+    if (!t) return;
+    setVal("");
+    await onAdd(t);
+  };
+  return (
+    <>
+      <Input
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
+        placeholder="+ زیرتسک سریع..."
+        className="h-6 text-[11px] flex-1"
+        dir="auto"
+      />
+      <Button size="icon" variant="ghost" onClick={submit} className="h-6 w-6">
+        <Plus className="w-3 h-3" />
+      </Button>
+    </>
+  );
+}
+
+
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
   const params = useParams();
