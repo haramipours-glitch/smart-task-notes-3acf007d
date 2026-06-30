@@ -773,7 +773,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               {/* Inline + subtask quick add */}
               <div className="mt-1.5 flex items-center gap-2 ms-12">
                 <CornerDownRight className="w-3 h-3 text-muted-foreground shrink-0" />
-                <QuickSubInput onAdd={(title) => quickAddSub(t, title)} />
+                <QuickSubInput onAdd={async (title) => { await quickAddSub(t, title); }} />
               </div>
 
             </Card>
