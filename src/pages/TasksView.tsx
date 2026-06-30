@@ -773,18 +773,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               {/* Inline + subtask quick add */}
               <div className="mt-1.5 flex items-center gap-2 ms-12">
                 <CornerDownRight className="w-3 h-3 text-muted-foreground shrink-0" />
-                <Input
-                  value={quickSub[t.id] || ""}
-                  onChange={(e) => setQuickSub(s => ({ ...s, [t.id]: e.target.value }))}
-                  onKeyDown={(e) => e.key === "Enter" && quickAddSub(t)}
-                  placeholder="+ زیرتسک سریع..."
-                  className="h-6 text-[11px] flex-1"
-                  dir="auto"
-                />
-                <Button size="icon" variant="ghost" onClick={() => quickAddSub(t)} className="h-6 w-6">
-                  <Plus className="w-3 h-3" />
-                </Button>
+                <QuickSubInput onAdd={(title) => quickAddSub(t, title)} />
               </div>
+
             </Card>
             </SwipeableRow>
           )}
