@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckSquare, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +17,7 @@ const DISCLAIMER_KEY = "clinical_disclaimer_accepted_v1";
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const { t, i18n } = useTranslation();
   const isEn = (i18n.language || "fa").startsWith("en");
@@ -26,9 +27,16 @@ export default function Auth() {
   const [name, setName] = useState("");
   const [accepted, setAccepted] = useState(() => localStorage.getItem(DISCLAIMER_KEY) === "1");
 
+  // Preserve `next` (e.g. /.lovable/oauth/consent?authorization_id=...) so the
+  // MCP consent flow returns here to the exact request instead of the app root.
+  const rawNext = params.get("next") || "";
+  const safeNext = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
+  const returnTo = safeNext || "/app";
+  const absoluteReturnTo = `${window.location.origin}${returnTo}`;
+
   useEffect(() => {
-    if (!authLoading && user) navigate("/app", { replace: true });
-  }, [user, authLoading, navigate]);
+    if (!authLoading && user) navigate(returnTo, { replace: true });
+  }, [user, authLoading, navigate, returnTo]);
 
   const requireDisclaimer = () => {
     if (!accepted) { toast.error("لطفاً ابتدا مسئولیت‌نامه بالینی را تأیید کن"); return false; }
@@ -42,7 +50,7 @@ export default function Auth() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) toast.error(error.message);
-    else { toast.success("خوش آمدید!"); navigate("/app"); }
+    else { toast.success("خوش آمدید!"); navigate(returnTo); }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -53,20 +61,20 @@ export default function Auth() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/app`,
+        emailRedirectTo: absoluteReturnTo,
         data: { display_name: name },
       },
     });
     setLoading(false);
     if (error) toast.error(error.message);
-    else { toast.success("حساب ساخته شد!"); navigate("/app"); }
+    else { toast.success("حساب ساخته شد!"); navigate(returnTo); }
   };
 
   const handleGoogle = async () => {
     if (!requireDisclaimer()) return;
     const { lovable } = await import("@/integrations/lovable");
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/app`,
+      redirect_uri: absoluteReturnTo,
     });
     if (result.error) {
       toast.error(result.error instanceof Error ? result.error.message : "خطا در ورود با گوگل");
@@ -74,7 +82,7 @@ export default function Auth() {
     }
     if (result.redirected) return;
     toast.success("خوش آمدید!");
-    navigate("/app");
+    navigate(returnTo);
   };
 
   return (
