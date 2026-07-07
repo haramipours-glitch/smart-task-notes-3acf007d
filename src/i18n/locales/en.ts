@@ -173,6 +173,8 @@ export default {
     dataExportDesc: "All your data — tasks, notes, check-ins, thought records, assessments, predictions… — belongs to you. Export to JSON or wipe it any time.",
     exportJson: "Export all (JSON)",
     exporting: "Exporting…",
+    importJson: "Import from JSON",
+    importing: "Importing…",
     deleteAccount: "Delete entire account",
     deleting: "Deleting…",
     deleteAllConfirm: "Permanent, irreversible delete",

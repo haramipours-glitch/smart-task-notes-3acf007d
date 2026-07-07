@@ -15,8 +15,9 @@ import {
   Plus, Sparkles, Trash2, FileText, Clock, ArrowRight, Ban,
   Folder as FolderIcon, Tag as TagIcon, Check, Calendar as CalendarIcon,
   Flag, Repeat, ListTree, Paperclip, X, Image as ImageIcon, Music, Link as LinkIcon,
-  CheckSquare, ListChecks, CalendarDays,
+  CheckSquare, ListChecks, CalendarDays, Mic, MicOff,
 } from "lucide-react";
+import { VoiceInput } from "@/lib/voiceInput";
 import { PRIORITY_META, PRIORITY_ORDER, type Priority } from "@/lib/priority";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
@@ -64,8 +65,29 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const [showAttachments, setShowAttachments] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [showTimeBlock, setShowTimeBlock] = useState(hasTimeBlock);
+  const [voiceListening, setVoiceListening] = useState(false);
+  const [voiceInstance, setVoiceInstance] = useState<VoiceInput | null>(null);
 
   useEffect(() => { setT(task); }, [task.id]);
+
+  // Initialize voice input
+  useEffect(() => {
+    const voice = new VoiceInput({
+      onTranscript: (text) => {
+        setT(prev => ({ ...prev, title: text }));
+      },
+      onError: (error) => {
+        toast.error(error);
+      },
+      onListeningChange: (isListening) => {
+        setVoiceListening(isListening);
+      },
+    });
+    setVoiceInstance(voice);
+    return () => {
+      voice.stop();
+    };
+  }, []);
 
   // Auto-reveal sections that already have data so user doesn't need to tap rail icons
   useEffect(() => {
@@ -231,17 +253,28 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   // ── Hero (title + description) ─────────────────────────────────────
   const hero = (
     <div className="px-1 pb-3">
-      <AutoTextarea
-        value={t.title}
-        onChange={(e) => setT({ ...t, title: e.target.value })}
-        onBlur={() => save({ title: t.title })}
-        minHeight={44}
-        maxHeight={220}
-        rows={1}
-        dir="auto"
-        placeholder={T("عنوان تسک را اینجا بنویس…", "Write the task title here…")}
-        className="text-[22px] font-semibold leading-snug bg-muted/40 border border-dashed border-primary/40 rounded-md px-3 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary focus-visible:bg-background break-words whitespace-pre-wrap tracking-tight placeholder:text-primary/60 placeholder:font-medium"
-      />
+      <div className="flex items-start gap-2">
+        <AutoTextarea
+          value={t.title}
+          onChange={(e) => setT({ ...t, title: e.target.value })}
+          onBlur={() => save({ title: t.title })}
+          minHeight={44}
+          maxHeight={220}
+          rows={1}
+          dir="auto"
+          placeholder={T("عنوان تسک را اینجا بنویس…", "Write the task title here…")}
+          className="text-[22px] font-semibold leading-snug bg-muted/40 border border-dashed border-primary/40 rounded-md px-3 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary focus-visible:bg-background break-words whitespace-pre-wrap tracking-tight placeholder:text-primary/60 placeholder:font-medium flex-1"
+        />
+        <Button
+          size="icon"
+          variant={voiceListening ? "default" : "ghost"}
+          onClick={() => voiceInstance?.toggle(i18n.language === "en" ? "en-US" : "fa-IR")}
+          className="h-11 w-11 shrink-0"
+          title={T("ضبط صوتی", "Voice input")}
+        >
+          {voiceListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+        </Button>
+      </div>
       <div data-rich-selection onContextMenu={(e) => e.preventDefault()} style={{ WebkitTouchCallout: "none" } as any}>
         <TaskDescriptionEditor
           taskId={t.id}

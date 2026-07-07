@@ -173,6 +173,8 @@ export default {
     dataExportDesc: "همه داده‌هایت — تسک‌ها، یادداشت‌ها، چک‌این‌ها، Thought Records، تست‌ها، پیش‌بینی‌ها و... — متعلق به توست. می‌توانی هر زمان آن‌ها را به فایل JSON صادر کنی یا کامل حذف کنی.",
     exportJson: "صادرات کامل (JSON)",
     exporting: "در حال صادرات...",
+    importJson: "واردات از JSON",
+    importing: "در حال واردات...",
     deleteAccount: "حذف کامل حساب",
     deleting: "در حال حذف...",
     deleteAllConfirm: "حذف کامل و بازگشت‌ناپذیر",

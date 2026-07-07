@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home, Heart, Coffee, Star, Wand2, RotateCw } from "lucide-react";
+import { Sparkles, Save, Trash2, Languages, Download, ShieldOff, Settings2, Bell, Moon, Palette, Type, ZoomIn, LayoutGrid, Home, Heart, Coffee, Star, Wand2, RotateCw, Sun, Upload } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { applyFontSize, applyUIScale, type FontSize } from "@/lib/uiScale";
 import { Card } from "@/components/ui/card";
@@ -26,6 +26,7 @@ import { loadSettings, saveSettings, ensureNotificationPermission, type UserSett
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ALL_BUCKET_KINDS, getEnabledBuckets, setEnabledBuckets, kindLabel, type BucketKind } from "@/lib/timeBuckets";
 import { getCalendarSystem, setCalendarSystem, type CalendarSystem } from "@/lib/jalali";
+import { useTheme } from "next-themes";
 
 function TimeBucketsSettings() {
   const [enabled, setEnabled] = useState<BucketKind[]>(() => getEnabledBuckets());
@@ -258,6 +259,7 @@ function AppUpdateCard({ isEn }: { isEn: boolean }) {
 export default function SettingsView() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
+  const { theme, setTheme } = useTheme();
   const isEn = (i18n.language || "fa").startsWith("en");
   const [settings, setSettings] = useState<AIPerOpSettings>({ default: defaultConfig(), perOp: {}, useRecommended: true });
   const [lang, setLang] = useState<AILanguage>("fa");
@@ -414,6 +416,35 @@ export default function SettingsView() {
     }
   }
 
+  async function importAll(file: File) {
+    if (!user) return;
+    setExporting(true);
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.user_id || data.user_id !== user.id) {
+        toast.error(isEn ? "This export belongs to a different user" : "این صادرات متعلق به کاربر دیگری است");
+        return;
+      }
+      let imported = 0;
+      for (const tbl of Object.keys(data)) {
+        if (tbl === "exported_at" || tbl === "user_id") continue;
+        const rows = data[tbl];
+        if (!Array.isArray(rows)) continue;
+        for (const row of rows) {
+          if (row.user_id !== user.id) continue;
+          const { error } = await supabase.from(tbl as any).insert(row);
+          if (!error) imported++;
+        }
+      }
+      toast.success(isEn ? `Imported ${imported} items` : `${imported} آیتم وارد شد`);
+    } catch (e: any) {
+      toast.error(e.message || (isEn ? "Import error" : "خطا در واردات"));
+    } finally {
+      setExporting(false);
+    }
+  }
+
   async function deleteAll() {
     if (!user) return;
     setDeleting(true);
@@ -456,6 +487,40 @@ export default function SettingsView() {
       </Card>
 
       <LanguageSwitcher />
+
+      {/* Theme Toggle */}
+      <Card className="p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <Palette className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold">تم برنامه</h2>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">حالت تاریک/روشن</span>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant={theme === "light" ? "default" : "outline"}
+              onClick={() => setTheme("light")}
+            >
+              <Sun className="w-4 h-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant={theme === "dark" ? "default" : "outline"}
+              onClick={() => setTheme("dark")}
+            >
+              <Moon className="w-4 h-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant={theme === "system" ? "default" : "outline"}
+              onClick={() => setTheme("system")}
+            >
+              <Settings2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       <AppUpdateCard isEn={isEn} />
 
@@ -771,6 +836,23 @@ export default function SettingsView() {
         <div className="flex gap-2 flex-wrap">
           <Button onClick={exportAll} disabled={exporting} variant="outline" className="gap-2">
             <Download className="w-4 h-4" /> {exporting ? t("settings.exporting") : t("settings.exportJson")}
+          </Button>
+          <Button
+            onClick={() => {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.accept = ".json";
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) importAll(file);
+              };
+              input.click();
+            }}
+            disabled={exporting}
+            variant="outline"
+            className="gap-2"
+          >
+            <Upload className="w-4 h-4" /> {exporting ? t("settings.importing") : t("settings.importJson")}
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>

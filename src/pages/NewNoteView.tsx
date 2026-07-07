@@ -5,9 +5,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Loader2, FolderInput, Pin } from "lucide-react";
+import { ArrowRight, Loader2, FolderInput, Pin, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import { RichEditor } from "@/components/RichEditor";
+import { VoiceInput } from "@/lib/voiceInput";
+import { useTranslation } from "react-i18next";
 
 type Folder = { id: string; name: string };
 
@@ -15,6 +17,8 @@ export default function NewNoteView() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const { i18n } = useTranslation();
+  const isEn = (i18n.language || "fa").startsWith("en");
 
   const [title, setTitle] = useState(params.get("title") || "");
   const [content, setContent] = useState(params.get("content") || "");
@@ -22,11 +26,32 @@ export default function NewNoteView() {
   const [pinned, setPinned] = useState(false);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [busy, setBusy] = useState(false);
+  const [voiceListening, setVoiceListening] = useState(false);
+  const [voiceInstance, setVoiceInstance] = useState<VoiceInput | null>(null);
 
   useEffect(() => {
     supabase.from("folders").select("id,name").order("position")
       .then(({ data }) => setFolders((data || []) as any));
   }, [user]);
+
+  // Initialize voice input for content
+  useEffect(() => {
+    const voice = new VoiceInput({
+      onTranscript: (text) => {
+        setContent(prev => prev + " " + text);
+      },
+      onError: (error) => {
+        toast.error(error);
+      },
+      onListeningChange: (isListening) => {
+        setVoiceListening(isListening);
+      },
+    });
+    setVoiceInstance(voice);
+    return () => {
+      voice.stop();
+    };
+  }, []);
 
   const submit = async () => {
     if (!user || !title.trim()) {
@@ -101,7 +126,18 @@ export default function NewNoteView() {
         </div>
 
         <div>
-          <label className="text-xs text-muted-foreground mb-1 block">محتوا</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-xs text-muted-foreground">محتوا</label>
+            <Button
+              size="icon"
+              variant={voiceListening ? "default" : "ghost"}
+              onClick={() => voiceInstance?.toggle(isEn ? "en-US" : "fa-IR")}
+              className="h-8 w-8"
+              title="ضبط صوتی"
+            >
+              {voiceListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </Button>
+          </div>
           <RichEditor initialMarkdown={content} onChange={(_html, md) => setContent(md)} />
         </div>
       </Card>
