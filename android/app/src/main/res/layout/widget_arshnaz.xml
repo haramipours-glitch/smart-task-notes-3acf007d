@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="12dp">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="ARSHNAZ" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:text="آرشناز"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#ec4899" />
+
+        <TextView
+            android:id="@+id/widget_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="شنبه ۱۴ تیر"
+            android:textSize="12sp"
+            android:textColor="#94a3b8" />
+    </LinearLayout>
+
+    <!-- Task Count -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="@drawable/widget_card_background"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="تسک‌های امروز"
+            android:textSize="14sp"
+            android:textColor="#94a3b8" />
+
+        <TextView
+            android:id="@+id/widget_task_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="۵ تسک"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#e2e8f0"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- Add Task Button -->
+    <Button
+        android:id="@+id/widget_add_task"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="+ تسک جدید"
+        android:textSize="14sp"
+        android:textColor="#ffffff"
+        android:background="@drawable/widget_button_background"
+        android:stateListAnimator="@null" />
+</LinearLayout>
