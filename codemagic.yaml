@@ -40,10 +40,9 @@ workflows:
           cd android
           chmod +x gradlew
           export KEYSTORE_PATH=app/release.keystore
+          export KEYSTORE_PASSWORD=$CM_KEYSTORE_PASSWORD
+          export KEY_ALIAS=$CM_KEY_ALIAS
+          export KEY_PASSWORD=$CM_KEY_PASSWORD
           ./gradlew assembleRelease --no-daemon
-        env:
-          KEYSTORE_PASSWORD: $CM_KEYSTORE_PASSWORD
-          KEY_ALIAS: $CM_KEY_ALIAS
-          KEY_PASSWORD: $CM_KEY_PASSWORD
     artifacts:
       - android/app/build/outputs/apk/release/app-release.apk
