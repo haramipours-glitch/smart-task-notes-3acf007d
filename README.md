@@ -21,49 +21,60 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 VITE_SUPABASE_URL=
 ```
 
-## انتشار روی arshnaz.life
+> این مقادیر publishable/anon هستند و در bundle فرانت‌اند قرار می‌گیرند. RLS سیاست‌های Supabase از داده‌ها محافظت می‌کند. هرگز service role key را در کلاینت قرار نده.
 
-### 1) GitHub
+## انتشار روی arshnaz.life (از طریق Lovable)
 
-- در GitHub یک ریپوی خصوصی/عمومی به نام `arshnaz` بساز.
-- این دستورات را اجرا کن:
+دامنه `arshnaz.life` از قبل به پروژه Lovable متصل است و Lovable به‌صورت native هاست، SSL و SPA routing را مدیریت می‌کند. نیازی به Vercel/Netlify نیست.
+
+### ۱) اتصال پروژه Lovable به GitHub
+
+1. در ادیتور Lovable: منوی **Plus (+)** پایین چپ → **GitHub** → **Connect project**.
+2. Lovable GitHub App را authorize کن.
+3. اکانت/سازمان و نام ریپوی `arshnaz` را انتخاب کن و **Create Repository** را بزن.
+4. بعد از این، sync دوطرفه است: هر تغییر در Lovable به GitHub push می‌شود و هر push به GitHub در Lovable نمایش داده می‌شود.
+
+### ۲) push کردن کد محلی به GitHub
+
+بعد از اینکه Lovable ریپو را ساخت، این دستورات را در ترمینال اجرا کن:
 
 ```bash
+cd C:\Users\hamed\arshnaz
 git remote add origin https://github.com/YOUR_USERNAME/arshnaz.git
 git branch -M main
 git push -u origin main
 ```
 
-### 2) Vercel
+> اگر Git در PATH نبود، از `Git Bash` یا PowerShell با مسیر کامل استفاده کن:
+> `& 'C:\Program Files\Git\cmd\git.exe' push -u origin main`
 
-- در [vercel.com](https://vercel.com) اکانت بساز.
-- New Project → Import از GitHub → ریپوی `arshnaz` را انتخاب کن.
-- Framework preset: `Vite`
-- Build command: `npm run build`
-- Output directory: `dist`
-- Install command: `npm install --legacy-peer-deps`
-- Environment Variables:
-  - `VITE_SUPABASE_URL`
-  - `VITE_SUPABASE_PUBLISHABLE_KEY`
-  - `VITE_SUPABASE_PROJECT_ID`
-- Deploy کن.
+### ۳) DNS (اگر هنوز ست نشده)
 
-### 3) دامنه اختصاصی
+در پنل ثبت‌کننده دامنه `arshnaz.life` این رکوردها را بگذار:
 
-- در تنظیمات Vercel بخش Domains، `arshnaz.life` را اضافه کن.
-- رکورد DNS نوع `A` در دامنه ثبت‌شده به آدرس Vercel بده (معمولاً `76.76.21.21`).
-- رکورد `www` هم با CNAME به `cname.vercel-dns.com.` بده.
+- **A record** `@` → `185.158.133.1`
+- **A record** `www` → `185.158.133.1`
+- **TXT record** `_lovable` → مقدار نمایش‌داده‌شده در Lovable Domains UI
 
-### 4) همگام‌سازی با Lovable
+### ۴) همگام‌سازی کد (Lovable ↔ Local/Devin)
 
-برای اینکه تغییرات Lovable به GitHub منتقل شود، در پروژه Lovable:
+وقتی GitHub وصل شد، workflow استاندارد Git است:
 
-- Settings → GitHub Integration → Connect repository
-- ریپوی `arshnaz` را انتخاب کن.
-- با هر تغییر در Lovable، کد به GitHub پوش می‌شود و Vercel خودکار دوباره deploy می‌کند.
+1. قبل از کار محلی: `git pull origin main`
+2. تغییرات را در Devin یا local انجام بده و `commit` + `push` کن.
+3. Lovable در عرض چند ثانیه تغییرات را می‌گیرد و روی `arshnaz.life` deploy می‌کند.
+4. تغییرات در Lovable هم خودکار به GitHub push می‌شوند.
+
+> از force-push یا rewrite history پرهیز کن چون باعث desync شدن Lovable می‌شود.
 
 ## قابلیت‌های همگام‌سازی (Sync)
 
-- **داده**: از Supabase Realtime استفاده می‌شود. هر کاربر پس از لاگین، داده‌ها را بین دستگاه‌ها همگام می‌بیند.
-- **PWA auto-update**: در `vite.config.ts` با `registerType: "autoUpdate"` فعال است.
-- **کد**: از طریق GitHub + Lovable Integration و Vercel auto-deploy.
+- **داده بین دستگاه‌ها**: برنامه از Supabase Realtime استفاده می‌کند. migration مربوطه در `supabase/migrations/20260707140000_enable_realtime_sync.sql` اضافه شده است. این migration باید در داشبورد Supabase یا از طریق Lovable CLI اعمال شود.
+- **PWA auto-update**: در `vite.config.ts` با `registerType: "autoUpdate"`، `clientsClaim: true` و `skipWaiting: true` فعال است و روی هر هاستی (از جمله Lovable) کار می‌کند.
+- **کد**: از طریق GitHub + Lovable Integration دوطرفه همگام می‌شود.
+
+## فایل‌های پیکربندی انتشار
+
+- `vercel.json` — تنظیمات Vercel (اختیاری، اگر خواستی بعداً به Vercel منتقل کنی).
+- `netlify.toml` — تنظیمات Netlify (اختیاری).
+- `supabase/migrations/20260707140000_enable_realtime_sync.sql` — فعال‌سازی Realtime.
