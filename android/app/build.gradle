@@ -16,26 +16,27 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    def hasSigningCreds = System.getenv("KEYSTORE_PASSWORD") && System.getenv("KEY_ALIAS") && System.getenv("KEY_PASSWORD")
+    def keystorePath = System.getenv("KEYSTORE_PATH")
+    def hasKeystore = keystorePath || file('release.keystore').exists()
+
+    signingConfigs {
+        release {
+            if (hasSigningCreds && hasKeystore) {
+                storeFile file(keystorePath ?: 'release.keystore')
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-    }
-
-    signingConfigs {
-        release {
-            if (System.getenv("KEYSTORE_PATH")) {
-                storeFile file(System.getenv("KEYSTORE_PATH"))
-                storePassword System.getenv("KEYSTORE_PASSWORD")
-                keyAlias System.getenv("KEY_ALIAS")
-                keyPassword System.getenv("KEY_PASSWORD")
-            } else if (file('release.keystore').exists()) {
-                storeFile file('release.keystore')
-                storePassword System.getenv("KEYSTORE_PASSWORD")
-                keyAlias System.getenv("KEY_ALIAS")
-                keyPassword System.getenv("KEY_PASSWORD")
+            if (hasSigningCreds && hasKeystore) {
+                signingConfig signingConfigs.release
             }
         }
     }
