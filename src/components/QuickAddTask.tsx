@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Maximize2, Loader2, Calendar as CalendarIcon, Ban } from "lucide-react";
+import { Plus, Maximize2, Loader2, Calendar as CalendarIcon, Ban, CalendarClock } from "lucide-react";
+import { parseNaturalDate } from "@/lib/nlDate";
+import { toPersianDigits } from "@/lib/persianDigits";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { DueDatePicker } from "@/components/DueDatePicker";
@@ -35,17 +37,25 @@ export function QuickAddTask({
   const [due, setDue] = useState<string | null>(defaults.due_date ?? null);
   const [avoidance, setAvoidance] = useState(false);
 
+  // Live natural-language date detection (e.g. "فردا ساعت ۵").
+  const parsed = useMemo(() => parseNaturalDate(title), [title]);
+
   const submit = async () => {
     if (!user || !title.trim()) return;
     setBusy(true);
     try {
+      // Prefer an explicitly-picked date; otherwise use a detected one and
+      // clean the recognised words out of the title.
+      const useParsed = !due && !defaults.due_date && !!parsed.dueDate;
+      const finalTitle = (useParsed ? parsed.cleanedTitle : title).trim() || title.trim();
+      const finalDue = due ?? defaults.due_date ?? (useParsed ? parsed.dueDate : null);
       const { data, error } = await supabase
         .from("tasks")
         .insert({
           user_id: user.id,
-          title: title.trim(),
+          title: finalTitle,
           folder_id: defaults.folder_id ?? null,
-          due_date: due ?? defaults.due_date ?? null,
+          due_date: finalDue,
           parent_id: defaults.parent_id ?? null,
           is_avoidance: avoidance,
         } as any)
@@ -60,6 +70,7 @@ export function QuickAddTask({
       setTitle("");
       setDue(defaults.due_date ?? null);
       setAvoidance(false);
+      window.dispatchEvent(new Event("tasks-changed"));
       if (data) onCreated?.(data.id);
     } catch (e: any) {
       toast.error(e.message || "خطا");
@@ -78,8 +89,14 @@ export function QuickAddTask({
     navigate(`/app/new/task?${params.toString()}`);
   };
 
+  const showHint = !due && !defaults.due_date && !!parsed.dueDate;
+  const hintLabel = showHint
+    ? new Date(parsed.dueDate!).toLocaleDateString("fa-IR", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })
+    : "";
+
   return (
-    <div className={`flex gap-2 ${className}`} dir="rtl">
+    <div className={`${className}`} dir="rtl">
+    <div className="flex gap-2">
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
@@ -122,6 +139,14 @@ export function QuickAddTask({
       >
         <Maximize2 className="w-4 h-4" />
       </Button>
+    </div>
+      {showHint && (
+        <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-primary animate-fade-in">
+          <CalendarClock className="w-3.5 h-3.5" />
+          <span>{toPersianDigits(hintLabel)}</span>
+          <span className="text-muted-foreground">— با زدن Enter ثبت می‌شود</span>
+        </div>
+      )}
     </div>
   );
 }

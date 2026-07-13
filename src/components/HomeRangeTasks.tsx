@@ -67,6 +67,7 @@ export function HomeRangeTasks() {
     try { return (localStorage.getItem(SORT_KEY) as SortKey) || "time"; } catch { return "time"; }
   });
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [completing, setCompleting] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState<boolean>(() => {
     try { const v = localStorage.getItem(OPEN_KEY); return v === null ? true : v === "1"; } catch { return true; }
@@ -135,8 +136,18 @@ export function HomeRangeTasks() {
 
   const toggleDone = async (id: string) => {
     haptic("success");
-    setTasks((arr) => arr.filter((t) => t.id !== id));
+    // Play a brief completion animation before removing the row from the list.
+    setCompleting((s) => new Set(s).add(id));
+    window.setTimeout(() => {
+      setTasks((arr) => arr.filter((t) => t.id !== id));
+      setCompleting((s) => {
+        const n = new Set(s);
+        n.delete(id);
+        return n;
+      });
+    }, 380);
     await supabase.from("tasks").update({ completed: true, completed_at: new Date().toISOString() }).eq("id", id);
+    window.dispatchEvent(new Event("tasks-changed"));
   };
 
   const sortLabel = sort === "time" ? "زمان" : sort === "priority" ? "اولویت" : "جدیدترین";
@@ -233,15 +244,17 @@ export function HomeRangeTasks() {
                   </p>
                 ) : (
                   <ul className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1">
-                    {sorted.map((t) => (
+                    {sorted.map((t) => {
+                      const done = completing.has(t.id);
+                      return (
                       <li key={t.id}
-                          className="flex items-center gap-2 p-2 rounded-lg border border-border/60 hover:bg-accent/30 transition">
+                          className={`flex items-center gap-2 p-2 rounded-lg border border-border/60 transition ${done ? "animate-task-complete" : "hover:bg-accent/30"}`}>
                         <button
                           onClick={() => toggleDone(t.id)}
-                          className="w-5 h-5 rounded-full border-2 border-muted-foreground/40 hover:border-emerald-500 flex items-center justify-center shrink-0"
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${done ? "bg-emerald-500 border-emerald-500" : "border-muted-foreground/40 hover:border-emerald-500"}`}
                           aria-label="انجام شد"
                         >
-                          <Check className="w-3 h-3 opacity-0 hover:opacity-100" />
+                          <Check className={`w-3 h-3 ${done ? "text-white animate-check-pop" : "opacity-0 hover:opacity-100"}`} />
                         </button>
                         <button
                           onClick={() => { haptic("light"); navigate(`/app/tasks/${t.id}`); }}
@@ -255,7 +268,8 @@ export function HomeRangeTasks() {
                         </button>
                         {priorityBadge(t.priority)}
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                 )}
               </TabsContent>
