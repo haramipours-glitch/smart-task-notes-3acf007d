@@ -96,13 +96,13 @@ export function QuickAddTask({
 
   return (
     <div className={`${className}`} dir="rtl">
-    <div className="flex gap-2">
+    <div className="flex gap-1.5">
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && submit()}
         placeholder={placeholder}
-        className="flex-1"
+        className="flex-1 h-9 text-sm"
         dir="auto"
         disabled={busy}
       />
@@ -110,9 +110,9 @@ export function QuickAddTask({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            size="icon"
+            size="sm"
             title="تاریخ و گزینه‌ها"
-            className={due || avoidance ? "border-primary text-primary" : ""}
+            className={`h-9 px-2 ${due || avoidance ? "border-primary text-primary" : ""}`}
           >
             <CalendarIcon className="w-4 h-4" />
           </Button>
@@ -128,14 +128,15 @@ export function QuickAddTask({
           </div>
         </PopoverContent>
       </Popover>
-      <Button onClick={submit} disabled={busy || !title.trim()} size="icon" title="افزودن سریع">
+      <Button onClick={submit} disabled={busy || !title.trim()} size="sm" title="افزودن سریع" className="h-9 px-2">
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
       </Button>
       <Button
         onClick={goFullscreen}
         variant="outline"
-        size="icon"
+        size="sm"
         title="تمام‌صفحه با همه جزئیات"
+        className="h-9 px-2"
       >
         <Maximize2 className="w-4 h-4" />
       </Button>

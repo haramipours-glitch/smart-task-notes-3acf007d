@@ -215,7 +215,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[52px] h-12 rounded-2xl transition active:scale-95 ${
+      className={`relative flex flex-col items-center justify-center gap-0 min-w-[42px] h-9 rounded-xl transition active:scale-95 ${
         active
           ? accent
             ? "bg-primary/15 text-primary"
@@ -223,9 +223,9 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           : "text-muted-foreground hover:bg-muted/60"
       }`}
     >
-      <Icon className="w-[18px] h-[18px]" />
+      <Icon className="w-4 h-4" />
       {badge != null && badge !== 0 && (
-        <span className="absolute top-1 end-1 min-w-[14px] h-[14px] px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-medium flex items-center justify-center">
+        <span className="absolute top-0.5 end-0.5 min-w-[13px] h-[13px] px-0.5 rounded-full bg-primary text-primary-foreground text-[8px] font-medium flex items-center justify-center">
           {badge}
         </span>
       )}
@@ -235,12 +235,12 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   const Chip = ({ icon: Icon, children, onClick, onClear, color }: any) => (
     <span
       onClick={onClick}
-      className={`inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] cursor-pointer transition ${
+      className={`inline-flex items-center gap-1 px-2 h-6 rounded-full text-[10px] cursor-pointer transition ${
         color || "bg-muted/60 text-foreground/80 hover:bg-muted"
       }`}
     >
       {Icon && <Icon className="w-3 h-3" />}
-      <span className="truncate max-w-[160px]">{children}</span>
+      <span className="truncate max-w-[120px]">{children}</span>
       {onClear && (
         <X
           className="w-3 h-3 opacity-60 hover:opacity-100"
@@ -252,8 +252,8 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
   // ── Hero (title + description) ─────────────────────────────────────
   const hero = (
-    <div className="px-1 pb-3">
-      <div className="flex items-start gap-2">
+    <div className="px-1 pb-2">
+      <div className="flex items-start gap-1.5">
         <AutoTextarea
           value={t.title}
           onChange={(e) => setT({ ...t, title: e.target.value })}
@@ -263,13 +263,13 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           rows={1}
           dir="auto"
           placeholder={T("عنوان تسک را اینجا بنویس…", "Write the task title here…")}
-          className="text-[22px] font-semibold leading-snug bg-muted/40 border border-dashed border-primary/40 rounded-md px-3 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary focus-visible:bg-background break-words whitespace-pre-wrap tracking-tight placeholder:text-primary/60 placeholder:font-medium flex-1"
+          className="text-lg md:text-xl font-semibold leading-snug bg-muted/40 border border-dashed border-primary/40 rounded-md px-2 py-1.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary focus-visible:bg-background break-words whitespace-pre-wrap tracking-tight placeholder:text-primary/60 placeholder:font-medium flex-1 min-h-[40px]"
         />
         <Button
           size="icon"
           variant={voiceListening ? "default" : "ghost"}
           onClick={() => voiceInstance?.toggle(i18n.language === "en" ? "en-US" : "fa-IR")}
-          className="h-11 w-11 shrink-0"
+          className="h-9 w-9 shrink-0"
           title={T("ضبط صوتی", "Voice input")}
         >
           {voiceListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -288,7 +288,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
           size="sm"
           variant="ghost"
           onClick={async () => { await addNote(); }}
-          className="h-7 gap-1 text-[11px] text-muted-foreground hover:text-foreground rounded-full px-2"
+          className="h-6 gap-1 text-[11px] text-muted-foreground hover:text-foreground rounded-full px-2"
         >
           <Plus className="w-3 h-3" />
           <FileText className="w-3.5 h-3.5" />
@@ -309,7 +309,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
   // ── Quick-info chips row (only what's set) ──────────────────────────
   const quickChips = (
-    <div className="flex flex-wrap gap-1.5 px-1 pb-3">
+    <div className="flex flex-wrap gap-1 px-1 pb-2">
       {dueLabel && (
         <Popover>
           <PopoverTrigger asChild>
@@ -460,7 +460,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   // ── Bottom icon rail — portal'd to body so it sits above BottomTabBar
   const railInner = (
     <div className="mx-auto max-w-3xl">
-      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar px-2 py-1.5">
+      <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar px-2 py-1">
         {/* 1. Schedule (Date + Time block + Repeat + Bucket) */}
         <Popover>
           <PopoverTrigger asChild>
@@ -821,7 +821,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
   // ── Expandable inline blocks (only when toggled) ────────────────────
   const expandables = (
-    <div className="space-y-4 px-1">
+    <div className="space-y-3 px-1">
 
 
       {showSubtasks && (
@@ -841,21 +841,21 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
 
       {showNotes && (
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium flex items-center gap-1">
-              <FileText className="w-4 h-4" /> {T("نوت‌ها", "Notes")} ({taskNotes.length})
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-sm font-medium flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5" /> {T("نوت‌ها", "Notes")} ({taskNotes.length})
             </label>
-            <Button size="sm" variant="outline" onClick={addNote} className="gap-1 rounded-full">
+            <Button size="sm" variant="outline" onClick={addNote} className="gap-1 rounded-full h-7 text-xs">
               <Plus className="w-3 h-3" /> {T("جدید", "New")}
             </Button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {taskNotes.map((n) => (
-              <Card key={n.id} className="p-2 flex items-center gap-2 rounded-xl">
-                <button className="flex-1 text-start text-sm truncate" onClick={() => setActiveNote(n)}>
+              <Card key={n.id} className="p-1.5 flex items-center gap-2 rounded-lg bg-card/50">
+                <button className="flex-1 text-start text-sm truncate px-1" onClick={() => setActiveNote(n)}>
                   <BidiText text={n.title} />
                 </button>
-                <Button size="icon" variant="ghost" onClick={() => askDelNote(n)}>
+                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => askDelNote(n)}>
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </Card>
@@ -867,7 +867,7 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   );
 
   const body = (
-    <div className="mt-2 task-detail-sections flex flex-col min-h-[60vh]">
+    <div className="mt-1 task-detail-sections flex flex-col min-h-[50vh]">
       {hero}
       {quickChips}
       <div className="flex-1">{expandables}</div>
@@ -900,13 +900,13 @@ export function TaskDetail({ task, onClose, onChanged, setConfirm, mode = "sheet
   return (
     <>
       {mode === "page" ? (
-        <div className="w-full px-1 sm:px-2 md:px-4 py-3 pb-40 md:pb-3">
+        <div className="w-full max-w-3xl mx-auto px-2 sm:px-3 md:px-4 py-2 pb-40 md:pb-4">
           {activeNote ? noteEditorBody : body}
         </div>
       ) : (
         <Sheet open={true} onOpenChange={(v) => !v && onClose()}>
-          <SheetContent className="w-full sm:max-w-full overflow-y-auto">
-            <SheetHeader>
+          <SheetContent className="w-full sm:max-w-full overflow-y-auto p-3 sm:p-4">
+            <SheetHeader className="mb-1">
               <SheetTitle className="sr-only">
                 {activeNote ? T("ویرایش نوت", "Edit note") : T("جزئیات تسک", "Task")}
               </SheetTitle>
@@ -931,10 +931,10 @@ function AttachTypeBtn({ icon: Icon, label, onClick }: { icon: any; label: strin
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-muted/40 hover:bg-accent active:scale-95 transition"
+      className="flex flex-col items-center justify-center gap-0.5 p-2 rounded-lg bg-muted/40 hover:bg-accent active:scale-95 transition"
     >
-      <Icon className="w-5 h-5 text-primary" />
-      <span className="text-[11px] font-medium">{label}</span>
+      <Icon className="w-4 h-4 text-primary" />
+      <span className="text-[10px] font-medium">{label}</span>
     </button>
   );
 }

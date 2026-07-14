@@ -81,7 +81,7 @@ function QuickSubInput({ onAdd }: { onAdd: (title: string) => Promise<void> | vo
 export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomorrow" | "next7" | "smart" | "folder" | "tag" }) {
   const { user } = useAuth();
   const params = useParams();
-  const [layout, setLayout] = useState<"compact" | "comfortable">("comfortable");
+  const [layout, setLayout] = useState<"compact" | "comfortable">("compact");
   useEffect(() => {
     if (!user) return;
     supabase.from("user_settings").select("task_card_layout").eq("user_id", user.id).maybeSingle()
@@ -594,7 +594,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               onDelete={() => askDeleteTask(t)}
               isCompleted={t.completed}
             >
-            <Card className={`cv-auto ${layout === "compact" ? "p-2" : "p-3"} hover:shadow-soft transition-shadow animate-fade-in border-s-4 ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/5 border-amber-500/40" : ""} ${depth > 0 ? "bg-muted/20" : ""}`}>
+            <Card className={`rounded-lg ${layout === "compact" ? "p-1.5" : "p-2"} border-s-[3px] ${pm.borderClass} ${t.is_avoidance ? "bg-amber-500/[0.04] border-amber-500/30" : ""} ${depth > 0 ? "bg-muted/20" : "bg-card/50"} hover:bg-accent/20 transition-colors`}>
               {depth > 0 && parent && (
                 <div className="flex items-center gap-1 mb-1 text-[10px] text-muted-foreground/80">
                   <CornerDownRight className="w-2.5 h-2.5 shrink-0" />
@@ -602,9 +602,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                 </div>
               )}
               {/* Row 1: chevron + TITLE (wide) + checkbox (right) */}
-              <div dir="rtl" className="flex items-start gap-2">
+              <div dir="rtl" className="flex items-start gap-1.5">
                 {subs.length > 0 ? (
-                  <button onClick={() => setExpanded((s) => ({ ...s, [t.id]: !open }))} className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
+                  <button onClick={() => setExpanded((s) => ({ ...s, [t.id]: !open }))} className="text-muted-foreground hover:text-foreground shrink-0 pt-0.5">
                     {open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </button>
                 ) : <span className="w-4 shrink-0" />}
@@ -622,7 +622,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                   <BidiText
                     as="p"
                     text={t.title}
-                    className={`${layout === "compact" ? "text-sm" : "text-base"} font-medium leading-snug break-words ${t.completed ? "line-through text-muted-foreground" : ""}`}
+                    className={`${layout === "compact" ? "text-sm" : "text-[15px]"} font-medium leading-tight break-words ${t.completed ? "line-through text-muted-foreground" : "text-foreground/90"}`}
                   />
                 </div>
                 {t.is_avoidance ? (
@@ -643,28 +643,28 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               </div>
 
               {/* Row 2: drag handle + badges + actions */}
-              <div className="flex items-center justify-between gap-1 mt-1.5 ms-6 flex-wrap">
+              <div className="flex items-center justify-between gap-1 mt-1 ms-5 flex-wrap">
                 <div className="flex items-center gap-1 flex-wrap min-w-0">
-                  <button {...dragHandle} data-drag-handle data-no-swipe-nav className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0 h-7 w-7 rounded-md bg-muted/40 hover:bg-muted flex items-center justify-center" aria-label="drag" title="جابجایی (روی موبایل لمس طولانی)">
-                    <GripVertical className="w-4 h-4" />
+                  <button {...dragHandle} data-drag-handle data-no-swipe-nav className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none shrink-0 h-6 w-6 rounded bg-muted/50 hover:bg-muted flex items-center justify-center" aria-label="drag" title="جابجایی (روی موبایل لمس طولانی)">
+                    <GripVertical className="w-3.5 h-3.5" />
                   </button>
-                  <button onClick={() => moveSibling(t, -1)} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move up" title="بالا">
-                    <ArrowUp className="w-3.5 h-3.5" />
+                  <button onClick={() => moveSibling(t, -1)} className="h-5 w-5 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move up" title="بالا">
+                    <ArrowUp className="w-3 h-3" />
                   </button>
-                  <button onClick={() => moveSibling(t, 1)} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move down" title="پایین">
-                    <ArrowDown className="w-3.5 h-3.5" />
+                  <button onClick={() => moveSibling(t, 1)} className="h-5 w-5 rounded hover:bg-accent flex items-center justify-center text-muted-foreground" aria-label="move down" title="پایین">
+                    <ArrowDown className="w-3 h-3" />
                   </button>
                   {t.is_avoidance && (
-                    <Badge variant="outline" className="text-[10px] gap-0.5 px-1.5 py-0 h-5 bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/40">
+                    <span className="inline-flex items-center gap-0.5 text-[9px] px-1.5 h-4 rounded bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                       <Ban className="w-2.5 h-2.5" /> اجتنابی
-                    </Badge>
+                    </span>
                   )}
                   {/* Priority — tap to change */}
                   <Popover>
                     <PopoverTrigger asChild>
                       <button
                         onClick={(e) => e.stopPropagation()}
-                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 inline-flex items-center rounded-md border ${t.priority !== "none" ? `${pm.bgClass} ${pm.textClass}` : "bg-muted/40 text-muted-foreground border-dashed"}`}
+                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-[18px] inline-flex items-center rounded border ${t.priority !== "none" ? `${pm.bgClass} ${pm.textClass}` : "bg-muted/50 text-muted-foreground border-dashed"}`}
                         title="تغییر اولویت"
                       >
                         <Flag className="w-2.5 h-2.5" /> {t.priority !== "none" ? pm.label : "+ اولویت"}
@@ -695,7 +695,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                     <PopoverTrigger asChild>
                       <button
                         onClick={(e) => e.stopPropagation()}
-                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 inline-flex items-center rounded-md border ${t.due_date ? "bg-secondary text-secondary-foreground" : "bg-muted/40 text-muted-foreground border-dashed"}`}
+                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-[18px] inline-flex items-center rounded border ${t.due_date ? "bg-secondary text-secondary-foreground" : "bg-muted/50 text-muted-foreground border-dashed"}`}
                         title="تغییر تاریخ"
                       >
                         <Calendar className="w-2.5 h-2.5" />
@@ -720,7 +720,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
                     <PopoverTrigger asChild>
                       <button
                         onClick={(e) => e.stopPropagation()}
-                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-5 inline-flex items-center rounded-md border ${t.recurrence_rule ? "" : "bg-muted/40 text-muted-foreground border-dashed"}`}
+                        className={`text-[10px] gap-0.5 px-1.5 py-0 h-[18px] inline-flex items-center rounded border ${t.recurrence_rule ? "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/25" : "bg-muted/50 text-muted-foreground border-dashed"}`}
                         title="تغییر تکرار"
                       >
                         <Repeat className="w-2.5 h-2.5" /> {t.recurrence_rule ? describeRule(t.recurrence_rule) : "+ تکرار"}
@@ -764,14 +764,14 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
               </div>
 
               {prog.total > 0 && (
-                <div className="mt-1.5 ms-12 flex items-center gap-2">
+                <div className="mt-1 ms-10 flex items-center gap-1.5">
                   <Progress value={pct} className="h-1 flex-1" />
-                  <span className="text-[10px] text-muted-foreground w-8 text-start">{pct}%</span>
+                  <span className="text-[10px] text-muted-foreground w-7 text-start">{pct}%</span>
                 </div>
               )}
 
               {/* Inline + subtask quick add */}
-              <div className="mt-1.5 flex items-center gap-2 ms-12">
+              <div className="mt-1 flex items-center gap-1.5 ms-10">
                 <CornerDownRight className="w-3 h-3 text-muted-foreground shrink-0" />
                 <QuickSubInput onAdd={async (title) => { await quickAddSub(t, title); }} />
               </div>
@@ -781,7 +781,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
           )}
         </SortableTaskRow>
         {open && subs.length > 0 && (
-          <div className="mt-2 space-y-2">
+          <div className="mt-1 space-y-1">
             <SortableContext items={subs.map(s => s.id)} strategy={verticalListSortingStrategy}>
               {subs.map((s) => <TaskItem key={s.id} t={s} depth={depth + 1} />)}
             </SortableContext>
@@ -795,7 +795,7 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
 
   const listView = (
     <PullToRefresh onRefresh={load}>
-      <div className="flex gap-2 mb-4 items-center">
+      <div className="flex gap-1.5 mb-3 items-center">
         <div className="flex-1">
           <QuickAddTask
             defaults={{
@@ -821,9 +821,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
         onDragCancel={() => setActiveDragId(null)}
       >
         <RootDropZone />
-        <div className="space-y-2 mt-2">
+        <div className="space-y-1 mt-1">
           {topLevel.length === 0 && (
-            <Card className="p-8 text-center text-muted-foreground">هیچ تسکی نیست</Card>
+            <Card className="p-5 text-center text-muted-foreground text-sm border-dashed">هیچ تسکی نیست</Card>
           )}
           <SortableContext items={topLevel.map(t => t.id)} strategy={verticalListSortingStrategy}>
             {topLevel.map((t) => <TaskItem key={t.id} t={t} />)}
@@ -843,9 +843,9 @@ export default function TasksView({ scope }: { scope: "inbox" | "today" | "tomor
   );
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 w-full">
-      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-        <BidiText as="h1" text={title} className="text-2xl font-bold" />
+    <div className="p-2 sm:p-3 md:p-4 w-full max-w-5xl mx-auto">
+      <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
+        <BidiText as="h1" text={title} className="text-xl md:text-2xl font-bold" />
         {isFolder && (
           <Button size="sm" variant="outline" onClick={() => setDelFolderOpen(true)} className="text-destructive">
             <Trash2 className="w-3.5 h-3.5 ms-1" /> حذف فولدر
