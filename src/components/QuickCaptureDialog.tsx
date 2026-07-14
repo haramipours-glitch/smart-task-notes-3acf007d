@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { parseNaturalDate } from "@/lib/nlDate";
+import { CalendarClock } from "lucide-react";
+import { toPersianDigits } from "@/lib/persianDigits";
 
 export default function QuickCaptureDialog() {
   const { user } = useAuth();
@@ -16,6 +19,10 @@ export default function QuickCaptureDialog() {
   const [tab, setTab] = useState<"task" | "note">("task");
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
+  const parsed = useMemo(() => parseNaturalDate(title), [title]);
+  const dateHint = tab === "task" && parsed.dueDate
+    ? new Date(parsed.dueDate).toLocaleDateString("fa-IR", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })
+    : "";
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -43,13 +50,16 @@ export default function QuickCaptureDialog() {
     setBusy(true);
     try {
       if (tab === "task") {
+        const parsed = parseNaturalDate(title);
+        const insertTitle = (parsed.dueDate ? parsed.cleanedTitle : title).trim() || title.trim();
         const { data, error } = await supabase
           .from("tasks")
-          .insert({ user_id: user.id, title: title.trim() })
+          .insert({ user_id: user.id, title: insertTitle, due_date: parsed.dueDate })
           .select()
           .single();
         if (error) throw error;
-        toast.success("تسک ساخته شد");
+        toast.success(parsed.dueDate ? "تسک با تاریخ ساخته شد" : "تسک ساخته شد");
+        window.dispatchEvent(new Event("tasks-changed"));
         setOpen(false);
         if (data) navigate(`/app/tasks/${data.id}`);
       } else {
@@ -107,10 +117,16 @@ export default function QuickCaptureDialog() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submit()}
-              placeholder="عنوان تسک..."
+              placeholder="عنوان تسک... (مثلاً: فردا ساعت ۵ خرید)"
               dir="auto"
               disabled={busy}
             />
+            {dateHint && (
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-primary animate-fade-in">
+                <CalendarClock className="w-3.5 h-3.5" />
+                <span>{toPersianDigits(dateHint)}</span>
+              </div>
+            )}
           </TabsContent>
           <TabsContent value="note" className="mt-3">
             <Input

@@ -79,4 +79,3 @@ git push -u origin main
 - `netlify.toml` — تنظیمات Netlify (اختیاری).
 - `supabase/migrations/20260707140000_enable_realtime_sync.sql` — فعال‌سازی Realtime.
 
-<!-- sync-test: 2026-07-13T04:13:29Z (Devin) — اگر این خط را در Lovable می‌بینی یعنی سینک GitHub → Lovable کار می‌کند -->

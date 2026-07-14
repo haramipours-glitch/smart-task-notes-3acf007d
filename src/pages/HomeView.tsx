@@ -16,6 +16,8 @@ import { toPersianDigits } from "@/lib/persianDigits";
 import { getQuoteForHour } from "@/lib/hourlyQuotes";
 import { HourlyStoryCard } from "@/components/HourlyStoryCard";
 import { HomeRangeTasks } from "@/components/HomeRangeTasks";
+import { StreakCard } from "@/components/StreakCard";
+import { QuickAddTask } from "@/components/QuickAddTask";
 import { haptic } from "@/lib/haptics";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
@@ -255,26 +257,17 @@ export default function HomeView() {
     return "شب بخیر";
   })();
 
-  // ----- Always-visible primary cards -----
+  // ----- Always-visible primary cards (task-first, action-focused) -----
   const primaryCards = (
     <>
+      {/* استریک و پیشرفت هفتگی */}
+      <StreakCard />
+
+      {/* افزودن سریع تسک (با تشخیص تاریخ طبیعی) */}
+      <QuickAddTask placeholder="+ چه کاری برای امروز؟ (مثلاً: فردا ساعت ۵ خرید)" onCreated={() => load()} />
+
       {/* بازه‌ی زمانی: امروز / فردا / هفته (به‌صورت کشویی) */}
       <HomeRangeTasks />
-
-      {/* جمله و داستان این ساعت */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
-          <CardContent className="p-4 flex items-start gap-3 h-full">
-            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
-            <div dir="rtl" className="text-right w-full">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
-              <p className="text-sm md:text-base leading-7 whitespace-pre-wrap break-words">{quote.text}</p>
-              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
-            </div>
-          </CardContent>
-        </Card>
-        <HourlyStoryCard />
-      </div>
 
       {/* عادت‌های امروز */}
       {snap.habitsToday.length > 0 && (
@@ -316,6 +309,26 @@ export default function HomeView() {
           </CardContent>
         </Card>
       )}
+    </>
+  );
+
+  // ----- Secondary cards (wellbeing + focus) shown below the fold / in "more" -----
+  const secondaryCards = (
+    <>
+      {/* جمله و داستان این ساعت */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
+          <CardContent className="p-4 flex items-start gap-3 h-full">
+            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
+            <div dir="rtl" className="text-right w-full">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
+              <p className="text-sm md:text-base leading-7 whitespace-pre-wrap break-words">{quote.text}</p>
+              {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
+            </div>
+          </CardContent>
+        </Card>
+        <HourlyStoryCard />
+      </div>
 
       {/* Check-in سریع */}
       <Link to="/app/checkin" onClick={() => haptic("light")}>
@@ -363,6 +376,7 @@ export default function HomeView() {
   // ----- Extra (full) content — stats + quick access -----
   const extraContent = (
     <>
+      {secondaryCards}
       <div className="grid grid-cols-4 gap-2">
         <StatCard icon={Heart} color="text-rose-500" label="چک‌این"
           value={snap.lastCheckin?.mood != null ? `${toPersianDigits(snap.lastCheckin.mood)}/۱۰` : "—"}

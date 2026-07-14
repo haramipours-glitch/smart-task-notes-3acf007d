@@ -49,7 +49,7 @@ export default function AppLayout() {
             style={{ paddingTop: "env(safe-area-inset-top)", minHeight: "calc(3rem + env(safe-area-inset-top))" }}
           >
             <div className="flex items-center gap-1">
-              <SidebarTrigger className="hidden md:inline-flex" />
+              <SidebarTrigger />
               <HeaderBackButton />
             </div>
             <div className="flex items-center gap-2">
