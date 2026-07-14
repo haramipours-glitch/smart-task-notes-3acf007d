@@ -30,7 +30,7 @@ function Slot({
         <div
           key={t.id}
           onClick={(e) => { e.stopPropagation(); navigate(`/app/tasks/${t.id}`); }}
-          className="bg-primary/20 text-primary text-[10px] truncate rounded px-1 mb-0.5 cursor-pointer hover:bg-primary/30"
+          className="bg-muted text-foreground/80 text-[10px] truncate rounded-md px-2 py-1 mb-1 border border-border/60 cursor-pointer hover:bg-accent/60 transition"
         >
           {t.title}
         </div>
@@ -92,12 +92,12 @@ export default function WeekView({
               <button
                 key={d.toISOString()}
                 onClick={() => onDayClick(d)}
-                className={`bg-card p-1 text-center text-xs hover:bg-accent ${off ? "text-rose-500" : ""} ${isSameDay(d, new Date()) ? "bg-primary/10" : ""}`}
+                className={`bg-card p-2 text-center text-xs hover:bg-accent/40 transition ${off ? "text-amber-600 dark:text-amber-400" : ""} ${isSameDay(d, new Date()) ? "bg-primary/5 ring-1 ring-primary/20" : ""}`}
               >
                 <div className="font-semibold">
                   {system === "jalali" ? toPersianDigits(formatDate(d, "d", "jalali")) : format(d, "d")}
                 </div>
-                <div className="text-[10px] text-muted-foreground">
+                <div className="text-[10px] text-muted-foreground mt-0.5">
                   {system === "jalali" ? formatDate(d, "EEEEEE", "jalali") : format(d, "EEE")}
                 </div>
               </button>

@@ -41,7 +41,7 @@ function TimeBucketsSettings() {
     setCalendarSystem(v);
   };
   return (
-    <Card className="p-5 space-y-3">
+    <Card className="p-5 space-y-3 bg-card/60 border-border/60">
       <div className="flex items-center gap-2">
         <LayoutGrid className="w-4 h-4 text-primary" />
         <h2 className="font-semibold">دسته‌بندی زمانی</h2>
@@ -51,7 +51,7 @@ function TimeBucketsSettings() {
       </p>
       <div className="space-y-2">
         {ALL_BUCKET_KINDS.map((k) => (
-          <div key={k} className="flex items-center justify-between p-2 rounded-lg border">
+          <div key={k} className="flex items-center justify-between p-2.5 rounded-xl border border-border/60 bg-card/40">
             <span className="text-sm">{kindLabel(k)}</span>
             <Switch checked={enabled.includes(k)} onCheckedChange={() => toggle(k)} />
           </div>
@@ -227,7 +227,7 @@ function AppUpdateCard({ isEn }: { isEn: boolean }) {
   };
 
   return (
-    <Card className="p-5 space-y-3">
+    <Card className="p-5 space-y-3 bg-card/60 border-border/60">
       <div className="flex items-center gap-2">
         <Download className="w-4 h-4 text-primary" />
         <h2 className="font-semibold">{isEn ? "App version & updates" : "نسخه و به‌روزرسانی"}</h2>
@@ -470,17 +470,19 @@ export default function SettingsView() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6 pb-20 animate-fade-in">
       {/* Dedication card */}
-      <Card className="p-5 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-pink-950/30 dark:via-purple-950/30 dark:to-blue-950/30 border-pink-200/50 dark:border-pink-800/30">
+      <Card className="p-5 bg-card/60 border-border/60">
         <div className="flex items-center gap-3">
-          <img src="/favicon.png" alt="ARSHNAZ" className="w-12 h-12 rounded-xl shadow" width={48} height={48} loading="lazy" />
+          <div className="grid place-items-center h-12 w-12 rounded-xl bg-primary/10 text-primary shrink-0">
+            <img src="/favicon.png" alt="ARSHNAZ" className="w-7 h-7" width={28} height={28} loading="lazy" />
+          </div>
           <div>
-            <h2 className="font-bold text-lg bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+            <h2 className="font-bold text-lg text-foreground">
               ARSHNAZ · آرشناز
             </h2>
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-              {t("app.tagline")} <Heart className="w-3 h-3 fill-pink-500 text-pink-500" />
+              {t("app.tagline")} <Heart className="w-3 h-3 text-pink-500" />
             </p>
           </div>
         </div>
@@ -489,7 +491,7 @@ export default function SettingsView() {
       <LanguageSwitcher />
 
       {/* Theme Toggle */}
-      <Card className="p-5 space-y-3">
+      <Card className="p-5 space-y-3 bg-card/60 border-border/60">
         <div className="flex items-center gap-2">
           <Palette className="w-4 h-4 text-primary" />
           <h2 className="font-semibold">تم برنامه</h2>
@@ -525,13 +527,13 @@ export default function SettingsView() {
       <AppUpdateCard isEn={isEn} />
 
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
+        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-primary" /> {t("settings.title")}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">{t("settings.subtitle")}</p>
+        <p className="text-xs md:text-sm text-muted-foreground mt-1">{t("settings.subtitle")}</p>
       </div>
 
-      <Card className="p-5 space-y-4">
+      <Card className="p-5 space-y-4 bg-card/60 border-border/60">
         <div className="flex items-center gap-2">
           <Languages className="w-4 h-4 text-primary" />
           <h2 className="font-semibold">{t("settings.aiResponseLang")}</h2>
@@ -547,13 +549,13 @@ export default function SettingsView() {
       </Card>
 
       {reminders && (
-        <Card className="p-5 space-y-4">
+        <Card className="p-5 space-y-4 bg-card/60 border-border/60">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-primary" />
             <h2 className="font-semibold">{t("settings.dailyReminders")}</h2>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border p-3">
+          <div className="flex items-center justify-between rounded-xl border border-border/60 p-3 bg-card/40">
             <div>
               <div className="text-sm font-medium">{t("settings.browserNotif")}</div>
               <div className="text-xs text-muted-foreground">{t("settings.browserNotifHelp")}</div>
@@ -565,7 +567,7 @@ export default function SettingsView() {
             )}
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border p-3">
+          <div className="flex items-center justify-between rounded-xl border border-border/60 p-3 bg-card/40">
             <div>
               <div className="text-sm font-medium">{t("settings.autoCheckin")}</div>
               <div className="text-xs text-muted-foreground">{t("settings.autoCheckinHelp")}</div>
@@ -576,7 +578,7 @@ export default function SettingsView() {
             />
           </div>
 
-          <div className="rounded-lg border p-3 space-y-3">
+          <div className="rounded-xl border border-border/60 p-3 bg-card/40 space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm">{t("settings.checkinReminder")}</Label>
               <Switch
@@ -599,7 +601,7 @@ export default function SettingsView() {
       )}
 
       {reminders && (
-        <Card className="p-5 space-y-4">
+        <Card className="p-5 space-y-4 bg-card/60 border-border/60">
           <div className="flex items-center gap-2">
             <Palette className="w-4 h-4 text-primary" />
             <h2 className="font-semibold">{t("settings.theme")}</h2>
@@ -618,7 +620,7 @@ export default function SettingsView() {
       )}
 
       {reminders && (
-        <Card className="p-5 space-y-4">
+        <Card className="p-5 space-y-4 bg-card/60 border-border/60">
           <div className="flex items-center gap-2">
             <Type className="w-4 h-4 text-primary" />
             <h2 className="font-semibold">{t("settings.fontSize")}</h2>
@@ -640,7 +642,7 @@ export default function SettingsView() {
       )}
 
       {reminders && (
-        <Card className="p-5 space-y-4">
+        <Card className="p-5 space-y-4 bg-card/60 border-border/60">
           <div className="flex items-center gap-2">
             <ZoomIn className="w-4 h-4 text-primary" />
             <h2 className="font-semibold">{t("settings.uiZoom")}</h2>
@@ -664,7 +666,7 @@ export default function SettingsView() {
       )}
 
       {reminders && (
-        <Card className="p-5 space-y-4">
+        <Card className="p-5 space-y-4 bg-card/60 border-border/60">
           <div className="flex items-center gap-2">
             <LayoutGrid className="w-4 h-4 text-primary" />
             <h2 className="font-semibold">{t("settings.taskCardLayout")}</h2>
@@ -684,7 +686,7 @@ export default function SettingsView() {
       )}
 
       {reminders && (
-        <Card className="p-5 space-y-4">
+        <Card className="p-5 space-y-4 bg-card/60 border-border/60">
           <div className="flex items-center gap-2">
             <Home className="w-4 h-4 text-primary" />
             <h2 className="font-semibold">{t("settings.defaultLanding")}</h2>
@@ -704,14 +706,14 @@ export default function SettingsView() {
       )}
 
       {/* AI per-section MAP */}
-      <Card className="p-5 space-y-4" id="ai-section-map">
+      <Card className="p-5 space-y-4 bg-card/60 border-border/60" id="ai-section-map">
         <div className="flex items-center gap-2">
           <Wand2 className="w-4 h-4 text-primary" />
           <h2 className="font-semibold">{t("ai.perSectionMap")}</h2>
         </div>
         <p className="text-xs text-muted-foreground">{t("settings.aiPerSectionDesc")}</p>
 
-        <div className="flex items-center justify-between rounded-lg border p-3 bg-primary/5">
+        <div className="flex items-center justify-between rounded-xl border border-border/60 p-3 bg-muted/30">
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium flex items-center gap-1.5">
               <Star className="w-3.5 h-3.5 text-primary" />
@@ -749,13 +751,13 @@ export default function SettingsView() {
                   const rec = OP_RECOMMENDED[op.key];
                   const isUsingRec = !enabled && settings.useRecommended !== false;
                   return (
-                    <div key={op.key} id={`ai-op-${op.key}`} className="border rounded-lg p-3 space-y-3 transition-shadow">
+                    <div key={op.key} id={`ai-op-${op.key}`} className="border border-border/60 rounded-xl p-4 space-y-3 bg-card/40 transition-shadow hover:shadow-sm">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium">{isEn ? op.labelEn : op.labelFa}</div>
                           <div className="text-[11px] text-muted-foreground mt-0.5">{isEn ? op.descEn : op.descFa}</div>
                           <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                            <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">
+                            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                               <Star className="w-2.5 h-2.5" />
                               {t("ai.recommended")}: <span className="font-mono">{rec.model.split("/").pop()}</span>
                             </span>
@@ -764,7 +766,7 @@ export default function SettingsView() {
                           <div className="mt-1 text-[10px] text-muted-foreground">
                             {t("ai.using")}: <span className="font-mono text-foreground/80">{cfg.provider}/{cfg.model.split("/").pop()}</span>
                             {isUsingRec && <span className="ms-1 text-primary">· {t("ai.recommended")}</span>}
-                            {enabled && <span className="ms-1 text-amber-500">· override</span>}
+                            {enabled && <span className="ms-1 text-amber-600 dark:text-amber-400">· override</span>}
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1.5">
@@ -815,7 +817,7 @@ export default function SettingsView() {
         </div>
       </Card>
 
-      <Card className="p-5 space-y-4">
+      <Card className="p-5 space-y-4 bg-card/60 border-border/60">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary" />
           <h2 className="font-semibold">{t("settings.aiGlobalDefault")}</h2>
@@ -827,7 +829,7 @@ export default function SettingsView() {
         </div>
       </Card>
 
-      <Card className="p-5 space-y-4">
+      <Card className="p-5 space-y-4 bg-card/60 border-border/60">
         <div className="flex items-center gap-2">
           <Download className="w-4 h-4 text-primary" />
           <h2 className="font-semibold">{t("settings.dataExport")}</h2>
@@ -877,15 +879,15 @@ export default function SettingsView() {
       </Card>
 
       {/* Donate */}
-      <Card className="p-5 space-y-3 bg-gradient-to-br from-pink-50/50 to-purple-50/50 dark:from-pink-950/20 dark:to-purple-950/20">
+      <Card className="p-5 space-y-3 bg-card/60 border-border/60">
         <div className="flex items-center gap-2">
           <Coffee className="w-4 h-4 text-pink-500" />
           <h2 className="font-semibold">{t("settings.donate")}</h2>
         </div>
         <p className="text-xs text-muted-foreground leading-6">{t("settings.donateDesc")}</p>
-        <Button asChild variant="outline" className="gap-2 border-pink-300 dark:border-pink-700 hover:bg-pink-50 dark:hover:bg-pink-950/30">
+        <Button asChild variant="outline" className="gap-2 w-fit">
           <a href="https://www.buymeacoffee.com/arshnaz" target="_blank" rel="noopener noreferrer">
-            <Heart className="w-4 h-4 fill-pink-500 text-pink-500" />
+            <Heart className="w-4 h-4 text-pink-500" />
             <span>{t("settings.donateButton")}</span>
           </a>
         </Button>
@@ -895,7 +897,7 @@ export default function SettingsView() {
       <TimeBucketsSettings />
 
 
-      <Card className="p-5 space-y-2">
+      <Card className="p-5 space-y-2 bg-card/60 border-border/60">
         <h2 className="font-semibold">{t("settings.aboutTitle")}</h2>
         <p className="text-sm text-muted-foreground leading-7">{t("settings.aboutBody")}</p>
         <p className="text-xs text-muted-foreground leading-6 pt-2 border-t mt-3">{t("settings.aboutAiHint")}</p>
