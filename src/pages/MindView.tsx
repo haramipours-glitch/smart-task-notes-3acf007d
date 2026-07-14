@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Activity, BookOpen, Zap, MessageCircleQuestion, Sparkles,
+  Activity, BookOpen, Zap, MessageCircleQuestion,
   TrendingUp, Heart, Brain, Flame, Calendar, ArrowLeft,
   Compass, Wind, ClipboardCheck,
 } from "lucide-react";
@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { DISTORTION_LABELS } from "@/lib/distortions";
 import { SCREENERS, severityColor, type ScreenerType } from "@/lib/assessments/screeners";
+import { Card } from "@/components/ui/card";
 
 type Checkin = {
   checkin_date: string; mood: number | null; energy: number | null;
@@ -58,12 +59,12 @@ const SCREENER_LIST: { type: ScreenerType; gradient: string }[] = [
 
 function StatCard({ label, value, icon: Icon, tone }: { label: string; value: string | number; icon: any; tone: string }) {
   return (
-    <div className={`rounded-2xl p-4 bg-gradient-to-br ${tone} text-white shadow-sm`}>
-      <div className="flex items-center justify-between mb-2 opacity-90">
+    <div className="rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm">
+      <div className="flex items-center justify-between mb-2 text-muted-foreground">
         <span className="text-xs font-medium">{label}</span>
-        <Icon className="w-4 h-4" />
+        <Icon className={`w-4 h-4 ${tone}`} />
       </div>
-      <div className="text-2xl font-bold tabular-nums">{value}</div>
+      <div className="text-2xl font-bold tabular-nums text-foreground">{value}</div>
     </div>
   );
 }
@@ -155,58 +156,48 @@ export default function MindView() {
   }, [checkins]);
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 animate-fade-in" dir="rtl">
+    <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 pb-20 animate-fade-in" dir="rtl">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 text-white shadow-lg">
-        <div className="absolute -top-12 -end-12 w-48 h-48 rounded-full bg-white/10 blur-2xl" />
-        <div className="absolute -bottom-16 -start-16 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
-        <div className="relative">
-          <div className="flex items-center gap-2 text-xs opacity-80 mb-2">
-            <Brain className="w-4 h-4" />
-            <span>سلامت روان · مرکز ذهن</span>
+      <Card className="p-6 md:p-8 border-border/60 bg-card/60 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className="grid place-items-center h-12 w-12 rounded-2xl bg-primary/10 text-primary shrink-0">
+            <Brain className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">ذهن آرام، تصمیم بهتر</h1>
-          <p className="text-sm md:text-base opacity-90 max-w-xl">
-            یک نگاه به وضعیت امروز، روند ۳۰ روز، الگوهای فکری و ابزارهای CBT.
-          </p>
-          {isToday && today && (
-            <div className="mt-5 grid grid-cols-3 gap-2 max-w-md">
-              <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
-                <div className="text-[10px] opacity-80">خلق</div>
-                <div className="text-2xl font-bold tabular-nums">{today.mood ?? "—"}</div>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl md:text-3xl font-bold mb-1">ذهن آرام، تصمیم بهتر</h1>
+            <p className="text-sm text-muted-foreground max-w-xl">
+              یک نگاه به وضعیت امروز، روند ۳۰ روز، الگوهای فکری و ابزارهای CBT.
+            </p>
+            {isToday && today && (
+              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                <span className="flex items-center gap-1.5"><Activity className="w-4 h-4 text-rose-500" /> خلق {today.mood ?? "—"}</span>
+                <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-amber-500" /> انرژی {today.energy ?? "—"}</span>
+                <span className="flex items-center gap-1.5"><Compass className="w-4 h-4 text-sky-500" /> تمرکز {today.focus ?? "—"}</span>
               </div>
-              <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
-                <div className="text-[10px] opacity-80">انرژی</div>
-                <div className="text-2xl font-bold tabular-nums">{today.energy ?? "—"}</div>
-              </div>
-              <div className="bg-white/15 backdrop-blur rounded-xl p-3 text-center">
-                <div className="text-[10px] opacity-80">تمرکز</div>
-                <div className="text-2xl font-bold tabular-nums">{today.focus ?? "—"}</div>
-              </div>
-            </div>
-          )}
-          {!isToday && (
-            <Link to="/app/checkin" className="inline-flex items-center gap-2 mt-5 bg-white text-purple-700 font-medium rounded-full px-4 py-2 text-sm hover-scale">
-              ثبت Check-in امروز <ArrowLeft className="w-4 h-4" />
-            </Link>
-          )}
+            )}
+            {!isToday && (
+              <Link to="/app/checkin" className="inline-flex items-center gap-2 mt-4 bg-primary text-primary-foreground font-medium rounded-full px-4 py-2 text-sm hover:bg-primary/90 transition">
+                ثبت Check-in امروز <ArrowLeft className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
         </div>
-      </div>
+      </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="استریک Check-in" value={`${streak} روز`} icon={Flame} tone="from-orange-500 to-red-500" />
-        <StatCard label="ثبت افکار · ۳۰ روز" value={thoughtCount} icon={BookOpen} tone="from-violet-500 to-purple-600" />
-        <StatCard label="ABC · ۳۰ روز" value={abcCount} icon={Zap} tone="from-amber-500 to-orange-600" />
-        <StatCard label="ابزارهای ذهن" value={4} icon={Brain} tone="from-emerald-500 to-teal-600" />
+        <StatCard label="استریک Check-in" value={`${streak} روز`} icon={Flame} tone="text-orange-500" />
+        <StatCard label="ثبت افکار · ۳۰ روز" value={thoughtCount} icon={BookOpen} tone="text-violet-500" />
+        <StatCard label="ABC · ۳۰ روز" value={abcCount} icon={Zap} tone="text-amber-500" />
+        <StatCard label="ابزارهای ذهن" value={4} icon={Brain} tone="text-emerald-500" />
       </div>
 
       {/* Trend chart */}
       {trend.length > 1 && (
-        <div className="rounded-2xl border bg-card p-5 shadow-sm">
+        <Card className="p-5 border-border/60 bg-card/60 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-semibold flex items-center gap-2"><TrendingUp className="w-4 h-4 text-primary" /> روند ۳۰ روز اخیر</h3>
+              <h3 className="font-semibold flex items-center gap-2 text-foreground"><TrendingUp className="w-4 h-4 text-primary" /> روند ۳۰ روز اخیر</h3>
               <p className="text-xs text-muted-foreground mt-0.5">خلق، انرژی، تمرکز و استرس</p>
             </div>
           </div>
@@ -233,14 +224,14 @@ export default function MindView() {
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: "hsl(30 90% 55%)" }} /> تمرکز</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: "hsl(0 75% 60%)" }} /> استرس</span>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Heatmap */}
-      <div className="rounded-2xl border bg-card p-5 shadow-sm">
+      <Card className="p-5 border-border/60 bg-card/60 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-semibold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> heatmap ۹۰ روز</h3>
+            <h3 className="font-semibold flex items-center gap-2 text-foreground"><Calendar className="w-4 h-4 text-primary" /> heatmap ۹۰ روز</h3>
             <p className="text-xs text-muted-foreground mt-0.5">میانگین خلق/انرژی/تمرکز در هر روز</p>
           </div>
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
@@ -256,59 +247,61 @@ export default function MindView() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Top distortions */}
       {topDistortions.length > 0 && (
-        <div className="rounded-2xl border bg-card p-5 shadow-sm">
-          <h3 className="font-semibold flex items-center gap-2 mb-3"><Heart className="w-4 h-4 text-rose-500" /> الگوهای شناختی پرتکرار (۳۰ روز)</h3>
+        <Card className="p-5 border-border/60 bg-card/60 shadow-sm">
+          <h3 className="font-semibold flex items-center gap-2 mb-3 text-foreground"><Heart className="w-4 h-4 text-rose-500" /> الگوهای شناختی پرتکرار (۳۰ روز)</h3>
           <div className="space-y-2">
             {topDistortions.map((d) => (
-              <div key={d.key} className="flex items-center justify-between p-3 rounded-lg bg-muted/40">
-                <span className="text-sm">{(DISTORTION_LABELS as any)[d.key] || d.key}</span>
-                <span className="text-xs font-mono bg-rose-500/15 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-full">×{d.n}</span>
+              <div key={d.key} className="flex items-center justify-between p-3 rounded-xl bg-muted/40">
+                <span className="text-sm text-foreground/90">{(DISTORTION_LABELS as any)[d.key] || d.key}</span>
+                <span className="text-xs font-mono bg-rose-500/10 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-full">×{d.n}</span>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Screeners */}
-      <div>
-        <h3 className="font-semibold mb-3 flex items-center gap-2">
+      <Card className="p-5 border-border/60 bg-card/60 shadow-sm">
+        <h3 className="font-semibold mb-4 flex items-center gap-2 text-foreground">
           <ClipboardCheck className="w-4 h-4 text-primary" /> غربالگرهای کوتاه
           <span className="text-xs font-normal text-muted-foreground">— ردیابی شخصی، نه تشخیص بالینی</span>
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {SCREENER_LIST.map(({ type, gradient }) => {
+          {SCREENER_LIST.map(({ type, gradient: _gradient }) => {
             const meta = SCREENERS[type];
             const last = latestScreeners[type];
             const sev = last?.analysis?.severity;
             return (
               <Link key={type} to={`/app/screener/${type}`}
-                className={`group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br ${gradient} text-white shadow-sm hover-scale transition-all`}>
-                <div className="text-[11px] opacity-80">{meta.title.split(" — ")[1] || meta.title}</div>
-                <div className="text-lg font-bold mt-1">{meta.title.split(" — ")[0]}</div>
+                className="group rounded-2xl border border-border/60 bg-card/50 p-4 shadow-sm hover:bg-accent/30 transition">
+                <div className="flex items-start justify-between">
+                  <div className="text-[11px] text-muted-foreground">{meta.title.split(" — ")[1] || meta.title}</div>
+                  {sev && (
+                    <span className="w-2 h-2 rounded-full" style={{ background: severityColor(sev) }} />
+                  )}
+                </div>
+                <div className="text-lg font-bold mt-1 text-foreground">{meta.title.split(" — ")[0]}</div>
                 {last ? (
                   <div className="mt-2">
-                    <div className="text-2xl font-bold tabular-nums">{last.scores?.raw}</div>
-                    <div className="text-[10px] opacity-90">{last.analysis?.severityLabel}</div>
+                    <div className="text-2xl font-bold tabular-nums text-foreground">{last.scores?.raw}</div>
+                    <div className="text-[10px] text-muted-foreground">{last.analysis?.severityLabel}</div>
                   </div>
                 ) : (
-                  <div className="text-[11px] opacity-80 mt-2">شروع تست</div>
-                )}
-                {sev && (
-                  <div className="absolute top-2 end-2 w-2 h-2 rounded-full" style={{ background: severityColor(sev) }} />
+                  <div className="text-[11px] text-muted-foreground mt-2">شروع تست</div>
                 )}
               </Link>
             );
           })}
         </div>
-      </div>
+      </Card>
 
       {/* Tools grid */}
-      <div>
-        <h3 className="font-semibold mb-3 flex items-center gap-2"><Brain className="w-4 h-4 text-primary" /> ابزارهای ذهن</h3>
+      <Card className="p-5 border-border/60 bg-card/60 shadow-sm">
+        <h3 className="font-semibold mb-4 flex items-center gap-2 text-foreground"><Brain className="w-4 h-4 text-primary" /> ابزارهای ذهن</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {TOOLS.map((t) => {
             const Icon = t.icon;
@@ -316,19 +309,22 @@ export default function MindView() {
               <Link
                 key={t.to}
                 to={t.to}
-                className={`group relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br ${t.gradient} text-white shadow-sm hover-scale transition-all`}
+                className="group rounded-2xl border border-border/60 bg-card/50 p-4 hover:bg-accent/30 transition"
               >
-                <div className="absolute -end-6 -top-6 w-24 h-24 rounded-full bg-white/10 blur-xl group-hover:scale-150 transition-transform duration-500" />
-                <div className="relative">
-                  <Icon className="w-7 h-7 mb-3 opacity-90" />
-                  <h4 className="font-bold text-base mb-1">{t.title}</h4>
-                  <p className="text-xs opacity-85 leading-relaxed">{t.desc}</p>
+                <div className="flex items-start gap-3">
+                  <div className="grid place-items-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-base text-foreground mb-0.5">{t.title}</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{t.desc}</p>
+                  </div>
                 </div>
               </Link>
             );
           })}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -5,7 +5,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { format, subDays, isSameDay, startOfWeek } from "date-fns";
@@ -133,26 +132,29 @@ export default function HabitsView() {
   };
 
   return (
-    <div dir="rtl" className="p-4 md:p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">عادت‌ها</h1>
-      <Card className="p-3 mb-6 space-y-2">
+    <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 pb-20 animate-fade-in">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold">عادت‌ها</h1>
+        <p className="text-xs md:text-sm text-muted-foreground mt-1">پیگیری روزانه، بدون فشار.</p>
+      </div>
+      <Card className="p-4 space-y-3 bg-card/60 border-border/60">
         <Input placeholder="عادت جدید..." value={name} onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && add()} />
+          onKeyDown={(e) => e.key === "Enter" && add()} className="bg-background/50" />
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex rounded-md border overflow-hidden">
+          <div className="flex rounded-lg bg-muted p-0.5">
             <button
               type="button"
               onClick={() => { setFrequency("daily"); setTarget(7); }}
-              className={`px-3 py-1.5 text-xs ${frequency === "daily" ? "bg-primary text-primary-foreground" : ""}`}
+              className={`px-3 py-1.5 text-xs rounded-md transition ${frequency === "daily" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >روزانه</button>
             <button
               type="button"
               onClick={() => { setFrequency("weekly"); setTarget(3); }}
-              className={`px-3 py-1.5 text-xs ${frequency === "weekly" ? "bg-primary text-primary-foreground" : ""}`}
+              className={`px-3 py-1.5 text-xs rounded-md transition ${frequency === "weekly" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >هفتگی</button>
           </div>
           {frequency === "weekly" && (
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Target className="w-3 h-3" />
               <span>هدف:</span>
               <Input
@@ -161,7 +163,7 @@ export default function HabitsView() {
                 max={7}
                 value={target}
                 onChange={(e) => setTarget(Number(e.target.value) || 1)}
-                className="h-7 w-16 text-xs"
+                className="h-7 w-16 text-xs bg-background/50"
               />
               <span>روز/هفته</span>
             </div>
@@ -170,29 +172,34 @@ export default function HabitsView() {
         </div>
       </Card>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {habits.map((h) => {
           const wp = weekProgress(h);
           const met = wp.count >= wp.target;
+          const s = streak(h);
           return (
-            <Card key={h.id} className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xl">{h.icon}</span>
-                  <span className="font-medium">{h.name}</span>
-                  <span className="text-xs text-muted-foreground flex items-center gap-1 ms-2">
-                    <Flame className={`w-3 h-3 ${streak(h) > 0 ? "text-orange-500" : "text-muted-foreground"}`} /> {streak(h)}
-                  </span>
-                  <Badge variant={met ? "default" : "outline"} className="text-[10px]">
-                    {h.frequency === "weekly"
-                      ? `${wp.count}/${wp.target} هفته`
-                      : "روزانه"}
-                  </Badge>
+            <Card key={h.id} className="p-4 bg-card/60 border-border/60">
+              <div className="flex items-center justify-between mb-3 gap-2">
+                <div className="flex items-center gap-3 flex-wrap min-w-0">
+                  <span className="text-2xl">{h.icon}</span>
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{h.name}</div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                      <span className="flex items-center gap-1">
+                        <Flame className={`w-3 h-3 ${s > 0 ? "text-orange-500" : "text-muted-foreground"}`} /> {s} روز پیاپی
+                      </span>
+                      <span className="text-border">|</span>
+                      <span>{met ? "هدف هفتگی تأمین‌شد" : `${wp.count}/${wp.target} هفته`}</span>
+                    </div>
+                  </div>
                 </div>
-                <Button size="icon" variant="ghost" onClick={async () => {
+                <Button size="icon" variant="ghost" className="shrink-0 text-muted-foreground hover:text-destructive" onClick={async () => {
                   await supabase.from("habits").delete().eq("id", h.id);
                   load();
-                }}><Trash2 className="w-3 h-3" /></Button>
+                }}><Trash2 className="w-4 h-4" /></Button>
+              </div>
+              <div className="h-1.5 w-full bg-muted rounded-full mb-3 overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.min(100, (wp.count / wp.target) * 100)}%` }} />
               </div>
               <div className="flex gap-1 justify-between">
                 {days.map((d) => {
@@ -214,7 +221,7 @@ export default function HabitsView() {
             </Card>
           );
         })}
-        {habits.length === 0 && <Card className="p-8 text-center text-muted-foreground">هنوز عادتی نداری</Card>}
+        {habits.length === 0 && <Card className="p-8 text-center text-muted-foreground border-dashed border-border/60 bg-card/40">هنوز عادتی نداری</Card>}
       </div>
 
       <Dialog open={!!noteDialog} onOpenChange={(v) => !v && setNoteDialog(null)}>
@@ -264,13 +271,13 @@ function DayCell({
       {...(isTouch ? handlers : {})}
       onClick={isTouch ? undefined : onTap}
       onContextMenu={(e) => { e.preventDefault(); onLongPress(); }}
-      className={`relative flex-1 aspect-square rounded-md flex flex-col items-center justify-center text-xs transition select-none
-        ${done ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-accent"}`}
+      className={`relative flex-1 aspect-square rounded-lg flex flex-col items-center justify-center text-xs transition select-none border
+        ${done ? "bg-primary/15 text-primary border-primary/40" : "bg-muted/50 border-transparent hover:border-primary/30 hover:bg-accent/30"}`}
     >
-      <span>{format(date, "EEE")[0]}</span>
-      <span className="font-bold">{format(date, "d")}</span>
+      <span className="text-[10px] text-muted-foreground">{format(date, "EEE")[0]}</span>
+      <span className="font-semibold">{format(date, "d")}</span>
       {hasNote && (
-        <StickyNote className="w-2.5 h-2.5 absolute top-1 end-1 opacity-80" />
+        <StickyNote className="w-2.5 h-2.5 absolute top-1 end-1 text-primary opacity-80" />
       )}
     </button>
   );

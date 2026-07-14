@@ -61,7 +61,7 @@ export default function DayDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
+      <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto p-4 md:p-6">
         <SheetHeader className="text-end">
           <SheetTitle className="flex items-center justify-between">
             <span>
@@ -79,22 +79,22 @@ export default function DayDetailSheet({
           </p>
         </SheetHeader>
 
-        <div className="grid md:grid-cols-2 gap-4 mt-4">
+        <div className="grid md:grid-cols-2 gap-4 mt-6">
           {/* Hourly Timeline */}
-          <div className="space-y-1">
-            <h3 className="text-sm font-semibold flex items-center gap-2"><ListChecks className="w-4 h-4" /> خط‌زمان</h3>
-            <div className="border rounded-md divide-y max-h-[300px] overflow-y-auto">
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground"><ListChecks className="w-4 h-4 text-primary" /> خط‌زمان</h3>
+            <div className="border border-border/60 rounded-xl divide-y max-h-[300px] overflow-y-auto bg-card/40">
               {HOURS.map((h) => {
                 const slot = dayTasks.filter((t) => t.due_date && new Date(t.due_date).getHours() === h);
                 return (
-                  <div key={h} className="grid grid-cols-[40px_1fr] gap-2 p-1 text-xs min-h-[28px]">
-                    <div className="text-muted-foreground tabular-nums">{toPersianDigits(String(h).padStart(2, "0"))}</div>
-                    <div className="space-y-0.5">
+                  <div key={h} className="grid grid-cols-[40px_1fr] gap-2 p-2 text-xs min-h-[32px]">
+                    <div className="text-muted-foreground tabular-nums pt-0.5">{toPersianDigits(String(h).padStart(2, "0"))}</div>
+                    <div className="space-y-1">
                       {slot.map((t) => (
                         <button
                           key={t.id}
                           onClick={() => { onOpenChange(false); navigate(`/app/tasks/${t.id}`); }}
-                          className="block w-full text-end bg-primary/20 text-primary rounded px-1.5 py-0.5 truncate hover:bg-primary/30"
+                          className="block w-full text-end bg-primary/10 text-primary border border-primary/20 rounded-md px-2 py-1 truncate hover:bg-primary/15 transition"
                         >
                           {t.title}
                         </button>
@@ -106,10 +106,10 @@ export default function DayDetailSheet({
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {/* Quick Add */}
-            <div className="border rounded-md p-3 space-y-2">
-              <h3 className="text-sm font-semibold flex items-center gap-2"><Plus className="w-4 h-4" /> تسک جدید برای این روز</h3>
+            <div className="border border-border/60 rounded-xl p-4 space-y-3 bg-card/40">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground"><Plus className="w-4 h-4 text-primary" /> تسک جدید برای این روز</h3>
               <Input placeholder="عنوان تسک" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTask()} />
               <div className="flex items-center gap-2">
                 <select
@@ -126,8 +126,8 @@ export default function DayDetailSheet({
             </div>
 
             {/* Check-in */}
-            <div className="border rounded-md p-3 space-y-1">
-              <h3 className="text-sm font-semibold flex items-center gap-2"><Activity className="w-4 h-4" /> Check-in</h3>
+            <div className="border border-border/60 rounded-xl p-4 space-y-2 bg-card/40">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground"><Activity className="w-4 h-4 text-primary" /> Check-in</h3>
               {checkin ? (
                 <div className="text-xs grid grid-cols-2 gap-1 text-muted-foreground">
                   {checkin.mood != null && <div>خلق: {toPersianDigits(checkin.mood)}/۱۰</div>}

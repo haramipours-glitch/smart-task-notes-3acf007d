@@ -89,37 +89,37 @@ export default function CalendarView() {
   };
 
   return (
-    <div dir="rtl" className="p-4 md:p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+    <div dir="rtl" className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 pb-20 animate-fade-in">
+      <div className="flex items-start md:items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold">{headerLabel}</h1>
-          <p className="text-xs text-muted-foreground">{altLabel}</p>
+          <h1 className="text-2xl md:text-3xl font-bold">{headerLabel}</h1>
+          <p className="text-xs md:text-sm text-muted-foreground mt-1">{altLabel}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Tabs value={system} onValueChange={(v) => persistSystem(v as CalendarSystem)}>
-            <TabsList className="h-8">
-              <TabsTrigger value="jalali" className="text-xs h-6">شمسی</TabsTrigger>
-              <TabsTrigger value="gregorian" className="text-xs h-6">میلادی</TabsTrigger>
+            <TabsList className="h-8 bg-muted p-1">
+              <TabsTrigger value="jalali" className="text-xs h-6 rounded-md data-[state=active]:bg-background">شمسی</TabsTrigger>
+              <TabsTrigger value="gregorian" className="text-xs h-6 rounded-md data-[state=active]:bg-background">میلادی</TabsTrigger>
             </TabsList>
           </Tabs>
-          <div className="flex gap-1">
-            <Button size="icon" variant="outline" onClick={() => navigate(-1)}><ChevronRight className="w-4 h-4" /></Button>
-            <Button size="sm" variant="outline" onClick={() => setDate(new Date())}>امروز</Button>
-            <Button size="icon" variant="outline" onClick={() => navigate(1)}><ChevronLeft className="w-4 h-4" /></Button>
+          <div className="flex items-center gap-1">
+            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => navigate(-1)}><ChevronRight className="w-4 h-4" /></Button>
+            <Button size="sm" variant="secondary" onClick={() => setDate(new Date())}>امروز</Button>
+            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => navigate(1)}><ChevronLeft className="w-4 h-4" /></Button>
           </div>
         </div>
       </div>
 
-      <Tabs value={view} onValueChange={(v) => setView(v as ViewMode)} className="mb-3">
-        <TabsList>
-          <TabsTrigger value="month">ماهانه</TabsTrigger>
-          <TabsTrigger value="week">هفتگی</TabsTrigger>
-          <TabsTrigger value="day">روزانه</TabsTrigger>
-          <TabsTrigger value="agenda">Agenda</TabsTrigger>
+      <Tabs value={view} onValueChange={(v) => setView(v as ViewMode)} className="space-y-4">
+        <TabsList className="bg-muted p-1 h-9">
+          <TabsTrigger value="month" className="text-xs rounded-md data-[state=active]:bg-background">ماهانه</TabsTrigger>
+          <TabsTrigger value="week" className="text-xs rounded-md data-[state=active]:bg-background">هفتگی</TabsTrigger>
+          <TabsTrigger value="day" className="text-xs rounded-md data-[state=active]:bg-background">روزانه</TabsTrigger>
+          <TabsTrigger value="agenda" className="text-xs rounded-md data-[state=active]:bg-background">Agenda</TabsTrigger>
         </TabsList>
 
         <TabsContent value="month">
-          <Card className="p-2">
+          <Card className="p-3 bg-card/60 border-border/60 shadow-sm">
             <MonthGrid month={date} tasks={tasks} holidays={holidays} system={system}
               cycleProfile={cycleProfile} cycleLogs={cycleLogs}
               onDayClick={(d) => setDetailDate(d)} />
@@ -127,7 +127,7 @@ export default function CalendarView() {
         </TabsContent>
 
         <TabsContent value="week">
-          <Card className="p-2">
+          <Card className="p-3 bg-card/60 border-border/60 shadow-sm">
             <WeekView date={date} tasks={tasks} holidays={holidays} system={system}
               onDayClick={(d) => { setDate(d); setView("day"); }}
               onSlotClick={(d) => setDetailDate(d)} />
@@ -135,7 +135,7 @@ export default function CalendarView() {
         </TabsContent>
 
         <TabsContent value="day">
-          <Card className="p-3">
+          <Card className="p-4 bg-card/60 border-border/60 shadow-sm">
             <DayView date={date} tasks={tasks} system={system}
               onSlotClick={() => setDetailDate(date)}
               onTaskClick={(id) => nav(`/app/tasks/${id}`)} />
@@ -143,15 +143,15 @@ export default function CalendarView() {
         </TabsContent>
 
         <TabsContent value="agenda">
-          <Card className="p-3">
+          <Card className="p-4 bg-card/60 border-border/60 shadow-sm">
             <AgendaView start={startOfMonth(date)} end={endOfMonth(date)} tasks={tasks}
               holidays={holidays} system={system} />
           </Card>
         </TabsContent>
       </Tabs>
 
-      <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-rose-500/20 border border-rose-500/40" /> تعطیل</span>
+      <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber-500/15 border border-amber-500/30" /> تعطیل</span>
         <span>🇮🇷 ایران</span>
         <span>🇦🇺 استرالیا</span>
       </div>

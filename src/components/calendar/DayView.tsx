@@ -36,7 +36,7 @@ function HourSlot({
     <div
       {...handlers}
       onClick={() => onSlotClick?.(h)}
-      className="w-full grid grid-cols-[60px_1fr] gap-2 p-2 text-end hover:bg-accent/40 transition cursor-pointer select-none border-b"
+      className="w-full grid grid-cols-[60px_1fr] gap-2 p-2 text-end hover:bg-accent/30 transition cursor-pointer select-none border-b border-border/50"
       style={{ height }}
     >
       <div className="text-xs text-muted-foreground tabular-nums">
@@ -47,9 +47,9 @@ function HourSlot({
           <div
             key={t.id}
             onClick={(e) => { e.stopPropagation(); onTaskClick?.(t.id); }}
-            className="bg-muted text-foreground/80 text-xs rounded px-2 py-1 truncate border border-dashed border-border"
+            className="bg-card text-foreground/80 text-xs rounded-md px-2 py-1 truncate border border-border/60 hover:border-primary/30 hover:bg-accent/30 transition"
           >
-            📌 {t.title}
+            {t.title}
           </div>
         ))}
       </div>
@@ -108,16 +108,16 @@ export default function DayView({
   return (
     <div className="space-y-2">
       <div className="text-center">
-        <div className="text-lg font-bold">
+        <h3 className="text-lg md:text-xl font-bold">
           {system === "jalali" ? formatDate(date, "EEEE d MMMM yyyy", "jalali") : format(date, "EEEE, MMMM d, yyyy")}
-        </div>
-        <div className="text-xs text-muted-foreground">
+        </h3>
+        <p className="text-xs text-muted-foreground mt-0.5">
           {system === "jalali" ? format(date, "EEEE, MMMM d") : formatDate(date, "EEEE d MMMM yyyy", "jalali")}
-        </div>
+        </p>
       </div>
 
       <div
-        className="relative border rounded-md overflow-hidden touch-pan-y"
+        className="relative border border-border/60 rounded-xl overflow-hidden touch-pan-y bg-card/40"
         onTouchStart={onPinchStart}
         onTouchMove={pinchHandlers.onTouchMove}
         onTouchEnd={pinchHandlers.onTouchEnd}
@@ -144,7 +144,7 @@ export default function DayView({
             <div
               key={task.id}
               onClick={(ev) => { ev.stopPropagation(); onTaskClick?.(task.id); }}
-              className="absolute right-2 left-0 pointer-events-auto cursor-pointer rounded-md bg-primary/85 text-primary-foreground text-xs px-2 py-1 shadow-md hover:bg-primary transition overflow-hidden"
+              className="absolute right-2 left-0 pointer-events-auto cursor-pointer rounded-md bg-primary/15 text-primary border border-primary/20 text-xs px-2 py-1 overflow-hidden hover:bg-primary/25 transition"
               style={{ top: top + 4, height: Math.max(height - 6, 22) }}
               title={`${task.title} (${format(s, "HH:mm")}–${format(e, "HH:mm")})`}
             >
@@ -158,8 +158,8 @@ export default function DayView({
       </div>
 
       {blocks.length === 0 && dueOnly.length === 0 && (
-        <p className="text-center text-xs text-muted-foreground py-4">
-          هیچ تسکی برای این روز زمان‌بندی نشده. تک‌تاچ روی ساعت = جزئیات • دابل‌تاچ = ساخت سریع • Pinch = زوم.
+        <p className="text-center text-sm text-muted-foreground py-8 border border-dashed border-border/60 rounded-xl">
+          هیچ تسکی برای این روز زمان‌بندی نشده.
         </p>
       )}
     </div>
