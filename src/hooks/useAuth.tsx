@@ -19,8 +19,9 @@ async function hydrateOAuthSessionFromUrl() {
     return data.session;
   }
 
-  if (query.has("code")) {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+  const code = query.get("code");
+  if (code) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       query.delete("code");
       const nextSearch = query.toString();
