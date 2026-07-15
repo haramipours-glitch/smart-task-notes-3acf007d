@@ -2,6 +2,36 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+async function hydrateOAuthSessionFromUrl() {
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(window.location.search);
+  const accessToken = hash.get("access_token");
+  const refreshToken = hash.get("refresh_token");
+
+  if (accessToken && refreshToken) {
+    const { data, error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    if (!error) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+    return data.session;
+  }
+
+  if (query.has("code")) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+    if (!error) {
+      query.delete("code");
+      const nextSearch = query.toString();
+      window.history.replaceState({}, document.title, window.location.pathname + (nextSearch ? `?${nextSearch}` : ""));
+    }
+    return data.session;
+  }
+
+  return null;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -30,11 +60,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     // THEN fetch existing session
-    supabase.auth.getSession().then(({ data: { session: sess } }) => {
+    (async () => {
+      const oauthSession = await hydrateOAuthSessionFromUrl();
+      if (oauthSession) {
+        setSession(oauthSession);
+        setUser(oauthSession.user);
+        setLoading(false);
+        return;
+      }
+
+      const { data: { session: sess } } = await supabase.auth.getSession();
       setSession(sess);
       setUser(sess?.user ?? null);
       setLoading(false);
-    });
+    })();
 
     return () => subscription.unsubscribe();
   }, []);

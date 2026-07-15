@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 const DISCLAIMER_KEY = "clinical_disclaimer_accepted_v1";
+const OAUTH_RETURN_KEY = "oauth_return_to";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -71,20 +72,13 @@ export default function Auth() {
     else { toast.success("حساب ساخته شد!"); navigate(returnTo); }
   };
 
-  const hasSupabaseConfig = () => {
-    const url = import.meta.env.VITE_SUPABASE_URL;
-    const key =
-      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-      import.meta.env.VITE_SUPABASE_ANON_KEY;
-    return Boolean(url && key && key !== "your_anon_key" && key !== "missing-supabase-key");
-  };
-
   const handleGoogle = async () => {
     if (!requireDisclaimer()) return;
     setLoading(true);
     try {
+      sessionStorage.setItem(OAUTH_RETURN_KEY, returnTo);
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}/auth/callback`,
       });
       if (result.error) {
         const message = result.error instanceof Error ? result.error.message : String(result.error);
