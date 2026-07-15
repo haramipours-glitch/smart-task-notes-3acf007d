@@ -35,6 +35,7 @@ function usePwaUpdateToast() {
 // Keep entry-critical routes eager so first paint isn't gated on a chunk
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 
 // Lazy-load everything else — each page becomes its own chunk, slashing initial JS
@@ -102,6 +103,7 @@ const App = () => {
               <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="/app" element={<ProtectedRoute><ErrorBoundary><AppLayout /></ErrorBoundary></ProtectedRoute>}>
                 <Route index element={<Navigate to="home" replace />} />
