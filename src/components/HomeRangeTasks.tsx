@@ -243,12 +243,12 @@ export function HomeRangeTasks() {
                     هیچ تسکی در این بازه نیست. 🌿
                   </p>
                 ) : (
-                  <ul className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1">
+                  <ul className="space-y-1 max-h-[340px] overflow-y-auto pr-1">
                     {sorted.map((t) => {
                       const done = completing.has(t.id);
                       return (
                       <li key={t.id}
-                          className={`flex items-center gap-2 p-2 rounded-lg border border-border/60 transition ${done ? "animate-task-complete" : "hover:bg-accent/30"}`}>
+                          className={`flex items-center gap-2 p-1.5 rounded-md border border-border/60 transition ${done ? "animate-task-complete" : "hover:bg-accent/30"}`}>
                         <button
                           onClick={() => toggleDone(t.id)}
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${done ? "bg-emerald-500 border-emerald-500" : "border-muted-foreground/40 hover:border-emerald-500"}`}
