@@ -118,7 +118,6 @@ const SECTIONS: Section[] = [
       { url: "/app/about-me", icon: User, label: "درباره من" },
       { url: "/app/self", icon: HeartPulse, label: "خودشناسی" },
       { url: "/app/shared", icon: Users, label: "اشتراک‌ها" },
-      { url: "/app/settings", icon: Settings, label: "تنظیمات" },
     ],
   },
 ];
@@ -552,6 +551,21 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <NavLink
+                to="/app/settings"
+                onClick={closeOnMobile}
+                className="flex items-center gap-2"
+                activeClassName="bg-accent text-accent-foreground font-medium"
+              >
+                <Settings className="w-4 h-4" />
+                {!collapsed && <span>{tr("تنظیمات")}</span>}
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         {!collapsed && (
           <Button variant="ghost" size="sm" onClick={resetOrder} className="justify-start text-xs opacity-70">
             <RotateCcw className="w-3.5 h-3.5" />

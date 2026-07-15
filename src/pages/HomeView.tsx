@@ -298,8 +298,8 @@ export default function HomeView() {
                   }
                   load();
                 }}
-                className={`px-2.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 transition border
-                  ${h.done ? "bg-pink-500/20 border-pink-500/40 text-pink-700 dark:text-pink-300" : "border-border hover:bg-accent"}`}
+                className={`px-2 py-1 rounded-full text-[11px] flex items-center gap-1.5 transition border
+                  ${h.done ? "bg-pink-500/15 border-pink-500/30 text-pink-700 dark:text-pink-300" : "border-border hover:bg-accent"}`}
               >
                 <span>{h.icon}</span>
                 <span className="truncate max-w-[100px]">{h.name}</span>
@@ -318,11 +318,11 @@ export default function HomeView() {
       {/* جمله و داستان این ساعت */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
-          <CardContent className="p-4 flex items-start gap-3 h-full">
-            <Quote className="w-5 h-5 text-primary shrink-0 mt-1" />
+          <CardContent className="p-3 flex items-start gap-2 h-full">
+            <Quote className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <div dir="rtl" className="text-right w-full">
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">جمله‌ی این ساعت</p>
-              <p className="text-sm md:text-base leading-7 whitespace-pre-wrap break-words">{quote.text}</p>
+              <p className="text-sm leading-6 whitespace-pre-wrap break-words">{quote.text}</p>
               {quote.author && <p className="text-[10px] text-muted-foreground mt-1">{quote.author}</p>}
             </div>
           </CardContent>
@@ -333,9 +333,9 @@ export default function HomeView() {
       {/* Check-in سریع */}
       <Link to="/app/checkin" onClick={() => haptic("light")}>
         <Card className="border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-transparent hover:bg-accent/20 transition">
-          <CardContent className="p-4 flex items-center justify-between gap-3">
+          <CardContent className="p-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Heart className="w-5 h-5 text-rose-500" />
+              <Heart className="w-4 h-4 text-rose-500" />
               <div>
                 <p className="text-sm font-medium">Check-in روزانه</p>
                 <p className="text-xs text-muted-foreground">
@@ -345,7 +345,7 @@ export default function HomeView() {
                 </p>
               </div>
             </div>
-            <Button size="sm" variant="secondary">ثبت</Button>
+            <Button size="sm" variant="secondary" className="h-7 text-xs">ثبت</Button>
           </CardContent>
         </Card>
       </Link>
@@ -353,9 +353,9 @@ export default function HomeView() {
       {/* Pomodoro */}
       <Link to="/app/pomodoro" onClick={() => haptic("light")}>
         <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent hover:bg-accent/20 transition">
-          <CardContent className="p-4 flex items-center justify-between gap-3">
+          <CardContent className="p-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Timer className="w-5 h-5 text-amber-500" />
+              <Timer className="w-4 h-4 text-amber-500" />
               <div>
                 <p className="text-sm font-medium">Pomodoro</p>
                 <p className="text-xs text-muted-foreground">
@@ -365,7 +365,7 @@ export default function HomeView() {
                 </p>
               </div>
             </div>
-            <Button size="sm" variant="secondary">شروع</Button>
+            <Button size="sm" variant="secondary" className="h-7 text-xs">شروع</Button>
           </CardContent>
         </Card>
       </Link>
@@ -441,7 +441,7 @@ export default function HomeView() {
   );
 
   return (
-    <div dir="rtl" className="max-w-5xl mx-auto p-4 md:p-8 space-y-5 pb-20">
+    <div dir="rtl" className="max-w-5xl mx-auto p-3 md:p-5 space-y-4 pb-24">
       <header className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">{greeting} 👋</h1>
@@ -449,19 +449,10 @@ export default function HomeView() {
             {new Date().toLocaleDateString("fa-IR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Button variant="ghost" size="sm" onClick={toggleFocus} className="h-8 text-xs gap-1"
-            title={focusMode ? "نمایش کامل" : "حالت متمرکز"}>
-            {focusMode ? <><Sparkles className="w-3.5 h-3.5 text-primary" /> متمرکز</> : <>کامل</>}
-          </Button>
-          <Link to="/app/settings" className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-pink-200/60 dark:border-pink-800/40 bg-gradient-to-l from-pink-50 to-purple-50 dark:from-pink-950/30 dark:to-purple-950/30 hover:shadow-md transition">
-            <img src="/favicon.png" alt="ARSHNAZ" className="w-7 h-7 rounded-md" width={28} height={28} loading="lazy" />
-            <div className="hidden sm:flex flex-col leading-tight">
-              <span className="text-xs font-bold bg-gradient-to-l from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">ARSHNAZ</span>
-              <span className="text-[9px] text-muted-foreground">با عشق ❤️</span>
-            </div>
-          </Link>
-        </div>
+        <Button variant="ghost" size="sm" onClick={toggleFocus} className="h-8 text-xs gap-1"
+          title={focusMode ? "نمایش کامل" : "حالت متمرکز"}>
+          {focusMode ? <><Sparkles className="w-3.5 h-3.5 text-primary" /> متمرکز</> : <>کامل</>}
+        </Button>
       </header>
 
       {primaryCards}
@@ -477,7 +468,7 @@ export default function HomeView() {
             <SheetHeader>
               <SheetTitle>بیشتر</SheetTitle>
             </SheetHeader>
-            <div className="space-y-5 mt-4">
+            <div className="space-y-4 mt-4">
               {extraContent}
             </div>
           </SheetContent>
@@ -492,9 +483,9 @@ export default function HomeView() {
 function StatCard({ icon: Icon, color, label, value, to }: any) {
   return (
     <Link to={to} onClick={() => haptic("light")}>
-      <Card className="group relative overflow-hidden hover:bg-accent/30 transition-all h-full border-border/60 hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]">
+      <Card className="h-full border-border/60 bg-card/50 hover:border-primary/30 hover:bg-accent/20 active:scale-[0.98] transition">
         <div className={`absolute inset-x-0 top-0 h-0.5 ${color.replace("text-", "bg-")} opacity-60`} />
-        <CardContent className="p-3 text-center">
+        <CardContent className="p-2 text-center">
           <Icon className={`w-4 h-4 ${color} mx-auto mb-1`} />
           <div className="text-base md:text-lg font-bold leading-none">{value}</div>
           <div className="text-[10px] text-muted-foreground mt-1 break-words leading-tight">{label}</div>
@@ -508,13 +499,12 @@ function QuickCard({ icon: Icon, to, label, color }: any) {
   const bg = color.replace("text-", "bg-");
   return (
     <Link to={to} onClick={() => haptic("light")}>
-      <Card className="group relative overflow-hidden h-full border-border/60 bg-gradient-to-br from-card to-card/40 hover:border-primary/40 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200">
-        <div className={`absolute -top-6 -end-6 w-16 h-16 rounded-full ${bg} opacity-10 blur-2xl group-hover:opacity-25 transition`} />
-        <CardContent className="p-3 flex flex-col items-center justify-center gap-2 text-center min-h-[88px]">
-          <div className={`w-9 h-9 rounded-2xl ${bg}/15 flex items-center justify-center ring-1 ring-inset ring-border/40 group-hover:scale-110 transition-transform`}>
-            <Icon className={`w-4.5 h-4.5 ${color}`} />
+      <Card className="h-full border-border/60 bg-card/50 hover:border-primary/30 hover:bg-accent/20 active:scale-[0.97] transition">
+        <CardContent className="p-2 flex flex-col items-center justify-center gap-1 text-center min-h-[70px]">
+          <div className={`w-8 h-8 rounded-xl ${bg}/15 flex items-center justify-center ring-1 ring-inset ring-border/40`}>
+            <Icon className={`w-4 h-4 ${color}`} />
           </div>
-          <span className="text-[11px] font-semibold leading-tight break-words line-clamp-2 w-full">{label}</span>
+          <span className="text-[11px] font-medium leading-tight break-words line-clamp-2 w-full">{label}</span>
         </CardContent>
       </Card>
     </Link>
