@@ -81,12 +81,6 @@ export default function Auth() {
 
   const handleGoogle = async () => {
     if (!requireDisclaimer()) return;
-    if (!hasSupabaseConfig()) {
-      toast.error(
-        "تنظیمات Supabase کامل نیست. لطفاً VITE_SUPABASE_URL و VITE_SUPABASE_PUBLISHABLE_KEY (یا VITE_SUPABASE_ANON_KEY) را در فایل env بررسی کن."
-      );
-      return;
-    }
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
